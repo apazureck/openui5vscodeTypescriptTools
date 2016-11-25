@@ -1,0 +1,228 @@
+{
+    "title": "JSON schema for UI5 manifest.json project declaration",
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"type": "object",
+    "definitions": {
+        "transition": {
+            "type": "string",
+            "description": "defines how the transition happens; you can choose between slide (default), flip, fade, and show.",
+            "enum": [
+                "slide",
+                "flip",
+                "fade",
+                "show"
+            ],
+            "default": "slide"
+        },
+        "models": {
+            "type": "object",
+            "base": {
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "Model class name",
+                        "enum": [
+                            "sap.ui.model.resource.ResourceModel",
+                            "sap.ui.model.odata.v4.ODataModel",
+                            "sap.ui.model.odata.v2.ODataModel",
+                            "sap.ui.model.json.JSONModel"
+                        ]
+                    },
+                    "uri": {
+                        "type": "string",
+                        "description": "Relative URL in the component, taking embeddedBy into account if filled, or server for absolute model"
+                    },
+                    "settings": {
+                        "type": "object",
+                        "description": "Object that is passed to the model constructor"
+                    },
+                    "dataSource": {
+                        "type": "string",
+                        "description": "String of key or alias from sap.app dataSources to reference an existing data source; the type, uri and settings properties are set according to the data source's type, uri and settings (if not already defined). If the type under sap.app dataSources is OData, an OData Model V2 is created automatically. If you need an OData Model V1, specify the type as well."
+                    }
+                }
+            }
+        }
+    },
+    "properties": {
+        "start_url": {
+            "type": "string",
+            "description": "Start page of your app, if available"
+        },
+        "_version": {
+            "type": "string",
+            "description": "mandatory descriptor format version (not w3c)"
+        },
+        "sap.app": {
+            "type": "object",
+            "title": "SAP app settings",
+            "properties": {
+                "_version": {
+                    "type": "string",
+                    "description": "SAP app version"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "Mandatory attribute: Unique identifier of the app, which must correspond to the component name\r\nThe ID must not exceed 70 characters. It must be unique and must correspond to the component name. "
+                }
+                //TODO: weitere dinger eintragen
+            }
+        },
+        "sap.ui5": {
+            "properties": {
+                "models": {},
+                "routing": {
+                    "properties": {
+                        "config": {
+                            "type": "object",
+                            "description": "Provides configuration parameters for route and router",
+                            "properties": {
+                                "routerClass": {
+                                    "type": "string",
+                                    "description": "router class to use",
+                                    "default": "sap.ui.core.routing.Router",
+                                    "enum": [
+                                        "sap.ui.core.routing.Router",
+                                        "sap.m.routing.Router"
+                                    ]
+                                },
+                                "async": {
+                                    "type": "boolean",
+                                    "description": "Async routing",
+                                    "default": false
+                                },
+                                "viewType": {
+                                    "type": "string",
+                                    "description": "Type of the view",
+                                    "enum": [
+                                        "XML",
+                                        "JSON",
+                                        "JavaScript",
+                                        "HTML"
+                                    ]
+                                },
+                                "viewPath": {
+                                    "type": "string",
+                                    "description": "where the view is located in the app (Namespace synthax e.g. 'myapp.views'"
+                                },
+                                "controlId": {
+                                    "type": "string",
+                                    "description": "controlId of the control that is used to display the view (e.g. app)"
+                                },
+                                "viewLevel": {
+                                    "type": "integer",
+                                    "description": "if you have different levels of navigation, especially for flip and slide transitions, where, for example, it is important to know whether the slide animation should go from left to right or vice versa"
+                                },
+                                "controlAggregation": {
+                                    "type": "string",
+                                    "description": "target aggregation to which the view is added. The NavContainer control, for example, has an aggregation called Pages and the shell container has Content"
+                                },
+                                "targetParent": {
+                                    "type": "string",
+                                    "description": "where the control is located"
+                                },
+                                "transition": {
+                                    "$ref": "#/definitions/transition"
+                                },
+                                "bypassed": {
+                                    "type": "object",
+                                    "description": "Using the bypassed parameter, you specify the navigation target that is used whenever no navigation pattern is matched. If you use this setting, you also have to define a corresponding target in the targets section.",
+                                    "properties": {
+                                        "target": {
+                                            "type": "string",
+                                            "description": "description",
+                                            "default": "notFound"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "routes": {
+                            "type": "array",
+                            "description": "Each route defines a name, a pattern, and optionally one or more targets to which to navigate when the route has been matched.",
+                            "items": {
+                                "type": "object",
+                                "uniqueItems": true,
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The name of the route (unique within one router instance)"
+                                    },
+                                    "pattern": {
+                                        "type": "string",
+                                        "description": "The pattern as hash part of the URL that matches the route"
+                                    },
+                                    "target": {
+                                        "type": [
+                                            "string",
+                                            "array"
+                                        ],
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "The navigation target as defined in the targets section. If you want to load multiple views at the same time, you can assign multiple targets."
+                                    },
+                                    "parent": {
+                                        "type": "string",
+                                        "description": "The parent to specify a route reference in a parent component (in nested components)"
+                                    }
+                                }
+                            }
+                        },
+                        "targets": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "properties": {
+                                    "viewName": {
+                                        "type": "string",
+                                        "description": "Address of the view to be targeted (namespace, e.g. 'myapp.views.myview')"
+                                    },
+                                    "viewPath": {
+                                        "type": "string",
+                                        "description": "where the view is located in the app"
+                                    },
+                                    "viewId": {
+                                        "type": "string",
+                                        "description": "Id of the view instance"
+                                    },
+                                    "viewLevel": {
+                                        "type": "integer",
+                                        "description": "if you have different levels of navigation, especially for flip and slide transitions, where, for example, it is important to know whether the slide animation should go from left to right or vice versa"
+                                    },
+                                    "controlId": {
+                                        "type": "string",
+                                        "description": "controlId of the control that is used to display the view (e.g. app)"
+                                    },
+                                    "targetParent": {
+                                        "type": "string",
+                                        "description": "where the control is located"
+                                    },
+                                    "controlAggregation": {
+                                        "type": "string",
+                                        "description": "target aggregation to which the view is added. The NavContainer control, for example, has an aggregation called Pages and the shell container has Content."
+                                    },
+                                    "clearAggregation": {
+                                        "type": "string",
+                                        "description": "clearAggregation specifies whether the aggregation should be cleared before adding the new view instance."
+                                    },
+                                    "transition": {
+                                        "$ref": "#/definitions/transition"
+                                    },
+                                    "parent": {
+                                        "type": "string",
+                                        "description": "The view is created and added before the target view is added"
+                                    }
+                                }
+                            },
+                            "description": "A target defines the view that is displayed. It is associated with one or more routes or it can be displayed manually from within the app. Whenever a target is displayed, the corresponding view is loaded and added to the aggregation configured with the controlAggregation option of the control."
+                        },
+                        "owner": {
+                            "type": "string",
+                            "description": "The owner parameter defines the owner of all views that are created by the router. This is typically a UIComponent. This parameter is set automatically if the router instance is instantiated by a component."
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
