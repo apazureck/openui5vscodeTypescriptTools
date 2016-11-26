@@ -53,9 +53,11 @@
             "type": "string",
             "description": "mandatory descriptor format version (not w3c)"
         },
+        // sap.app **********************************************************************************************************************************************************************
         "sap.app": {
             "type": "object",
             "title": "SAP app settings",
+            "required": ["applicationVersion", "title"],
             "properties": {
                 "_version": {
                     "type": "string",
@@ -63,11 +65,186 @@
                 },
                 "id": {
                     "type": "string",
+                    "maxLength": 70,
                     "description": "Mandatory attribute: Unique identifier of the app, which must correspond to the component name\r\nThe ID must not exceed 70 characters. It must be unique and must correspond to the component name. "
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Type of the application",
+                    "enum": [
+                        "application", "component", "library"
+                    ]
+                },
+                "i18n": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "default": "i18n.properties",
+                    "description": "Relative URL to the properties file that contains the text symbols for the descriptor (The path to the i18n file must not exceed 100 characters)"
+                },
+                "applicationVersion": {
+                    "type": "object",
+                    "description": "The version of the application",
+                    "properties": {
+                        "version": {
+                            "type": "string",
+                            "description": "The version string",
+                            "default": "1.0.0"
+                        }
+                    }
+                },
+                "embeds": {
+                    "type": "array",
+                    "description": "Array of relative paths to the nested manifest.json files. Attribute is mandatory if a nested manifest.json exists."
+                },
+                "embeddedBy": {
+                    "type": "string",
+                    "description": "Relative path back to the manifest.json file of an embedding component or library. Attribute is mandatory for a nested manifest.json."
+                },
+                "title": {
+                    "type": "string",
+                    "default": "{{title}}",
+                    "description": "The entry is language-dependent and specified via {{…}} syntax",
+                    "pattern": "\\{\\{.*\\}\\}"
+                },
+                "subTitle": {
+                    "type": "string",
+                    "default": "{{subTitle}}",
+                    "description": "Subtitle of your application. Language-dependent entry for a subtitle; specified via {{...}} syntax",
+                    "pattern": "\\{\\{.*\\}\\}"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description for your application. Language-dependent entry that is specified via {{…}} syntax",
+                    "pattern": "\\{\\{.*\\}\\}"
+                },
+                "tags": {
+                    "type": "object",
+                    "description": "Containing an array of language-dependent keywords that are specified via {{…}} syntax",
+                    "required": ["keywords"],
+                    "properties": {
+                        "keywords": {
+                            "type": "array",
+                            "description": "Array with tag keywords for example 'keywords': ['{{keyWord1}}','{{keyWord2}}']",
+                            "items": {
+                                "type": "string",
+                                "pattern": "\\{\\{.*\\}\\}"
+                            }
+                        }  
+                    }
+                },
+                "ach": {
+                    "type": "string",
+                    "description": "Application component hierarchy (SAP's component names for bug reports); attribute is mandatory for SAP apps, but is not used so far for apps developed outside SAP."
+                },
+                "dataSources": {
+                    "type": "object",
+                    "description": "Unique key/alias for specifying the used data sources",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "uri": {
+                                "type": "string",
+                                "description": "Mandatory relative URL in the component; takes embeddedBy into account, if filled, or the server absolute of the data source, for example \"/sap/opu/odata/snce/PO_S_SRV;v=2/\""
+                            },
+                            "type": {
+                                "type": "string",
+                                "description": "The type of the data source",
+                                "enum": [
+                                    "OData", "ODataAnnotation", "XML", "INA", "JSON"
+                                ],
+                                "default": "OData"
+                            },
+                            "settings": {
+                                "type": "object",
+                                "description": "Data source type-specific attributes",
+                                "properties": {
+                                    "odataVersion": {
+                                        "type": "string",
+                                        "description": "The version your odata model should use.",
+                                        "enum": [
+                                            "2.0", "4.0"
+                                        ],
+                                        "default": "2.0"
+                                    },
+                                    "localUri": {
+                                        "type": "string",
+                                        "description": "Relative URL to local metadata document or annotation uri"
+                                    },
+                                    "annotations": {
+                                        "type": "array",
+                                        "description": "Array of annotations which references an existing data source of type \"ODataAnnotation\" under sap.app/dataSources"
+                                    },
+                                    "maxAge": {
+                                        "type": "integer",
+                                        "description": "Indicates the number of seconds the client is willing to accept with regard to the age of the data that is requested."
+                                    }
+                                }
+                            },
+                            "cdsViews": {
+                                "type": "array",
+                                "description": "Array of directly used CDS views. This attribute is optional and only added if used via INA protocol directly, not if used via OData service."
+                            },
+                            "offline": {
+                                "type": "boolean",
+                                "description": "Indicates whether the app is running offline; default is false (online)",
+                                "default": false
+                            },
+                            "sourceTemplate": {
+                                "type": "object",
+                                "description": "If an app has been generated from a template, this attribute is filled automatically by the generation tool (SAP Web IDE)",
+                                "required": ["id", "version"],
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "Mandatory ID of the template from which the app was generated"
+                                    },
+                                    "version": {
+                                        "type": "string",
+                                        "description": "Mandatory version of the template from which the app was generated"
+                                    },
+                                    "packagedWithMySelf": {
+                                        "type": "boolean",
+                                        "description": "Indicates if the open source component is part of the app (true) or not (false)"
+                                    }
+                                }
+                            },
+                            "crossNavigation": {
+                                "type": "object",
+                                "description": "Cross-navigation for specifying inbounds and outbounds",
+                                "required": ["inbounds"],
+                                "properties": {
+                                    "scopes": {
+                                        "type": "object",
+                                        "description": "Scope of a site",
+                                        "properties": {
+                                            "sapSite": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "value": {
+                                                        "type": "string",
+                                                        "description": "unique ID of a site. The scope is set in runtime programmatically or by specific property. Which scope and scope value to set will be detailed in the documentation or applied by a tool."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "inbounds": {
+                                        "type": "object",
+                                        "description": "Unique key or alias to specify inbounds (mandatory)",
+                                        "required": ["semanticObject", "action"],
+                                        "properties": {
+                                            // TODO Finish
+                                        }
+                                    }
+                                    // TODO: Finish
+                                }
+                            }
+                        }
+                    }
                 }
-                //TODO: weitere dinger eintragen
             }
         },
+        // sap.ui5 **********************************************************************************************************************************************************************
         "sap.ui5": {
             "properties": {
                 "models": {},
@@ -172,6 +349,7 @@
                         "targets": {
                             "type": "object",
                             "additionalProperties": {
+                                "type": "object",
                                 "properties": {
                                     "viewName": {
                                         "type": "string",
