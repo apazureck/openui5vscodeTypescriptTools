@@ -13,10 +13,12 @@ export class FileHandler {
     }
 
     /** Appends text to the given document in the constructor and saves the document asynchronously.
-     * @param text: text to append
+     * @param text: uri or string of the input source
+     * @param replacements: optional array of keys to replace
      */
-    public async appendText(input: string|vscode.Uri): Promise<void> {
+    public async appendText(input: string|vscode.Uri,  replacements?: KeyValuePair[]): Promise<void> {
         let lineoffset: number;
+        let text: string;
         try {
             lineoffset = this.textdoc.lineAt(this.textdoc.lineCount).text.length;
         } catch (error) {
@@ -24,13 +26,25 @@ export class FileHandler {
         }
         let startpos = new vscode.Position(this.textdoc.lineCount, lineoffset);
         let edit = new vscode.WorkspaceEdit();
-        if(typeof input === "string") {
-            edit.insert(this._textdoc.uri, startpos, input as string);
-        } else {
-            let text = (await vscode.workspace.openTextDocument(input)).getText();
-            edit.insert(this._textdoc.uri, startpos, text);
-        }
+        if(typeof input === "vscode:Uri")
+            text = (await vscode.workspace.openTextDocument(input)).getText();
+        else
+            text = input;
+
+        text = this.replaceText(text, replacements)
+        edit.insert(this._textdoc.uri, startpos, text as string);
         await vscode.workspace.applyEdit(edit)
         await this._textdoc.save();
     }
+
+    private replaceText(text: string, replacements: KeyValuePair[]): string {
+        for(let entry of replacements)
+            text = text.replace(entry.key, entry.value);
+        return text;
+    }
+}
+
+export interface KeyValuePair {
+    key: string;
+    value: string;
 }

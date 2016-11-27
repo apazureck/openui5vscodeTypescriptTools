@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.SetupUi5', async () => {
+    let disposable = vscode.commands.registerCommand('extension.SetupUi5', async (projectnamespace: string) => {
         // The code you place here will be executed every time your command is executed
 
         if(!vscode.workspace.rootPath) {
@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             let appcontroller = await vscode.workspace.openTextDocument(vscode.Uri.parse("untitled:"+vscode.workspace.rootPath+"\\controller\\App.controller.ts"));
             let writer = new FileHandler(appcontroller);
-            writer.appendText(vscode.Uri.parse("file:///"+context.extensionPath+"/templates/project/controller/App.controller.txt"))
+            writer.appendText(vscode.Uri.parse("file:///"+context.extensionPath+"/templates/project/controller/App.controller.txt"), { "projectnamespace": projectnamespace })
         } catch (error) {
             vscode.window.showWarningMessage("App.controller.ts seems to exist already and will not be created twice.")
         }
