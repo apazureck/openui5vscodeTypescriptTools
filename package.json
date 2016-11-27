@@ -17,13 +17,27 @@
         "Productivity"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onCommand:extension.SetupUi5",
+        "workspaceContains:manifest.json"
     ],
     "main": "./out/src/extension",
     "contributes": {
         "jsonValidation": [{
             "fileMatch": "manifest.json",
             "url": "./src/jsonschemas/manifest.schema.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "typescript",
+                "path": "./snippets/typescript.json."
+            }
+        ],
+        "commands": [
+            {
+                "category": "UI5",
+                "command": "extension.SetupUi5",
+                "title": "UI5 SetupProject"
             }
         ]
     },
