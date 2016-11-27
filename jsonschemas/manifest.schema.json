@@ -42,6 +42,21 @@
                     }
                 }
             }
+        },
+        "modules": {
+            "type": "object",
+            "properties": {
+                "minVersion": {
+                    "type": "string",
+                    "description": "Minimum version of the module, if your app requires a minimum version",
+                    "pattern": "\\d+\\.\\d+\\.\\d+"   
+                },
+                "lazy": {
+                    "type": "boolean",
+                    "description": "Specify lazy to indicate that the lib shall be lazy loaded",
+                    "default": true
+                }
+            }
         }
     },
     "properties": {
@@ -244,10 +259,186 @@
                 }
             }
         },
+        "sap.ui": {
+            "type": "object",
+            "required": ["technology", "deviceTypes"],
+            "properties": {
+                "technology": {
+                    "type": "string",
+                    "description": "Specifies the UI technology; value is UI5",
+                    "enum": [
+                        "UI5"
+                    ],
+                    "default": "UI5"
+                },
+                "icons": {
+                    "type": "object",
+                    "description": "Contains object with app-specific icons",
+                    "properties": {
+                        "icon": {
+                            "type": "string",
+                            "description": "Icon of the app"
+                        },
+                        "favIcon": {
+                            "type": "string",
+                            "description": "ICO file to be used inside the browser and for desktop shortcuts"
+                        },
+                        "phone": {
+                            "type": "string",
+                            "description": "57x57 pixel version for non-retina iPhones"
+                        },
+                        "phone@2": {
+                            "type": "string",
+                            "description": "114x114 pixel version for retina iPhones"
+                        },
+                        "tablet": {
+                            "type": "string",
+                            "description": "72x72 pixel version for non-retina iPads"
+                        },
+                        "tablet@2": {
+                            "type": "string",
+                            "description": "144x144 pixel version for retina iPads"
+                        }
+                    }
+                },
+                "deviceTypes": {
+                    "type": "object",
+                    "description": "Contains objects with device types on which the app is running",
+                    "required": ["desktop", "tablet", "phone"],
+                    "properties": {
+                        "desktop": {
+                            "type": "boolean",
+                            "description": "Indicator for whether desktop devices are supported"
+                        },
+                        "tablet": {
+                            "type": "boolean",
+                            "description": "Indicator for whether tablet devices are supported"
+                        },
+                        "phone": {
+                            "type": "boolean",
+                            "description": "Indicator for whether phone devices are supported"
+                        }
+                    }
+                },
+                "supportedThemes": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "description": "array of supported SAP themes, such as sap_hcb, sap_belize",
+                    "default": ["sap_hcb", "sap_belize"]
+                },
+                "fullWidth": {
+                    "type": "boolean",
+                    "description": "Indicates whether an app shall run in full screen mode",
+                    "default": false
+                }
+            }
+        },
         // sap.ui5 **********************************************************************************************************************************************************************
         "sap.ui5": {
+            "type": "object",
+            "required": ["dependencies", "contentDensities"],
             "properties": {
-                "models": {},
+                "resuorces": {
+                    "type": "object",
+                    "description": "Relative URLs in the component, taking embeddedBy into account if filled, pointing to js (JavaScript) and css resources that are needed by the app for specifying the mandatory uri and an id (optional) for CSS. The JavaScript files are loaded by the require mechanism. The CSS files are added to the head of the HTML page as a link tag. The resources are resolved relative to the location of the manifest.json file.",
+                    "additionalProperties": {
+                        "type": "array",
+                        "required": ["uri"],
+                        "properties": {
+                            "uri": {
+                                "type": "string",
+                                "description": "URI to the file (relative)"
+                            },
+                            "id": {
+                                "type": "string",
+                                "description": "optional ID"
+                            }
+                        }
+                    },
+                    "default": { //relative urls inside component, taking embeddedBy into account if filled, pointing to JavaScript/CSS resources that your app needs (app internal), formerly called "includes"
+                        "js": [{
+                            "uri": "component.js" //mandatory
+                        }],
+                        "css": [{
+                            "uri": "component.css", //mandatory
+                            "id": "componentcss" //id optional as style tags
+                        }]
+                    }
+                },
+                "dependencies": {
+                    "type": "object",
+                    "description": "specifies the external dependencies that are loaded by the OpenUI5 core during the initialization phase of the component and used afterwards, such as libraries or components",
+                    "required": ["minUI5Version"],
+                    "properties": {
+                        "minUI5Version": {
+                            "type": "string",
+                            "description": "Minimum version of OpenUI5 that your component requires; this information ensures that the features of the OpenUI5 runtime version of the component are available. As OpenUI5 does not currently enforce use of the correct version, the minUI5Version is used for information purposes only. If the minimum SAPUI5 version criteria is not fulfilled, a warning is issued in the console log.",
+                            "pattern": "\\d*\\.\\d*\\.\\d*"
+                        },
+                        "libs": {
+                            "type": "object",
+                            "description": "ID (namespace) of the libraries that the OpenUI5 core should load for use in the component.",
+                            "patternProperties": {
+                                "(\\w+\\.?)+\\w+\\Z": {
+                                    "$ref": "#/definitions/modules"
+                                }
+                            }
+                        },
+                        "components": {
+                            "type": "object",
+                            "description": "ID (namespace) of the libraries that the OpenUI5 core should load for use in the component.",
+                            "patternProperties": {
+                                "(\\w+\\.?)+\\w+\\Z": {
+                                    "$ref": "#/definitions/modules"
+                                }
+                            }
+                        }
+                    }
+                },
+                "models": {
+                    "type": "object",
+                    "description": "Defines models that should be created or destroyed along the component's lifecycle. The key represents the model name.\nUse an empty string (\"\") for the default model.",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "description": "Model class name"
+                            },
+                            "uri": {
+                                "type": "string",
+                                "description": "Relative URL in the component, taking embeddedBy into account if filled, or server for absolute model"
+                            },
+                            "dataSource": {
+                                "type": "string",
+                                "description": "String of key or alias from sap.app dataSources to reference an existing data source.\nThe type, uri and settings properties are set according to the data source's type, uri and settings (if not already defined). If the type under sap.app dataSources is OData, an OData Model V2 is created automatically. If you need an OData Model V1, specify the type as well."
+                            },
+                            "preload": {
+                                "type": "boolean",
+                                "description": "Defines whether or not the model is initialized (preloaded) before the component instance is created and while loading the component preload and its dependencies.",
+                                "default": false
+                            },
+                            "settings": {
+                                "type": "object",
+                                "description": "Additional settings"
+                            }
+                        }
+                    }
+                },
+                "rootView": {
+                    "type": "string",
+                    "description": "Specifies the root view that shall be opened; can be the view name as a string for XML views, or the view configuration object with viewName for the view name as a string and type for the type (enumeration of sap.ui.core.mvc.ViewType) and other properties of sap.ui.core.mvc.view.",
+                    "pattern": "(\\w+\\.?)+\\w+\\Z"
+                },
+                "handleValidation": {
+                    "type": "boolean",
+                    "description": "Used to enable or disable validation handling by the message manager for this component.",
+                    "default": false
+                },
+                "config": {
+                    "type": "object",
+                    "description": "Static configuration; specify the name-value pairs that you need in your component."
+                },
                 "routing": {
                     "properties": {
                         "config": {
@@ -399,8 +590,115 @@
                             "description": "The owner parameter defines the owner of all views that are created by the router. This is typically a UIComponent. This parameter is set automatically if the router instance is instantiated by a component."
                         }
                     }
+                },
+                "extends": {
+                    "type": "object",
+                    "properties": {
+                        "component": {
+                            "type": "string",
+                            "description": " ID (namespace) of the component being extended",
+                            "pattern": "(\\w+\\.?)+\\w+\\Z"
+                        },
+                        "minVersion": {
+                            "type": "string",
+                            "description": "Specifies the minimum version of the component being extended, for information purposes if your app requires a minimum version of the component.",
+                            "pattern": "\\d*\\.\\d*\\.\\d*"
+                        },
+                        "extensions": {
+                            "type": "object",
+                            "description": "Component or view extensions, which enable you to replace and extend views and controllers and also to modify the views"
+                        }
+                    }
+                },
+                "contentDensities": {
+                    "type": "object",
+                    "description": "Contains an object with the content density modes that the app supports",
+                    "required": ["compact", "cozy"],
+                    "properties": {
+                        "compact": {
+                            "type": "boolean",
+                            "description": "indicates whether compact mode is supported"
+                        },
+                        "cozy": {
+                            "type": "boolean",
+                            "description": "indicates whether cozy mode is supported"
+                        }
+                    }
+                },
+                "resourceRoots": {
+                    "type": "object",
+                    "description": "Map of URL locations keyed by a resource name prefix; only relative paths inside the component are allowed and no \"..\" characters.\n\nThis attribute is intended for actual sub-packages of the component only, meaning that it must not be used for the component namespace itself. The defined resource roots will be registered after the component controller is loaded and do not affect the modules being declared as dependencies in the component controller.",
+                    "patternProperties": {
+                        "^\\.{1}\\/(\\w+\\/?)+": {
+                            "type": "string",
+                            "pattern": "^\\.{1}\\/(\\w+\\/?)+"
+                        }
+                    }
+                },
+                "componentName": {
+                    "type": "string",
+                    "description": "Name of the component"
+                },
+                "autoPrefixId": {
+                    "type": "boolean",
+                    "description": "Enables the auto-prefixing of IDs of ManagedObjects (controls and events) which are created in the context of the createContent function or any other invocation of the Component.prototype.runAsOwner() function",
+                    "default": false
                 }
             }
+        },
+        "sap.platform.abap": {
+            "type": "object",
+            "description": "Specifies the app's URI in the ABAP system, for example /sap/bc/ui5_ui5/sap/appName",
+            "properties": {
+                "uri": {
+                    "type": "string",
+                    "description": "uri of the app in the ABAP system"
+                },
+                "uriNwbc": {
+                    "type": "string",
+                    "description": "represents alternative uri for starting application for legacy apps, such as WDA/SAP GUI, generated by export tool"
+                }
+            }
+        },
+        "sap.platform.hcp": {
+            "type": "object",
+            "description": "HANA-Cloud-Platform-specific attributes"
+        },
+        "sap.mobile": {
+            "type": "object",
+            "description": "in Mobile responsibility"
+        },
+        "sap.flp": {
+            "type": "object",
+            "description": "in FLP responsibility"
+        },
+        "sap.ui.generic.app": {
+            "type": "object",
+            "description": "in SAP Fiori responsibility"
+        },
+        "sap.ovp": {
+            "type": "object",
+            "description": "in Overview Page responsibility"
+        },
+        "sap.smartbusiness.app": {
+            "type": "object",
+            "description": "in Smart Business responsibility"
+        },
+        "sap.wda": {
+            "type": "object",
+            "description": "in Web Dynpro ABAP responsibility"
+        },
+        "sap.gui": {
+            "type": "object",
+            "description": "in SAP GUI responsibility"
+        },
+        "sap.cloud.portal": {
+            "type": "object",
+            "description": "in SAP Cloud Portal responsibility"
+        },
+        "sap.apf": {
+            "type": "object",
+            "description": "in analysis path framework responsibility"
         }
     }
 }
