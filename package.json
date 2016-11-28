@@ -1,5 +1,5 @@
 {
-    "name": "openui5ts",
+    "name": "ui5-ts",
     "displayName": "openui5 Typescript Tool",
     "description": "A typescript extension for openui5",
     "version": "0.0.1",
@@ -24,7 +24,7 @@
     "contributes": {
         "jsonValidation": [{
             "fileMatch": "manifest.json",
-            "url": "./src/jsonschemas/manifest.schema.json"
+            "url": "./jsonschemas/manifest.schema.json"
             }
         ],
         "snippets": [

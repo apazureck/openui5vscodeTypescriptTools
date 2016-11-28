@@ -12,6 +12,7 @@
     "exclude": [
         "node_modules",
         ".vscode-test",
-        "templates"
+        "templates",
+        "typings/node"
     ]
 }
