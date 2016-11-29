@@ -1,3 +1,4 @@
+import * as console from 'console';
 sap.ui.define([
    "sap/ui/core/UIComponent",
    "sap/ui/model/json/JSONModel"
