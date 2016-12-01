@@ -1,14 +1,17 @@
 'use strict';
+import * as path from 'path';
+import { request } from 'http';
 import { listeners } from 'cluster';
 import { Url } from 'url';
 import { FileHandler, KeyValuePair } from './helpers/filehandler';
-import { appendFile } from 'fs';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as ncp from 'ncp';
 import * as rrd from 'recursive-readdir';
 import * as fs from 'fs';
+import * as enumerable from 'linq-es5';
+var FsFinder = require('fs-finder');
 
 export const extensionname = "ui5-ts";
 const namespaceformat = /^(\w+\.?)+\w+$/;
@@ -24,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.SetupUi5', async () => {
+    let setupUi5Command = vscode.commands.registerCommand('extension.SetupUi5', async () => {
         // The code you place here will be executed every time your command is executed
 
         if(!vscode.workspace.rootPath) {
@@ -72,7 +75,23 @@ export function activate(context: vscode.ExtensionContext) {
         showinfo('Created new project layout');
     });
 
-    context.subscriptions.push(disposable);
+    let switchToViewCommand = vscode.commands.registerCommand('extension.SwitchToController', async () => {
+        let text = vscode.window.activeTextEditor.document.getText();
+        let cnameri = text.match(/controllerName="([\w\.]+)"/);
+
+        let cname = cnameri[1].split(".").pop()+".controller";
+        
+        let foundcontroller;
+        rrd(vscode.workspace.rootPath, async (err, files) => {
+            let flist = enumerable.AsEnumerable(files);
+            foundcontroller = flist.FirstOrDefault(x=>x.match(cname)!=null);
+
+            vscode.window.showTextDocument(await vscode.workspace.openTextDocument(foundcontroller));
+         });
+    });
+
+    context.subscriptions.push(setupUi5Command);
+    context.subscriptions.push(switchToViewCommand);
 }
 
 export class ReplaceInFiles {

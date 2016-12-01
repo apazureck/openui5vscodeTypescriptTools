@@ -1,0 +1,70 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // HINT: If no breakpoint gets hit check your Firefox Debugger settings for typescript.
+            // The debug adapter used for vs code does (almost) everything the debugger in firefox does.
+            "name": "Firefox with sourcemaps",
+            "type": "firefox",
+            "url": "http://localhost:8080/index.html",
+            "webRoot": "${workspaceRoot}",
+            "request": "launch"
+            
+            // Uncomment to get more information on source files
+            // "log": {
+            //     "consoleLevel": {
+            //         "PathConversion": "Debug",
+            //         "default": "Error"
+            //     }
+            // }
+        },
+        {
+            "name": "Chrome with sourcemaps",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080/index.html",
+            "sourceMaps": true,
+            "webRoot": "${workspaceRoot}"
+        },
+        {
+            "name": "Edge with sourcemaps",
+            "type": "edge",
+            "request": "launch",
+            "url": "http://localhost:8080/index.html",
+            "webRoot": "${workspaceRoot}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Nodejs with sourcemaps",
+            "program": "${workspaceRoot}/server.js",
+            "cwd": "${workspaceRoot}"
+            // "outFiles": ["${workspaceRoot}/**/*.js", "${workspaceRoot}/**/*.ts", "${workspaceRoot}/**/*.js.map"]
+        },
+        // Composite Launches *********************************************************************************************************
+        {
+            "name": "Launch Node.js with FF",
+            "type": "composite",
+            "configurationNames": [
+                "Nodejs with sourcemaps", "Firefox with sourcemaps"
+            ],
+            "request": "launch"
+        },
+        {
+            "name": "Launch Node.js with Chrome",
+            "type": "composite",
+            "configurationNames": [
+                "Nodejs with sourcemaps", "Chrome with sourcemaps"
+            ],
+            "request": "launch"
+        },
+        {
+            "name": "Launch Node.js with Edge",
+            "type": "composite",
+            "configurationNames": [
+                "Nodejs with sourcemaps", "Edge with sourcemaps"
+            ],
+            "request": "launch"
+        }
+    ]
+}
