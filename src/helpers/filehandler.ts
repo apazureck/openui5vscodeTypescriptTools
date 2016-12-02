@@ -104,7 +104,7 @@ export class File {
      * async file search method.
      * 
      * @static
-     * @param {(string|RegExp)} pattern to search for. * == Wildcard
+     * @param {(string|RegExp)} pattern to search for.
      * @param {string} [startdir] to start search at. default: workspace root path
      * @returns {Promise<string>}
      * 
@@ -112,7 +112,7 @@ export class File {
      */
     static async find(pattern: RegExp|string, startdir?: string): Promise<string[]> {
         startdir = startdir ? startdir : vscode.workspace.rootPath;
-        let matcher = typeof pattern === "string" ? new RegExp((pattern as string).replace("*", ".*")) : pattern as RegExp; 
+        let matcher = typeof pattern === "string" ? new RegExp((pattern as string)) : pattern as RegExp; 
         return new Promise<string[]>((resolve, reject) => {
             rrd(startdir, (err, files) => {
                 if(err) {
