@@ -29,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let setupUi5Command = vscode.commands.registerCommand('extension.SetupUi5', async () => {
+    let setupUi5Command = vscode.commands.registerCommand('ui5ts.SetupUi5', async () => {
         // The code you place here will be executed every time your command is executed
 
         if(!vscode.workspace.rootPath) {
@@ -77,9 +77,9 @@ export function activate(context: vscode.ExtensionContext) {
         showinfo('Created new project layout');
     });
 
-    let switchToViewCommand = vscode.commands.registerCommand('extension.SwitchToController', switchToController);
+    let switchToViewCommand = vscode.commands.registerCommand('ui5ts.SwitchToController', switchToController);
 
-    let switchToControllerCommand = vscode.commands.registerCommand('extension.SwitchToView', async () => {
+    let switchToControllerCommand = vscode.commands.registerCommand('ui5ts.SwitchToView', async () => {
         let viewname = File.getFileName(vscode.window.activeTextEditor.document.fileName).split(".")[0] + ".view.xml";
 
         let viewfile = await File.find(viewname);
@@ -90,11 +90,10 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showTextDocument(await vscode.workspace.openTextDocument(viewfile[0]));
     });
 
-    let switchToFileCommand = vscode.commands.registerCommand('extension.GoToFile', async () => {
+    let switchToFileCommand = vscode.commands.registerTextEditorCommand('ui5ts.GoToFile', async (textEditor, edit) => {
         let filename = File.getFileName(vscode.window.activeTextEditor.document.fileName);
         if(!filename.match(/\.view\.(?:xml|json)$/))
             return;
-
         let line = vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active);
         let tag = line.text.match(/(\w+)Name="(.*?)"/);
 

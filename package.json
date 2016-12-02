@@ -17,7 +17,7 @@
     "Productivity"
   ],
   "activationEvents": [
-    "onCommand:extension.SetupUi5",
+    "onCommand:ui5ts.SetupUi5",
     "workspaceContains:manifest.json"
   ],
   "main": "./out/src/extension",
@@ -37,29 +37,29 @@
     "commands": [
       {
         "category": "UI5",
-        "command": "extension.SetupUi5",
+        "command": "ui5ts.SetupUi5",
         "title": "UI5 SetupProject"
       },
       {
         "category": "UI5",
-        "command": "extension.SwitchToController",
+        "command": "ui5ts.SwitchToController",
         "title": "Swtich to Controller"
       }
     ],
     "keybindings": [
       {
-        "command": "extension.SwitchToController",
+        "command": "ui5ts.SwitchToController",
         "key": "f7",
         "when": "editorTextFocus"
       },
       {
-        "command": "extension.SwitchToView",
+        "command": "ui5ts.SwitchToView",
         "key": "shift+f7",
         "when": "editorTextFocus"
       },
       {
-        "command": "extension.GoToFile",
-        "key": "f12",
+        "command": "ui5ts.GoToFile",
+        "key": "shift+f12",
         "when": "editorTextFocus"
       }
     ]
