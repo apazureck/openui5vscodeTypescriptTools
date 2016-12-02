@@ -1,4 +1,9 @@
 import * as vscode from 'vscode';
+import * as ncp from 'ncp';
+import * as rrd from 'recursive-readdir';
+import * as enumerable from 'linq-es2015';
+import * as fs from 'fs';
+import * as log from './logging';
 
 export class FileHandler {
 
@@ -63,4 +68,67 @@ export class FileHandler {
 export interface KeyValuePair {
     key: string;
     value: string;
+}
+
+export class ReplaceInFiles {
+    private _dir: string;
+    constructor(dir: string) {
+        this._dir = dir;
+    }
+
+    public async replaceTokens(tokens: KeyValuePair[]) {
+        rrd(vscode.workspace.rootPath, (error, files) => {
+            files.forEach(async (file) => {
+                fs.readFile(file, (err, data) => {
+                    if(err)
+                        return log.printError("Error reading file: '" + err.message + "'");
+                        
+                    let result = FileHandler.replaceText(data.toString(), tokens);
+
+                    fs.writeFile(file, result, (err) => { if(err) log.printError("Error writing back to file: '" + err.message + "'")});
+                })
+            });
+        });
+    }
+}
+
+/**
+ * File interface
+ * 
+ * @export
+ * @class File
+ */
+export class File {
+    
+    /**
+     * async file search method.
+     * 
+     * @static
+     * @param {(string|RegExp)} pattern to search for. * == Wildcard
+     * @param {string} [startdir] to start search at. default: workspace root path
+     * @returns {Promise<string>}
+     * 
+     * @memberOf File
+     */
+    static async find(pattern: RegExp|string, startdir?: string): Promise<string[]> {
+        startdir = startdir ? startdir : vscode.workspace.rootPath;
+        let matcher = typeof pattern === "string" ? new RegExp((pattern as string).replace("*", ".*")) : pattern as RegExp; 
+        return new Promise<string[]>((resolve, reject) => {
+            rrd(startdir, (err, files) => {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+                let result = enumerable.asEnumerable(files).Where(x => x.match(matcher)!=null);
+                if(result)
+                    resolve(result.ToArray());
+                else
+                    reject();
+            });
+        });
+    }
+
+    static getFileName(path: string): string {
+        return path.split("\\").pop();
+    }
 }

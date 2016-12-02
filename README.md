@@ -1,51 +1,44 @@
-# openui5 README
+# ui5ts Extension
 
-This is the README for your extension "openui5". After writing up a brief description, we recommend including the following sections.
+This extension aims to improve the experience using UI5 with typescript.
+
+> This extension is not officially supported by SAP or the openUi5 team. It is currently in an alpha phase. Please report issues.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+* Code snippets for generating views and controllers in typescript
+* Generator for getting up-to-date typescript declarations for UI5 (customizable)
+* Navigation between views and controllers
+* Schemas for manifest.json
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+none
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+none
 
-For example:
+## Usage
 
-This extension contributes the following settings:
+This section will help getting you started.
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+### Code snippets
+
+All snippets start with `ui5ts:`.
+
+#### Document outlines
+To create a new xml view or controller just create your file at the desired position and type `ui5ts.doc:` to get the suggestions.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+* Navigation between controller and view may not work, if controller is used in multiple views.
+* Problems getting the right controllers in large projects (multiple manifests)
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.1.0 - alpha: First Release
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
 
 -----------------------------------------------------------------------------------------------------------
 

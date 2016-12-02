@@ -16,6 +16,9 @@
   "categories": [
     "Productivity"
   ],
+  "galleryBanner": {
+    "color": "#17c3d9"
+  },
   "activationEvents": [
     "onCommand:ui5ts.SetupUi5",
     "workspaceContains:manifest.json"
@@ -36,22 +39,22 @@
     ],
     "commands": [
       {
-        "category": "UI5",
+        "category": "UI5: Project",
         "command": "ui5ts.SetupUi5",
         "title": "UI5: Create new UI5 Project (alpha)"
       },
       {
-        "category": "UI5",
+        "category": "UI5: Edit",
         "command": "ui5ts.SwitchToController",
-        "title": "UI5: Swtich to Controller"
+        "title": "Swtich to Controller"
       },
       {
-        "category": "UI5",
+        "category": "UI5: Edit",
         "command": "ui5ts.SwitchToView",
-        "title": "UI5: Swtich to View"
+        "title": "Edit: Swtich to View"
       },
       {
-        "category": "UI5",
+        "category": "UI5 Edit",
         "command": "ui5ts.GoToDefinition",
         "title": "UI5: Go to Definition"
       }
@@ -96,5 +99,13 @@
     "msjsdiag.debugger-for-chrome",
     "msjsdiag.debugger-for-edge",
     "hbenl.vscode-firefox-debug"
-  ]
+  ],
+  "bugs": {
+    "url": "https://github.com/apazureck/openui5vscodeTypescriptTools/issues"
+  },
+  "repository": {
+    "url": "https://github.com/apazureck/openui5vscodeTypescriptTools.git",
+    "type": "git"
+  },
+  "preview": true
 }

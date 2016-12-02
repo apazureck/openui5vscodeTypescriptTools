@@ -1,7 +1,7 @@
 {
     "ui5ts: Controller": {
 		"description": "Inserts a new UI5 typescript controller",
-		"prefix": "ui5ts:controller",
+		"prefix": "ui5ts.doc.controller",
 		"body":
 			[   "sap.ui.define([\"sap/ui/core/mvc/Controller\",",
 				"	// Insert your used ui5 elements here to get them loaded",
@@ -27,7 +27,7 @@
 	},
 	"ui5ts: XML View": {
 		"description": "Inserts a new UI5 XML page",
-		"prefix": "ui5ts:xmlview",
+		"prefix": "ui5ts.doc.xmlview",
 		"body": [	"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>",
 					"<mvc:View",
 					"    xmlns=\"sap.m\"",
