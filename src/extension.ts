@@ -90,7 +90,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showTextDocument(await vscode.workspace.openTextDocument(viewfile[0]));
     });
 
-    let switchToFileCommand = vscode.commands.registerTextEditorCommand('ui5ts.GoToFile', async (textEditor, edit) => {
+    let switchToFileCommand = vscode.commands.registerTextEditorCommand('ui5ts.GoToDefinition', async (textEditor, edit) => {
         let filename = File.getFileName(vscode.window.activeTextEditor.document.fileName);
         if(!filename.match(/\.view\.(?:xml|json)$/))
             return;

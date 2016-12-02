@@ -38,12 +38,22 @@
       {
         "category": "UI5",
         "command": "ui5ts.SetupUi5",
-        "title": "UI5 SetupProject"
+        "title": "UI5: Create new UI5 Project (alpha)"
       },
       {
         "category": "UI5",
         "command": "ui5ts.SwitchToController",
-        "title": "Swtich to Controller"
+        "title": "UI5: Swtich to Controller"
+      },
+      {
+        "category": "UI5",
+        "command": "ui5ts.SwitchToView",
+        "title": "UI5: Swtich to View"
+      },
+      {
+        "category": "UI5",
+        "command": "ui5ts.GoToDefinition",
+        "title": "UI5: Go to Definition"
       }
     ],
     "keybindings": [
@@ -58,7 +68,7 @@
         "when": "editorTextFocus"
       },
       {
-        "command": "ui5ts.GoToFile",
+        "command": "ui5ts.GoToDefinition",
         "key": "shift+f12",
         "when": "editorTextFocus"
       }
