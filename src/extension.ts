@@ -1,4 +1,5 @@
 'use strict';
+import { format } from 'util';
 import * as path from 'path';
 import { request } from 'http';
 import { listeners } from 'cluster';
@@ -11,7 +12,8 @@ import * as ncp from 'ncp';
 import * as rrd from 'recursive-readdir';
 import * as fs from 'fs';
 import * as enumerable from 'linq-es5';
-var FsFinder = require('fs-finder');
+
+var ln: (searchstring: string, pattern: RegExp) => { line: string, match: string, number: number }[] = require('line-number');
 
 export const extensionname = "ui5-ts";
 const namespaceformat = /^(\w+\.?)+\w+$/;
@@ -75,23 +77,136 @@ export function activate(context: vscode.ExtensionContext) {
         showinfo('Created new project layout');
     });
 
-    let switchToViewCommand = vscode.commands.registerCommand('extension.SwitchToController', async () => {
-        let text = vscode.window.activeTextEditor.document.getText();
-        let cnameri = text.match(/controllerName="([\w\.]+)"/);
+    let switchToViewCommand = vscode.commands.registerCommand('extension.SwitchToController', switchToController);
 
-        let cname = cnameri[1].split(".").pop()+".controller";
-        
-        let foundcontroller;
-        rrd(vscode.workspace.rootPath, async (err, files) => {
-            let flist = enumerable.AsEnumerable(files);
-            foundcontroller = flist.FirstOrDefault(x=>x.match(cname)!=null);
+    let switchToControllerCommand = vscode.commands.registerCommand('extension.SwitchToView', async () => {
+        let viewname = File.getFileName(vscode.window.activeTextEditor.document.fileName).split(".")[0] + ".view.xml";
 
-            vscode.window.showTextDocument(await vscode.workspace.openTextDocument(foundcontroller));
-         });
+        let viewfile = await File.find(viewname);
+
+        if(!viewfile)
+            return;
+
+        vscode.window.showTextDocument(await vscode.workspace.openTextDocument(viewfile[0]));
     });
+
+    let switchToFileCommand = vscode.commands.registerCommand('extension.GoToFile', async () => {
+        let filename = File.getFileName(vscode.window.activeTextEditor.document.fileName);
+        if(!filename.match(/\.view\.(?:xml|json)$/))
+            return;
+
+        let line = vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active);
+        let tag = line.text.match(/(\w+)Name="(.*?)"/);
+
+        if(!tag)
+            return tryOpenEventHandler(line);
+
+        let tName = tag[2].split(".").pop();
+        let file: string;
+        switch (tag[1]) {
+            case "controller":
+                let files = await File.find(new RegExp(tName+"\\.controller\\.(js|ts)$"));
+                // Check typescript (dirty)
+                file = files.length>1 ? files[1] : files[0];
+                break;
+            case "view":
+                file = (await File.find(new RegExp(tName+"\\.view\\.(xml|json)$")))[0];
+                break;
+            case "fragment":
+                file = (await File.find(new RegExp(tName+"\\.fragment\\.(xml|json)$")))[0];
+                break;
+            default:
+                let eventhandlertag = vscode.window.activeTextEditor.selection.active;
+                break;
+        }
+
+        if(file)
+            vscode.window.showTextDocument(await vscode.workspace.openTextDocument(file));
+    })
 
     context.subscriptions.push(setupUi5Command);
     context.subscriptions.push(switchToViewCommand);
+    context.subscriptions.push(switchToFileCommand);
+}
+
+async function tryOpenEventHandler(line: vscode.TextLine): Promise<void> {
+    let editor = vscode.window.activeTextEditor;
+    let rightpart = line.text.substr(editor.selection.active.character).match(/(\w*?)"/)[1];
+    if(!rightpart)
+        return;
+
+    let leftpart = line.text.substr(0, editor.selection.active.character);
+    let leftquotepos = leftpart.match(/.*"/)[0].length;
+    if(!leftquotepos)
+        return;
+    leftpart = leftpart.substr(leftquotepos);
+    let name = leftpart+rightpart;
+
+    await switchToController();
+
+    editor = vscode.window.activeTextEditor;
+    let ccontent = editor.document.getText();
+
+    let match = new RegExp(/^(\s*?)/.source+name+/\s*?\(.*?\)/.source, "gm").exec(ccontent);
+    let lineNumber = editor.document.positionAt(match.index + match[1].length).line;
+    let range = editor.document.lineAt(lineNumber).range;
+    editor.selection =  new vscode.Selection(range.start, range.end);
+    editor.revealRange(range);
+}
+
+async function switchToController() {
+    let text = vscode.window.activeTextEditor.document.getText();
+    let cnameri = text.match(/controllerName="([\w\.]+)"/);
+
+    if(!cnameri) {
+        return;
+    }
+
+    let cname = cnameri[1].split(".").pop();
+    
+    let foundcontrollers = await File.find(new RegExp(cname+"\\.controller\\.(?:ts|js)$"));
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(foundcontrollers.length>1?foundcontrollers[1]:foundcontrollers[0]));
+}
+
+/**
+ * File interface
+ * 
+ * @export
+ * @class File
+ */
+export class File {
+    
+    /**
+     * async file search method.
+     * 
+     * @static
+     * @param {(string|RegExp)} pattern to search for. * == Wildcard
+     * @param {string} [startdir] to start search at. default: workspace root path
+     * @returns {Promise<string>}
+     * 
+     * @memberOf File
+     */
+    static async find(pattern: RegExp|string, startdir?: string): Promise<string[]> {
+        startdir = startdir ? startdir : vscode.workspace.rootPath;
+        let matcher = typeof pattern === "string" ? new RegExp((pattern as string).replace("*", ".*")) : pattern as RegExp; 
+        return new Promise<string[]>((resolve, reject) => {
+            rrd(startdir, (err, files) => {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+                let result = enumerable.asEnumerable(files).Where(x => x.match(matcher)!=null);
+                if(result)
+                    resolve(result.ToArray());
+                else
+                    reject();
+            });
+        });
+    }
+
+    static getFileName(path: string): string {
+        return path.split("\\").pop();
+    }
 }
 
 export class ReplaceInFiles {

@@ -49,11 +49,18 @@
     "keybindings": [
       {
         "command": "extension.SwitchToController",
-        "key": "f7"
+        "key": "f7",
+        "when": "editorTextFocus"
       },
       {
         "command": "extension.SwitchToView",
-        "key": "shift+f7"
+        "key": "shift+f7",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "extension.GoToFile",
+        "key": "f12",
+        "when": "editorTextFocus"
       }
     ]
   },
