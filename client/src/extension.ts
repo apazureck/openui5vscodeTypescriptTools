@@ -6,12 +6,21 @@ import * as commands from './commands';
 import * as file from './helpers/filehandler';
 import * as fs from 'fs';
 import * as log from './helpers/logging';
+import * as defprov from './language/ui5/Ui5DefinitionProviders';
 
 export const name = "ui5-ts";
 export var context: vscode.ExtensionContext;
 export interface Ui5Extension {
     namespacemappings: { [id: string] : string; };
 }
+
+const ui5_jsonviews: vscode.DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.view.json" };
+const ui5_xmlviews: vscode.DocumentFilter = { language: 'ui5xml', scheme: "file", pattern: "*.view.xml"};
+const ui5_tscontrollers: vscode.DocumentFilter = { language: 'typescript', scheme: 'file', pattern: "*.controller.ts"};
+const ui5_jscontrollers: vscode.DocumentFilter = { language: 'javascript', scheme: 'file', pattern: ".controller.js"};
+const ui5_jsonfragments: vscode.DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.fragment.json"};
+const ui5_xmlfragments: vscode.DocumentFilter = { language: "ui5xml", scheme: 'file', pattern: "*.fragment.xml"};
+
 export var ui5extension: Ui5Extension = { namespacemappings: { } };
 
 // this method is called when your extension is activated
@@ -24,19 +33,18 @@ export function activate(c: vscode.ExtensionContext) {
 
     getAllNamespaceMappings();
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with  registerCommand
-    // The commandId parameter must match the command field in package.json
-    let setupUi5Command = vscode.commands.registerCommand('ui5ts.SetupUi5', commands.SetupUi5);
+    // Hook the commands
+    context.subscriptions.push(vscode.commands.registerCommand('ui5ts.SetupUi5', commands.SetupUi5));
+    context.subscriptions.push(vscode.commands.registerCommand('ui5ts.SwitchToView', commands.SwitchToView));
+    context.subscriptions.push(vscode.commands.registerTextEditorCommand('ui5ts.SwitchToController', commands.SwitchToController));
 
-    let switchToViewCommand = vscode.commands.registerCommand('ui5ts.SwitchToController', commands.SwitchToController);
-    let switchToControllerCommand = vscode.commands.registerCommand('ui5ts.SwitchToView', commands.SwitchToView);
-    let switchToFileCommand = vscode.commands.registerTextEditorCommand('ui5ts.GoToDefinition', commands.GoToDefinition);
-
-    context.subscriptions.push(setupUi5Command);
-    context.subscriptions.push(switchToViewCommand);
-    context.subscriptions.push(switchToFileCommand);
-    context.subscriptions.push(switchToViewCommand);
+    // Setup Language Providers
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlviews, new defprov.Ui5ViewDefinitionProvider));
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jsonviews, new defprov.Ui5ViewDefinitionProvider));
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_tscontrollers, new defprov.Ui5ControllerDefinitionProvider));
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jscontrollers, new defprov.Ui5ControllerDefinitionProvider));
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlfragments, new defprov.Ui5FragmentDefinitionProvider))
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jsonfragments, new defprov.Ui5FragmentDefinitionProvider))
 }
 
 async function getAllNamespaceMappings() {

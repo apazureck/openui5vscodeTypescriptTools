@@ -128,6 +128,24 @@ export class File {
         });
     }
 
+    static async findSync(pattern: RegExp|string, startdir?: string): Promise<string[]> {
+        startdir = startdir ? startdir : vscode.workspace.rootPath;
+        let matcher = typeof pattern === "string" ? new RegExp((pattern as string)) : pattern as RegExp; 
+        return new Promise<string[]>((resolve, reject) => {
+            rrd(startdir, (err, files) => {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+                let result = enumerable.asEnumerable(files).Where(x => x.match(matcher)!=null);
+                if(result)
+                    resolve(result.ToArray());
+                else
+                    reject();
+            });
+        });
+    }
+
     static getFileName(path: string): string {
         return path.split("\\").pop();
     }

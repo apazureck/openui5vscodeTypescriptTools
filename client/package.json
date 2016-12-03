@@ -21,10 +21,25 @@
   },
   "activationEvents": [
     "onCommand:ui5ts.SetupUi5",
-    "workspaceContains:manifest.json"
+    "workspaceContains:manifest.json",
+    "onLanguage:ui5xml"
   ],
   "main": "./out/src/extension",
   "contributes": {
+    "languages": [
+      {
+        "id": "ui5xml",
+        "extensions": [
+          ".view.xml", ".fragment.xml"
+        ],
+        "configuration": "./ui5xml.language-configuration.json"
+      }
+    ],
+    "grammars": [{
+			"language": "ui5xml",
+			"scopeName": "text.xml",
+			"path": "./syntaxes/xml.json"
+    }],
     "jsonValidation": [
       {
         "fileMatch": "manifest.json",
@@ -52,11 +67,6 @@
         "category": "UI5: Edit",
         "command": "ui5ts.SwitchToView",
         "title": "Edit: Swtich to View"
-      },
-      {
-        "category": "UI5 Edit",
-        "command": "ui5ts.GoToDefinition",
-        "title": "UI5: Go to Definition"
       }
     ],
     "keybindings": [
@@ -68,11 +78,6 @@
       {
         "command": "ui5ts.SwitchToView",
         "key": "shift+f7",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "ui5ts.GoToDefinition",
-        "key": "shift+f12",
         "when": "editorTextFocus"
       }
     ]
@@ -98,7 +103,8 @@
   "extensionDependencies": [
     "msjsdiag.debugger-for-chrome",
     "msjsdiag.debugger-for-edge",
-    "hbenl.vscode-firefox-debug"
+    "hbenl.vscode-firefox-debug",
+    "./ui5xmlserver"
   ],
   "bugs": {
     "url": "https://github.com/apazureck/openui5vscodeTypescriptTools/issues"

@@ -69,64 +69,6 @@ export async function SwitchToView(): Promise<void> {
     vscode.window.showTextDocument(await vscode.workspace.openTextDocument(viewfile[0]));
 }
 
-export async function GoToDefinition(textEditor, edit): Promise<void> {
-    let filename = file.File.getFileName(vscode.window.activeTextEditor.document.fileName);
-    if(!filename.match(/\.view\.(?:xml|json)$/))
-        return;
-    let line = vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active);
-    let tag = line.text.match(/(\w+)Name="(.*?)"/);
-
-    if(!tag)
-        return tryOpenEventHandler(line);
-
-    let tName = tag[2].split(".").pop();
-    let f: string;
-    switch (tag[1]) {
-        case "controller":
-            let files = await file.File.find(new RegExp(tName+"\\.controller\\.(js|ts)$"));
-            // Check typescript (dirty)
-            f = files.length>1 ? files[1] : files[0];
-            break;
-        case "view":
-            f = (await file.File.find(new RegExp(tName+"\\.view\\.(xml|json)$")))[0];
-            break;
-        case "fragment":
-            f = (await file.File.find(new RegExp(tName+"\\.fragment\\.(xml|json)$")))[0];
-            break;
-        default:
-            let eventhandlertag = vscode.window.activeTextEditor.selection.active;
-            break;
-    }
-
-    if(file)
-        vscode.window.showTextDocument(await vscode.workspace.openTextDocument(f));
-}
-
-async function tryOpenEventHandler(line: vscode.TextLine): Promise<void> {
-    let editor = vscode.window.activeTextEditor;
-    let rightpart = line.text.substr(editor.selection.active.character).match(/(\w*?)"/)[1];
-    if(!rightpart)
-        return;
-
-    let leftpart = line.text.substr(0, editor.selection.active.character);
-    let leftquotepos = leftpart.match(/.*"/)[0].length;
-    if(!leftquotepos)
-        return;
-    leftpart = leftpart.substr(leftquotepos);
-    let name = leftpart+rightpart;
-
-    await SwitchToController();
-
-    editor = vscode.window.activeTextEditor;
-    let ccontent = editor.document.getText();
-
-    let match = new RegExp(/^(\s*?)/.source+name+/\s*?\(.*?\)/.source, "gm").exec(ccontent);
-    let lineNumber = editor.document.positionAt(match.index + match[1].length).line;
-    let range = editor.document.lineAt(lineNumber).range;
-    editor.selection =  new vscode.Selection(range.start, range.end);
-    editor.revealRange(range);
-}
-
 export async function SwitchToController() {
     let text = vscode.window.activeTextEditor.document.getText();
     let cnameri = text.match(/controllerName="([\w\.]+)"/);
