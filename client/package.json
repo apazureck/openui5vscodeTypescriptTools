@@ -14,7 +14,7 @@
   },
   "icon": "./img/OpenUI5_logo.png",
   "categories": [
-    "Productivity"
+    "Languages"
   ],
   "galleryBanner": {
     "color": "#17c3d9"
@@ -54,19 +54,19 @@
     ],
     "commands": [
       {
-        "category": "UI5: Project",
+        "category": "UI5 Project",
         "command": "ui5ts.SetupUi5",
-        "title": "UI5: Create new UI5 Project (alpha)"
+        "title": "Create new UI5 Project (alpha)"
       },
       {
-        "category": "UI5: Edit",
+        "category": "UI5 Edit",
         "command": "ui5ts.SwitchToController",
         "title": "Swtich to Controller"
       },
       {
-        "category": "UI5: Edit",
+        "category": "UI5 Edit",
         "command": "ui5ts.SwitchToView",
-        "title": "Edit: Swtich to View"
+        "title": "Swtich to View"
       }
     ],
     "keybindings": [
@@ -92,19 +92,20 @@
     "vscode": "^1.0.0",
     "mocha": "^2.3.3",
     "@types/node": "^6.0.40",
-    "@types/mocha": "^2.2.32"
+    "@types/mocha": "^2.2.32",
+    "vscode-languageclient": "^2.6.3"
   },
   "dependencies": {
     "@types/fs-finder": "^1.8.28",
     "linq-es5": "^1.11.5",
     "ncp": "^2.0.0",
-    "recursive-readdir": "^2.1.0"
+    "recursive-readdir": "^2.1.0",
+     "vscode-languageclient": "^2.6.3"
   },
   "extensionDependencies": [
     "msjsdiag.debugger-for-chrome",
     "msjsdiag.debugger-for-edge",
-    "hbenl.vscode-firefox-debug",
-    "./ui5xmlserver"
+    "hbenl.vscode-firefox-debug"
   ],
   "bugs": {
     "url": "https://github.com/apazureck/openui5vscodeTypescriptTools/issues"

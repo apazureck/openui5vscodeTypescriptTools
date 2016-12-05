@@ -5,12 +5,16 @@
 'use strict';
 
 import {
-	IPCMessageReader, IPCMessageWriter,
+	IPCMessageReader, IPCMessageWriter, RequestHandler, Definition, Location, ResponseError,
 	createConnection, IConnection, TextDocumentSyncKind,
 	TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
 	InitializeParams, InitializeResult, TextDocumentPositionParams,
 	CompletionItem, CompletionItemKind
 } from 'vscode-languageserver';
+import {  } from 'cancellation'
+import * as vscodels from 'vscode-languageserver'
+import { File } from './filehandler';
+import * as p from 'path';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -24,132 +28,75 @@ documents.listen(connection);
 
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilites. 
-let workspaceRoot: string;
+export var workspaceRoot: string;
+
 connection.onInitialize((params): InitializeResult => {
+	connection.console.info("Initializing UI5 XML language server");
 	workspaceRoot = params.rootPath;
 	return {
 		capabilities: {
 			// Tell the client that the server works in FULL text document sync mode
 			textDocumentSync: documents.syncKind,
 			// Tell the client that the server support code complete
-			completionProvider: {
-				resolveProvider: true
-			}
+			definitionProvider: true
 		}
 	}
 });
 
-// The content of a text document has changed. This event is emitted
-// when the text document first opened or when its content has changed.
-documents.onDidChangeContent((change) => {
-	validateTextDocument(change.document);
-});
+connection.onDefinition((params) => {
+	let files: string[];
+	let doc = documents.get(params.textDocument.uri);
+	let startindex = doc.offsetAt(params.position);
+	let text = doc.getText();		
+	let line = getLine(text, startindex);
+	let tag = line.match(/(\w+)Name="(.*?)"/);
 
-// The settings interface describe the server relevant settings part
-interface Settings {
-	languageServerExample: ExampleSettings;
-}
+	// if(!tag)
+	// 	return tryOpenEventHandler(document, position, token);
 
-// These are the example settings we defined in the client's package.json
-// file
-interface ExampleSettings {
-	maxNumberOfProblems: number;
-}
-
-// hold the maxNumberOfProblems setting
-let maxNumberOfProblems: number;
-// The settings have changed. Is send on server activation
-// as well.
-connection.onDidChangeConfiguration((change) => {
-	let settings = <Settings>change.settings;
-	maxNumberOfProblems = settings.languageServerExample.maxNumberOfProblems || 100;
-	// Revalidate any open text documents
-	documents.all().forEach(validateTextDocument);
-});
-
-function validateTextDocument(textDocument: TextDocument): void {
-	let diagnostics: Diagnostic[] = [];
-	let lines = textDocument.getText().split(/\r?\n/g);
-	let problems = 0;
-	for (var i = 0; i < lines.length && problems < maxNumberOfProblems; i++) {
-		let line = lines[i];
-		let index = line.indexOf('typescript');
-		if (index >= 0) {
-			problems++;
-			diagnostics.push({
-				severity: DiagnosticSeverity.Warning,
-				range: {
-					start: { line: i, character: index},
-					end: { line: i, character: index + 10 }
-				},
-				message: `${line.substr(index, 10)} should be spelled TypeScript`,
-				source: 'ex'
-			});
-		}
+	let tName = tag[2].split(".").pop();
+	switch (tag[1]) {
+		case "controller":
+			files = File.findSync(new RegExp(tName+"\\.controller\\.(js|ts)$"));
+			// Check typescript (dirty)
+			let f = files.length>1 ? files[1] : files[0];
+			return { range: { start: { character: 0, line: 0}, end: { character: 0, line: 0}}, uri: "file:///"+f };
+		case "view":
+			files = File.findSync(new RegExp(tName+"\\.view\\.(xml|json)$"));
+			let ret: Location[]
+			for(let f in files)
+				ret.push({ range: { start: { character: 0, line: 0}, end: { character: 0, line: 0}}, uri: "file:///"+files[0] });
+		case "fragment":
+			files = File.findSync(new RegExp(tName+"\\.fragment\\.(xml|json)$"));
+			return { range: { start: { character: 0, line: 0}, end: { character: 0, line: 0}}, uri: "file:///"+files[0] };
+		default:
+			// let eventhandlertag = vscode.window.activeTextEditor.selection.active;
+			throw new DOMException();
 	}
-	// Send the computed diagnostics to VSCode.
-	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-}
-
-connection.onDidChangeWatchedFiles((change) => {
-	// Monitored files have change in VSCode
-	connection.console.log('We recevied an file change event');
 });
 
-
-// This handler provides the initial list of the completion items.
-connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-	// The pass parameter contains the position of the text document in 
-	// which code complete got requested. For the example we ignore this
-	// info and always provide the same completion items.
-	return [
-		{
-			label: 'TypeScript',
-			kind: CompletionItemKind.Text,
-			data: 1
-		},
-		{
-			label: 'JavaScript',
-			kind: CompletionItemKind.Text,
-			data: 2
-		}
-	]
+documents.onDidChangeContent((e) => {
+	connection.console.info("Did  Change Content Event occurred.")
 });
 
-// This handler resolve additional information for the item selected in
-// the completion list.
-connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-	if (item.data === 1) {
-		item.detail = 'TypeScript details',
-		item.documentation = 'TypeScript documentation'
-	} else if (item.data === 2) {
-		item.detail = 'JavaScript details',
-		item.documentation = 'JavaScript documentation'
-	}
-	return item;
-});
-
-/*
-connection.onDidOpenTextDocument((params) => {
-	// A text document got opened in VSCode.
-	// params.uri uniquely identifies the document. For documents store on disk this is a file URI.
-	// params.text the initial full content of the document.
-	connection.console.log(`${params.uri} opened.`);
-});
-
-connection.onDidChangeTextDocument((params) => {
-	// The content of a text document did change in VSCode.
-	// params.uri uniquely identifies the document.
-	// params.contentChanges describe the content changes to the document.
-	connection.console.log(`${params.uri} changed: ${JSON.stringify(params.contentChanges)}`);
-});
-
-connection.onDidCloseTextDocument((params) => {
-	// A text document got closed in VSCode.
-	// params.uri uniquely identifies the document.
-	connection.console.log(`${params.uri} closed.`);
-});
-*/
-
-// Listen on the connection
 connection.listen();
+
+function getLine(input: string, startindex: number): string {
+		let rightpart = input.substr(startindex).match(/.*/m)[0];
+		if(!rightpart)
+			return null;
+		const getLastLineRegex = /\n.*/gm;
+		let leftinput = input.substr(0, startindex);
+		let l, m;
+		while((l = getLastLineRegex.exec(leftinput)) !== null) {
+			if(l.index === getLastLineRegex.lastIndex)
+				getLastLineRegex.lastIndex++;
+			m = l;
+		}
+		
+		let leftpart = m.pop().substr(1);
+		if(!leftpart)
+			return null;
+		
+		return leftpart + rightpart;
+	}

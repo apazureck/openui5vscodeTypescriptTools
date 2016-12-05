@@ -7,6 +7,8 @@ import * as file from './helpers/filehandler';
 import * as fs from 'fs';
 import * as log from './helpers/logging';
 import * as defprov from './language/ui5/Ui5DefinitionProviders';
+import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind } from 'vscode-languageclient';
+import * as path from 'path';
 
 export const name = "ui5-ts";
 export var context: vscode.ExtensionContext;
@@ -31,6 +33,8 @@ export function activate(c: vscode.ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log('Activating UI5 extension.');
 
+    startXmlViewLanguageServer();
+
     getAllNamespaceMappings();
 
     // Hook the commands
@@ -39,11 +43,11 @@ export function activate(c: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerTextEditorCommand('ui5ts.SwitchToController', commands.SwitchToController));
 
     // Setup Language Providers
-    context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlviews, new defprov.Ui5ViewDefinitionProvider));
+    // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlviews, new defprov.Ui5ViewDefinitionProvider));
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jsonviews, new defprov.Ui5ViewDefinitionProvider));
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_tscontrollers, new defprov.Ui5ControllerDefinitionProvider));
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jscontrollers, new defprov.Ui5ControllerDefinitionProvider));
-    context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlfragments, new defprov.Ui5FragmentDefinitionProvider))
+    // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlfragments, new defprov.Ui5FragmentDefinitionProvider))
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jsonfragments, new defprov.Ui5FragmentDefinitionProvider))
 }
 
@@ -79,4 +83,37 @@ async function getAllNamespaceMappings() {
 // this method is called when your extension is deactivated
 export function deactivate() {
     
+}
+
+function startXmlViewLanguageServer(): void {
+// The server is implemented in node
+    log.printInfo("Staring language server");
+	let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
+	// The debug options for the server
+	let debugOptions = { execArgv: ["--nolazy", "--debug=6004"] };
+	
+	// If the extension is launched in debug mode then the debug server options are used
+	// Otherwise the run options are used
+	let serverOptions: ServerOptions = {
+		run : { module: serverModule, transport: TransportKind.ipc },
+		debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
+	}
+	
+	// Options to control the language client
+	let clientOptions: LanguageClientOptions = {
+		// Register the server for UI5 xml decuments documents
+		documentSelector: ['ui5xml'],
+		synchronize: {
+			// Synchronize the setting section 'languageServerExample' to the server
+			// configurationSection: 'languageServerExample',
+			// Notify the server about file changes to '.clientrc files contain in the workspace
+			// fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
+		}
+	}
+	
+	// Create the language client and start the client.
+	let disposable = new LanguageClient('UI5 XML Language Client', serverOptions, clientOptions).start();
+    // Push the disposable to the context's subscriptions so that the 
+	// client can be deactivated on extension deactivation
+	context.subscriptions.push(disposable);
 }

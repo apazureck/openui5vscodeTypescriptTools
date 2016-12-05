@@ -4,32 +4,7 @@ import * as commands from '../../commands';
 
 export class Ui5ViewDefinitionProvider implements vscode.DefinitionProvider {
     provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.Definition> {
-        let line = vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active);
-        let tag = line.text.match(/(\w+)Name="(.*?)"/);
-
-        if(!tag)
-            return tryOpenEventHandler(document, position, token);
-
-        let tName = tag[2].split(".").pop();
-        switch (tag[1]) {
-            case "controller":
-                return file.File.find(new RegExp(tName+"\\.controller\\.(js|ts)$")).then((files) => {
-                    // Check typescript (dirty)
-                    let f = files.length>1 ? files[1] : files[0];
-                    new vscode.Location(vscode.Uri.parse("file:///"+f), new vscode.Position(0,0));
-                });
-            case "view":
-                return file.File.find(new RegExp(tName+"\\.view\\.(xml|json)$")).then((files) => {
-                    return new vscode.Location(vscode.Uri.parse("file:///"+files[0]), new vscode.Position(0,0));
-                });
-            case "fragment":
-                return file.File.find(new RegExp(tName+"\\.fragment\\.(xml|json)$")).then((files) => {
-                    return new vscode.Location(vscode.Uri.parse("file:///"+files[0]), new vscode.Position(0,0));
-                });
-            default:
-                let eventhandlertag = vscode.window.activeTextEditor.selection.active;
-                break;
-        }
+        return null
     }
 }
 
