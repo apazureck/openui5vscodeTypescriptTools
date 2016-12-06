@@ -4,6 +4,7 @@ import * as rrd from 'recursive-readdir';
 import * as enumerable from 'linq-es2015';
 import * as fs from 'fs';
 import * as log from './logging';
+import * as path from 'path'
 
 export class FileHandler {
 
@@ -127,23 +128,46 @@ export class File {
             });
         });
     }
-
-    static async findSync(pattern: RegExp|string, startdir?: string): Promise<string[]> {
+     /**
+     *  
+     * @static
+     * @param {(RegExp|string)} pattern Filepattern to search for
+     * @param {string} [startdir] dir to start (if none is given workspace is taken)
+     * @returns {string[]} files
+     * 
+     * @memberOf File
+     */
+    static findSync(pattern: RegExp|string, startdir?:string, ignore?: string[]): string[] {
         startdir = startdir ? startdir : vscode.workspace.rootPath;
-        let matcher = typeof pattern === "string" ? new RegExp((pattern as string)) : pattern as RegExp; 
-        return new Promise<string[]>((resolve, reject) => {
-            rrd(startdir, (err, files) => {
-                if(err) {
-                    reject(err);
-                    return;
-                }
-                let result = enumerable.asEnumerable(files).Where(x => x.match(matcher)!=null);
-                if(result)
-                    resolve(result.ToArray());
-                else
-                    reject();
-            });
-        });
+        let regex = typeof pattern === "string" ? new RegExp(pattern as string) : pattern as RegExp;
+        return this.findFilesSync(regex, startdir, ignore);
+    }
+
+    private static findFilesSync(pattern: RegExp, startdir: string, ignore: string[]) {
+        let results: string[] = [];
+        let list = fs.readdirSync(startdir)
+        for(let file of list) {
+            file = startdir + '\\' + file;
+            var stat = fs.statSync(file);
+            if (stat && stat.isDirectory()) {
+                let base = path.basename(file);
+                if(!ignore.find((value, index, obj) => {
+                    let fpaths = value.split('/');
+                    if(fpaths[0] == base) {
+                        if(fpaths.length>1)
+                            this.findFilesSync(pattern, path.join(startdir, fpaths[0]),  [ fpaths.splice(0, 1).join("/") ]);
+                        else
+                            return true;
+                    }
+                    else
+                        return false;
+                }))
+                    results = results.concat(this.findFilesSync(pattern, file, ignore));
+            }
+            else if(file.match(pattern)) 
+                results.push(file);
+        }
+        return results;
     }
 
     static getFileName(path: string): string {

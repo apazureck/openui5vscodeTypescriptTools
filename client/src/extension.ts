@@ -59,36 +59,54 @@ export function activate(c: vscode.ExtensionContext) {
 
     context.subscriptions.push(diagnosticCollection);
 
-    vscode.workspace.onDidChangeTextDocument(onChange);
+    vscode.workspace.onDidChangeTextDocument(diagnoseManifest);
 }
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 
-function onChange(changes: vscode.TextDocumentChangeEvent) {
+function diagnoseManifest(changes: vscode.TextDocumentChangeEvent) {
+	if(path.basename(changes.document.fileName) != "manifest.json")
+		return;
+
     try {
-	diagnosticCollection.clear();
-	let diag: vscode.Diagnostic[] = [];
-	let text = changes.document.getText();
-	let jcontent: Manifest = JSON.parse(text);
-	let targets = enumerable.AsEnumerable(getTargets(jcontent));
-	for(let route of jcontent["sap.ui5"].routing.routes) {
-		try {
-			if(!targets.Contains(route.target))
-				diag.push({
-					message: "Target '" + route.target + "' could not be found. Check your 'sap.ui5.targets' section for the correct key or define the target there.",
-					range: getRange(text, new RegExp(route.name))[0],
-					severity: 0,
-					source: route.name,
-					code: "newCode123"
-				});
-		} catch (error) {
-			
+		diagnosticCollection.clear();
+		let diag: vscode.Diagnostic[] = [];
+
+		let text = changes.document.getText();
+		let jcontent: Manifest = JSON.parse(text);
+		let targets = enumerable.AsEnumerable(getTargets(jcontent));
+		for(let route of jcontent["sap.ui5"].routing.routes) {
+			try {
+				if(!targets.Contains(route.target))
+					diag.push({
+						message: "Target '" + route.target + "' could not be found. Check your 'sap.ui5.targets' section for the correct key or define the target there.",
+						range: getRange(text, new RegExp("\"target\"\\s*:\\s*[\"']?(" + route.target + ")"), 1)[0],
+						severity: vscode.DiagnosticSeverity.Error,
+						source: route.name,
+						code: "newCode123"
+					});
+			} catch (error) {
+				
+			}
 		}
-	}
-	if(diag.length>0)
-		diagnosticCollection.set(changes.document.uri, diag);
-		if(jcontent)
-			manifest = jcontent;
+
+		let views = enumerable.asEnumerable(getViews());
+
+		for(let tname in jcontent["sap.ui5"].routing.targets) {
+			let targetview = jcontent["sap.ui5"].routing.targets[tname];
+			let fullname = jcontent["sap.ui5"].routing.config.viewPath + "." + targetview.viewName;
+			if(!views.FirstOrDefault(x => x.name == fullname))
+				try {
+					diag.push({ range: getRange(text, new RegExp("\"viewName\"\\s*:\\s*[\"']?(" + targetview.viewName + ")"), 1)[0], message: "TargetView not found.", severity: vscode.DiagnosticSeverity.Error, code: "newCode234", source: tname});
+				} catch (error) {
+					
+				}
+		}
+
+		if(diag.length>0)
+			diagnosticCollection.set(changes.document.uri, diag);
+			if(jcontent)
+				manifest = jcontent;
 	} catch (error) {
 
 	}
@@ -101,7 +119,49 @@ function getTargets(jcontent: Manifest) {
 	return targetnames;
 }
 
-function getRange(docText: string, searchPattern: RegExp): vscode.Range[] {
+interface Ui5View {
+	type: ViewType;
+	fullpath: string;
+	name: string;
+}
+
+enum ViewType {
+	XML, JSON
+}
+
+function getViews(): Ui5View[] {
+	// TODO: Make Setting for to ignore folders
+	let viewpaths = file.File.findSync(/(.*)\.view\.(json|xml|JSON|XML)/, vscode.workspace.rootPath, ['resources', '.vscode', 'node_modules', 'out', 'typings', '.bin', '.idea']);
+	let ret: Ui5View[] = []
+	for(let viewpath of viewpaths) {
+		ret.push({
+			fullpath: viewpath,
+			name: getViewName(viewpath, ui5extension.namespacemappings),
+			type: getViewType(viewpath)
+		});
+	}
+	return ret;
+}
+
+function getViewType(viewPath: string): ViewType {
+	if(viewPath.toLowerCase().endsWith("xml"))
+		return ViewType.XML;
+	else
+		return ViewType.JSON;
+}
+
+function getViewName(viewpath: string, namespacemappings: { [id: string] : string }): string {
+	let relativepath = path.relative(vscode.workspace.rootPath, viewpath);
+	let projectnamespace: string;
+	for(let key in namespacemappings)
+		if(namespacemappings[key] == "./")
+			projectnamespace = key;
+	
+	relativepath = relativepath.replace(/\.view\.(xml|json|XML|JSON)/, "");
+	return projectnamespace + "." + relativepath.split(path.sep).join(".");
+}
+
+function getRange(docText: string, searchPattern: RegExp, subgroup?: number): vscode.Range[] {
 	const lineRegex = /.*(?:\n|\r\n)/gm;
 	let l;
 	let ret: vscode.Range[] = [];
@@ -115,8 +175,12 @@ function getRange(docText: string, searchPattern: RegExp): vscode.Range[] {
 		
 		if(!match)
 			continue;
-		
-        ret.push(new vscode.Range(new vscode.Position(linectr, match.index), new vscode.Position(linectr, match.index + match[0].length)));
+		let startchar = match.index;
+		// calculate start of the subgroup
+		if(subgroup)
+			startchar += match[0].indexOf(match[subgroup]);
+
+        ret.push(new vscode.Range(linectr-1, startchar, linectr -1, startchar + match[subgroup?subgroup:0].length));
 	}
 	return ret;
 }
@@ -225,7 +289,7 @@ var manifest: Manifest;
 
 export class ManifestCompletionItemProvider implements vscode.CompletionItemProvider {
     public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.CompletionItem[]> | vscode.CompletionItem[] | Thenable<vscode.CompletionList> {
-		return new Promise<vscode.CompletionItem[]>((resolve, reject) => {
+		return new Promise<vscode.CompletionList>((resolve, reject) => {
 			let line = document.lineAt(position);
 			let matches = line.text.match(/"(.*)"\s*:\s*(.*)\s*[,]?\s*/);
 			if(!matches)
@@ -235,6 +299,7 @@ export class ManifestCompletionItemProvider implements vscode.CompletionItemProv
 			let key = matches[1];
 			let value = matches[2];
 			let val;
+			let kind = vscode.CompletionItemKind.Field;
 
 			try {
 				switch (key) {
@@ -254,30 +319,51 @@ export class ManifestCompletionItemProvider implements vscode.CompletionItemProv
 
 					if(!targets)
 						return reject("No targets found");
-					
-					let kind = vscode.CompletionItemKind.Value;
+					 
 					if(value && value.startsWith('"')) {
 						value = value.match(/"(.*)"/)[1];
 						kind = vscode.CompletionItemKind.Text;
 					}
 
-					if(!value) {
-						val = new vscode.CompletionList(enumerable.asEnumerable(targets).Select(x => {
+					val = new vscode.CompletionList(enumerable.asEnumerable(targets).Select(x => {
 							if(token.isCancellationRequested) throw("Cancelled");
-							let item = new vscode.CompletionItem(x, kind);
-							item.insertText = "\""+x+"\"";
-							return item;
-						}).ToArray(), false); 
-						return resolve(val);
-					}
-
-					val = new vscode.CompletionList(enumerable.asEnumerable(targets).Where(x => x.toLowerCase().startsWith(value.toLowerCase())).Select(x => {
-							if(token.isCancellationRequested) throw("Cancelled");
-							let item = new vscode.CompletionItem(x, kind);
-							item.insertText = "\""+x+"\"";
+							let item = this.newCompletionItem(x, kind);
+							item.documentation = "viewName: '"  + manifest["sap.ui5"].routing.targets[item.label].viewName + "'\n" +
+												 "transition: '" + manifest["sap.ui5"].routing.targets[item.label].transition + "'";
 							return item;
 					}).ToArray(), false);
 					return resolve(val);
+				case "viewName":
+					console.log("viewName triggered\n");
+
+					if(value && value.startsWith('"')) {
+						value = value.match(/"(.*)"/)[1];
+						kind = vscode.CompletionItemKind.Text;
+					}
+
+					let views = getViews();
+					let relativeViews: Ui5View[] = []
+					if(manifest["sap.ui5"].routing.config.viewPath) {
+						//make relative namespaces
+						let prefix = manifest["sap.ui5"].routing.config.viewPath+".";
+
+						for(let view of views) {
+							relativeViews.push({
+								fullpath: view.fullpath,
+								name: view.name.replace(prefix, ""),
+								type: view.type
+							});
+						}
+					}
+					else
+						relativeViews = views;
+
+					resolve(new vscode.CompletionList(enumerable.asEnumerable(relativeViews).Select(x => {
+						let item = this.newCompletionItem(x.name, kind);
+						item.documentation = "file: '." + path.sep + path.relative(vscode.workspace.rootPath, x.fullpath) + "'";
+						item.detail = "type: '" + ViewType[x.type] + "'";
+						return item;
+					}).ToArray(), false));
 				default:
 					return reject("Unknown Key: '"+key+"'");
 			}
@@ -286,4 +372,18 @@ export class ManifestCompletionItemProvider implements vscode.CompletionItemProv
 			}
 		});
     }
+
+	private newCompletionItem(name: string, kind: vscode.CompletionItemKind): vscode.CompletionItem {
+		let item: vscode.CompletionItem;
+		if(kind === vscode.CompletionItemKind.Text) {
+			item = new vscode.CompletionItem(name, kind);
+			item.insertText = '"'+name;
+			item.filterText = '"'+name+'"'
+		}
+		else {
+			item = new vscode.CompletionItem(name, kind);
+			item.insertText = '"'+name+'"';
+		}
+		return item;
+	}
 }

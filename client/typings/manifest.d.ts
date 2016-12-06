@@ -2,11 +2,6 @@ declare interface Manifest {
     "sap.ui5": sap.ui5;
 }
 
-declare interface Routing {
-    routes?: Route[];
-    targets?: Targets;
-}
-
 declare interface Targets {
     [name: string]: Target;
 }
@@ -24,6 +19,22 @@ declare interface Route {
 
 declare namespace sap {
     interface ui5 {
-        routing: Routing;
+        routing: {
+            routes?: Route[];
+            targets?: Targets;
+            config: {
+            routerClass: string;
+            viewType: ViewType;
+            viewPath: string;
+            controlId: string;
+            controlAggregation: string;
+            async: boolean;
+            transition: string;
+            }
+        }
     }
+}
+
+declare enum ViewType {
+	XML, JSON
 }
