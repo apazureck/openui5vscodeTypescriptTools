@@ -8,7 +8,7 @@
 			"request": "attach",
 			"port": 6004,
 			"sourceMaps": true,
-			"outDir": "${workspaceRoot}/../client/languages/ui5xml"
+			"outDir": "${workspaceRoot}/../client/languages/ui5manifest"
 		}
 	]
 }

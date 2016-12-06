@@ -37,7 +37,7 @@ class File {
      *
      * @memberOf File
      */
-    static find(pattern, startdir) {
+    static findAsync(pattern, startdir) {
         return __awaiter(this, void 0, void 0, function* () {
             startdir = startdir ? startdir : server_1.workspaceRoot;
             let matcher = typeof pattern === "string" ? new RegExp(pattern) : pattern;
@@ -65,13 +65,17 @@ class File {
      *
      * @memberOf File
      */
-    static findSync(pattern, startdir) {
+    static find(pattern, startdir) {
         startdir = startdir ? startdir : server_1.workspaceRoot;
         let regex = typeof pattern === "string" ? new RegExp(pattern) : pattern;
         return findFilesSync(regex, startdir);
     }
     static getFileName(path) {
         return path.split("\\").pop();
+    }
+    static open(path, encoding) {
+        encoding = encoding ? encoding : "utf-8";
+        return fs.readFileSync(path, encoding);
     }
 }
 exports.File = File;

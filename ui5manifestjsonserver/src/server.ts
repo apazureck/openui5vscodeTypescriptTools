@@ -15,6 +15,7 @@ import {  } from 'cancellation'
 import * as vscodels from 'vscode-languageserver'
 import { File } from './filehandler';
 import * as p from 'path';
+import * as enumerable from 'linq-es5';
 
 const controllerFileEx = "\\.controller\\.(js|ts)$";
 
@@ -40,45 +41,44 @@ connection.onInitialize((params): InitializeResult => {
 			// Tell the client that the server works in FULL text document sync mode
 			textDocumentSync: documents.syncKind,
 			// Tell the client that the server support code complete
-			definitionProvider: true
+			definitionProvider: true,
+			completionProvider: {
+				resolveProvider: true,
+				triggerCharacters: [
+					'.'
+				]
+			}
 		}
 	}
 });
 
 connection.onDefinition((params) => {
-	let files: string[];
-	let doc = documents.get(params.textDocument.uri);
-	let startindex = doc.offsetAt(params.position);
-	let text = doc.getText();
-	let line = getLine(text, startindex);
-	let tag = line.match(/(\w+)Name="(.*?)"/);
-
-	if(!tag)
-		return tryOpenEventHandler(line, params.position.character, text);
-
-	let tName = tag[2].split(".").pop();
-	let ret: Location[] = [];
-	switch (tag[1]) {
-		case "controller":
-			files = File.find(new RegExp(tName+controllerFileEx));
-			// Check typescript (dirty)
-			for(let i =0; i< files.length; i = i+2 ) {
-				let f = files.length>1 ? files[i+1] : files[i];
-				ret.push({ range: { start: { character: 0, line: 0}, end: { character: 0, line: 0}}, uri: "file:///"+f });
-			}
-			return ret;
-		case "view":
-			files = File.find(new RegExp(tName+"\\.view\\.(xml|json)$"));
-			for(let f in files)
-				ret.push({ range: { start: { character: 0, line: 0}, end: { character: 0, line: 0}}, uri: "file:///"+files[0] });
-		case "fragment":
-			files = File.find(new RegExp(tName+"\\.fragment\\.(xml|json)$"));
-			return { range: { start: { character: 0, line: 0}, end: { character: 0, line: 0}}, uri: "file:///"+files[0] };
-		default:
-			// let eventhandlertag = vscode.window.activeTextEditor.selection.active;
-			return [];
-	}
+	return [];
 });
+
+documents.onDidChangeContent(change => {
+	let diag: Diagnostic[] = [];
+	let text = change.document.getText();
+	let jcontent: Manifest = JSON.parse(text);
+	let targets = enumerable.AsEnumerable(getTargets(jcontent));
+	for(let route of jcontent["sap.ui5"].routing.routes) {
+		if(!targets.Contains(route.target))
+			diag.push({
+				message: "Target '" + route.target + "' could not be found.",
+				range: getRange(text, new RegExp(route.name))[0],
+				severity: 1,
+				source: route.name
+			});
+	}
+	connection.sendDiagnostics({ uri: change.document.uri, diagnostics: diag });
+});
+
+function getTargets(jcontent: Manifest) {
+	let targetnames: string[] = []
+	for(let key in jcontent["sap.ui5"].routing.targets)
+		targetnames.push(key);
+	return targetnames;
+}
 
 function tryOpenEventHandler(line: string, positionInLine: number, documentText: string): Location[] {
 	let rightpart = line.substr(positionInLine).match(/(\w*?)"/)[1];
@@ -154,21 +154,21 @@ function getRange(docText: string, searchPattern: RegExp): Range[] {
 }
 
 function getLine(input: string, startindex: number): string {
-		let rightpart = input.substr(startindex).match(/.*/m)[0];
-		if(!rightpart)
-			return null;
-		const getLastLineRegex = /\n.*/gm;
-		let leftinput = input.substr(0, startindex);
-		let l, m;
-		while((l = getLastLineRegex.exec(leftinput)) !== null) {
-			if(l.index === getLastLineRegex.lastIndex)
-				getLastLineRegex.lastIndex++;
-			m = l;
-		}
-		
-		let leftpart = m.pop().substr(1);
-		if(!leftpart)
-			return null;
-		
-		return leftpart + rightpart;
+	let rightpart = input.substr(startindex).match(/.*/m)[0];
+	if(!rightpart)
+		return null;
+	const getLastLineRegex = /\n.*/gm;
+	let leftinput = input.substr(0, startindex);
+	let l, m;
+	while((l = getLastLineRegex.exec(leftinput)) !== null) {
+		if(l.index === getLastLineRegex.lastIndex)
+			getLastLineRegex.lastIndex++;
+		m = l;
 	}
+	
+	let leftpart = m.pop().substr(1);
+	if(!leftpart)
+		return null;
+	
+	return leftpart + rightpart;
+}

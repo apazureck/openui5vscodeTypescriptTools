@@ -1,6 +1,6 @@
 {
-	"name": "ui5xml-language-server",
-	"description": "A language server for extending xml views and fragments in ui5",
+	"name": "ui5manifest-language-server",
+	"description": "A language server for supporting code completion in manifest.json",
 	"version": "0.0.1",
 	"author": "Andreas Pazureck",
 	"license": "MIT",
@@ -25,7 +25,7 @@
 		"vscode": "1.0.3"
 	},
 	"scripts": {
-		"compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json languages/ui5xml && tsc -p .",
-		 "watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json languages/ui5xml && tsc --watch -p ."
+		"compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json languages/ui5manifest && tsc -p .",
+		"watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json languages/ui5manifest && tsc --watch -p ."
 	}
 }

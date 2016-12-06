@@ -1,6 +1,7 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     "files.exclude": {
+        "**/*.js": {"when": "$(basename).ts"},
         "out": false // set this to true to hide the "out" folder with the compiled JS files
     },
     "search.exclude": {

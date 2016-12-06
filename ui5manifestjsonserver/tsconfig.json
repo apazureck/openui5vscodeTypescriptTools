@@ -4,7 +4,7 @@
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"sourceMap": true,
-		"outDir": "../client/languages/ui5xml"
+		"outDir": "../client/languages/ui5manifest"
 	},
 	"exclude": [
 		"node_modules"

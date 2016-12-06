@@ -22,7 +22,8 @@
   "activationEvents": [
     "onCommand:ui5ts.SetupUi5",
     "workspaceContains:manifest.json",
-    "onLanguage:ui5xml"
+    "onLanguage:ui5xml",
+    "onLanguage:ui5manifest"
   ],
   "main": "./out/src/extension",
   "contributes": {
