@@ -1,10 +1,11 @@
 {
 	"compilerOptions": {
-		"target": "ES2015",
+		"target": "es6",
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"sourceMap": true,
-		"outDir": "../client/languages/ui5xml"
+		"lib" : [ "es2016" ],
+		"outDir": "../client/server"
 	},
 	"exclude": [
 		"node_modules"

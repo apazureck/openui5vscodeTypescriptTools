@@ -5,12 +5,13 @@
 'use strict';
 
 import {
-	IPCMessageReader, IPCMessageWriter, RequestHandler, Definition, Location, ResponseError,
+	IPCMessageReader, IPCMessageWriter,
 	createConnection, IConnection, TextDocumentSyncKind,
 	TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
 	InitializeParams, InitializeResult, TextDocumentPositionParams,
-	CompletionItem, CompletionItemKind, Range
+	CompletionItem, CompletionItemKind, Location, Range
 } from 'vscode-languageserver';
+
 import {  } from 'cancellation'
 import * as vscodels from 'vscode-languageserver'
 import { File } from './filehandler';
@@ -40,7 +41,8 @@ connection.onInitialize((params): InitializeResult => {
 			// Tell the client that the server works in FULL text document sync mode
 			textDocumentSync: documents.syncKind,
 			// Tell the client that the server support code complete
-			definitionProvider: true
+			definitionProvider: true,
+			completionProvider: true
 		}
 	}
 });
@@ -78,6 +80,18 @@ connection.onDefinition((params) => {
 			// let eventhandlertag = vscode.window.activeTextEditor.selection.active;
 			return [];
 	}
+});
+
+connection.onCompletion((handler) => {
+	return new Promise((resolve, reject) => {
+		resolve()
+	});
+});
+
+connection.onCompletionResolve((handler) => {
+	return new Promise((resolve, reject) => {
+		resolve();
+	});
 });
 
 function tryOpenEventHandler(line: string, positionInLine: number, documentText: string): Location[] {
@@ -131,8 +145,6 @@ documents.onDidChangeContent((e) => {
 	connection.console.info("Did  Change Content Event occurred.")
 });
 
-connection.listen();
-
 function getRange(docText: string, searchPattern: RegExp): Range[] {
 	const lineRegex = /.*(?:\n|\r\n)/gm;
 	let l;
@@ -154,21 +166,23 @@ function getRange(docText: string, searchPattern: RegExp): Range[] {
 }
 
 function getLine(input: string, startindex: number): string {
-		let rightpart = input.substr(startindex).match(/.*/m)[0];
-		if(!rightpart)
-			return null;
-		const getLastLineRegex = /\n.*/gm;
-		let leftinput = input.substr(0, startindex);
-		let l, m;
-		while((l = getLastLineRegex.exec(leftinput)) !== null) {
-			if(l.index === getLastLineRegex.lastIndex)
-				getLastLineRegex.lastIndex++;
-			m = l;
-		}
-		
-		let leftpart = m.pop().substr(1);
-		if(!leftpart)
-			return null;
-		
-		return leftpart + rightpart;
+	let rightpart = input.substr(startindex).match(/.*/m)[0];
+	if(!rightpart)
+		return null;
+	const getLastLineRegex = /\n.*/gm;
+	let leftinput = input.substr(0, startindex);
+	let l, m;
+	while((l = getLastLineRegex.exec(leftinput)) !== null) {
+		if(l.index === getLastLineRegex.lastIndex)
+			getLastLineRegex.lastIndex++;
+		m = l;
 	}
+	
+	let leftpart = m.pop().substr(1);
+	if(!leftpart)
+		return null;
+	
+	return leftpart + rightpart;
+}
+
+connection.listen();

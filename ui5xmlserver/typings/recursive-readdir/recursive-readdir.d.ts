@@ -3,8 +3,6 @@
 // Definitions by: Elisée Maurer <https://github.com/elisee/>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
-/// <reference path="../node/node.d.ts" />
-
 declare module "recursive-readdir" {
     import * as fs from "fs";
     namespace RecursiveReaddir {

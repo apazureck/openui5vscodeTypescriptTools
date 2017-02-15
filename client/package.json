@@ -14,7 +14,7 @@
   },
   "icon": "./img/OpenUI5_logo.png",
   "categories": [
-    "Languages"
+    "Languages", "Snippets", "Other"
   ],
   "galleryBanner": {
     "color": "#17c3d9"
@@ -27,20 +27,6 @@
   ],
   "main": "./out/src/extension",
   "contributes": {
-    "languages": [
-      {
-        "id": "ui5xml",
-        "extensions": [
-          ".view.xml", ".fragment.xml"
-        ],
-        "configuration": "./ui5xml.language-configuration.json"
-      }
-    ],
-    "grammars": [{
-			"language": "ui5xml",
-			"scopeName": "text.xml",
-			"path": "./syntaxes/xml.json"
-    }],
     "jsonValidation": [
       {
         "fileMatch": "manifest.json",
@@ -89,25 +75,20 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
-    "typescript": "^2.0.3",
-    "vscode": "^1.0.0",
+    "typescript": "^2.1.6",
+    "vscode": "^1.0.3",
     "mocha": "^2.3.3",
-    "@types/node": "^6.0.40",
-    "@types/mocha": "^2.2.32",
-    "vscode-languageclient": "^2.6.3"
+    "@types/node": "^7.0.5",
+    "@types/mocha": "^2.2.39",
+    "vscode-languageclient": "^3.0.4"
   },
   "dependencies": {
     "@types/fs-finder": "^1.8.28",
-    "linq-es5": "^1.11.5",
+    "linq-es6": "^0.2.1",
     "ncp": "^2.0.0",
-    "recursive-readdir": "^2.1.0",
-     "vscode-languageclient": "^2.6.3"
+    "recursive-readdir": "^2.1.1",
+     "vscode-languageclient": "^3.0.4"
   },
-  "extensionDependencies": [
-    "msjsdiag.debugger-for-chrome",
-    "msjsdiag.debugger-for-edge",
-    "hbenl.vscode-firefox-debug"
-  ],
   "bugs": {
     "url": "https://github.com/apazureck/openui5vscodeTypescriptTools/issues"
   },

@@ -1,6 +1,6 @@
 import * as ncp from 'ncp';
 import * as rrd from 'recursive-readdir';
-import * as enumerable from 'linq-es2015';
+import * as enumerable from 'linq-es6';
 import * as fs from 'fs';
 import { TextDocument } from 'vscode-languageserver';
 import { workspaceRoot } from './server';

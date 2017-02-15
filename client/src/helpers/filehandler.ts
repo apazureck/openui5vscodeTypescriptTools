@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as ncp from 'ncp';
 import * as rrd from 'recursive-readdir';
-import * as enumerable from 'linq-es2015';
+import * as enumerable from 'linq-es5';
 import * as fs from 'fs';
 import * as log from './logging';
 import * as path from 'path'

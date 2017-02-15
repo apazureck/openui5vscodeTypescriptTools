@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const rrd = require('recursive-readdir');
-const enumerable = require('linq-es2015');
+const enumerable = require('linq-es6');
 const fs = require('fs');
 const server_1 = require('./server');
 class FileHandler {

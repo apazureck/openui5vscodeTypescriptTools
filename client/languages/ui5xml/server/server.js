@@ -95,7 +95,6 @@ function tryOpenEventHandler(line, positionInLine, documentText) {
 documents.onDidChangeContent((e) => {
     connection.console.info("Did  Change Content Event occurred.");
 });
-connection.listen();
 function getRange(docText, searchPattern) {
     const lineRegex = /.*(?:\n|\r\n)/gm;
     let l;
@@ -129,4 +128,5 @@ function getLine(input, startindex) {
         return null;
     return leftpart + rightpart;
 }
+connection.listen();
 //# sourceMappingURL=server.js.map

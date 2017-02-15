@@ -1,12 +1,8 @@
-/// <reference path="./helpers/filehandler.ts"/>
-
 import * as vscode from 'vscode';
 import * as ncp from 'ncp';
 import * as ui5ts from './extension';
 import * as log from './helpers/logging';
 import * as file from './helpers/filehandler';
-
-var ln: (searchstring: string, pattern: RegExp) => { line: string, match: string, number: number }[] = require('line-number');
 
 const namespaceformat = /^(\w+\.?)+\w+$/;
 

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as file from '../../helpers/filehandler';
 import * as commands from '../../commands';
+import { TextDocument, Position, CancellationToken, CompletionItem, CompletionList } from 'vscode'
 
 export class Ui5ViewDefinitionProvider implements vscode.DefinitionProvider {
     provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.Definition> {
@@ -97,4 +98,38 @@ function tryOpenEventHandler(document: vscode.TextDocument, position: vscode.Pos
                     return new vscode.Location(uri, range);
                 });
             });
+}
+
+export class Ui5CompletionItemProvider implements vscode.CompletionItemProvider {
+    /**
+		 * Provide completion items for the given position and document.
+		 *
+		 * @param document The document in which the command was invoked.
+		 * @param position The position at which the command was invoked.
+		 * @param token A cancellation token.
+		 * @return An array of completions, a [completion list](#CompletionList), or a thenable that resolves to either.
+		 * The lack of a result can be signaled by returning `undefined`, `null`, or an empty array.
+		 */
+		provideCompletionItems(document: TextDocument, position: Position, token: CancellationToken): Thenable<CompletionList> {
+            return new Promise((reject, resolve) => {
+                let i = 0;
+            });
+        };
+
+		/**
+		 * Given a completion item fill in more data, like [doc-comment](#CompletionItem.documentation)
+		 * or [details](#CompletionItem.detail).
+		 *
+		 * The editor will only resolve a completion item once.
+		 *
+		 * @param item A completion item currently active in the UI.
+		 * @param token A cancellation token.
+		 * @return The resolved completion item or a thenable that resolves to of such. It is OK to return the given
+		 * `item`. When no result is returned, the given `item` will be used.
+		 */
+		resolveCompletionItem(item: CompletionItem, token: CancellationToken): Thenable<CompletionItem> {
+            return new Promise((reject, resolve) => {
+                let i = 0;
+            })
+        }
 }

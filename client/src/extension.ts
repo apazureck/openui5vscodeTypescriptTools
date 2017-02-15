@@ -6,11 +6,11 @@ import * as commands from './commands';
 import * as file from './helpers/filehandler';
 import * as fs from 'fs';
 import * as log from './helpers/logging';
-// import * as defprov from './language/ui5/Ui5DefinitionProviders';
+import * as defprov from './language/ui5/Ui5DefinitionProviders';
 // import * as mcp from './language/ui5/ManifestCompletionItemProvider';
 import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind } from 'vscode-languageclient';
 import * as path from 'path';
-import * as enumerable from 'linq-es5';
+import * as enumerable from 'linq-es6';
 
 export const name = "ui5-ts";
 export var context: vscode.ExtensionContext;
@@ -19,11 +19,11 @@ export interface Ui5Extension {
 }
 
 const ui5_jsonviews: vscode.DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.view.json" };
-const ui5_xmlviews: vscode.DocumentFilter = { language: 'ui5xml', scheme: "file", pattern: "*.view.xml"};
+const ui5_xmlviews: vscode.DocumentFilter = { language: 'xml', scheme: "file", pattern: "*.view.xml"};
 const ui5_tscontrollers: vscode.DocumentFilter = { language: 'typescript', scheme: 'file', pattern: "*.controller.ts"};
 const ui5_jscontrollers: vscode.DocumentFilter = { language: 'javascript', scheme: 'file', pattern: ".controller.js"};
 const ui5_jsonfragments: vscode.DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.fragment.json"};
-const ui5_xmlfragments: vscode.DocumentFilter = { language: "ui5xml", scheme: 'file', pattern: "*.fragment.xml"};
+const ui5_xmlfragments: vscode.DocumentFilter = { language: "xml", scheme: 'file', pattern: "*.fragment.xml"};
 const ui5_manifest: vscode.DocumentFilter = { language: "json", scheme: 'file', pattern: "**/manifest.json"};
 
 export var ui5extension: Ui5Extension = { namespacemappings: { } };
@@ -53,6 +53,8 @@ export function activate(c: vscode.ExtensionContext) {
     // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jscontrollers, new defprov.Ui5ControllerDefinitionProvider));
     // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlfragments, new defprov.Ui5FragmentDefinitionProvider))
     // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jsonfragments, new defprov.Ui5FragmentDefinitionProvider));
+
+	context.subscriptions.push(vscode.languages.registerCompletionItemProvider(ui5_xmlfragments, new defprov.Ui5CompletionItemProvider));
 
     diagnosticCollection = vscode.languages.createDiagnosticCollection('json');
 	context.subscriptions.push(vscode.languages.registerCompletionItemProvider(ui5_manifest, new ManifestCompletionItemProvider));
@@ -219,43 +221,10 @@ export function deactivate() {
     
 }
 
-function startManifestLanguageServer(): void {
-    // The server is implemented in node
-    log.printInfo("Staring Manifest language server");
-	let serverModule = context.asAbsolutePath(path.join('languages', 'ui5manifest', 'server.js'));
-	// The debug options for the server
-	let debugOptions = { execArgv: ["--nolazy", "--debug=6004"] };
-	
-	// If the extension is launched in debug mode then the debug server options are used
-	// Otherwise the run options are used
-	let serverOptions: ServerOptions = {
-		run : { module: serverModule, transport: TransportKind.ipc },
-		debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
-	}
-	
-	// Options to control the language client
-	let clientOptions: LanguageClientOptions = {
-		// Register the server for UI5 xml decuments documents
-		documentSelector: ['manifest.json'],
-		synchronize: {
-			// Synchronize the setting section 'languageServerExample' to the server
-			// configurationSection: 'languageServerExample',
-			// Notify the server about file changes to '.clientrc files contain in the workspace
-			fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
-		}
-	}
-	
-	// Create the language client and start the client.
-	let disposable = new LanguageClient('UI5 Manifest Language Client', serverOptions, clientOptions).start();
-    // Push the disposable to the context's subscriptions so that the 
-	// client can be deactivated on extension deactivation
-	context.subscriptions.push(disposable);
-}
-
 function startXmlViewLanguageServer(): void {
     // The server is implemented in node
     log.printInfo("Staring XML View language server");
-	let serverModule = context.asAbsolutePath(path.join('languages', 'ui5xml', 'server.js'));
+	let serverModule = context.asAbsolutePath(path.join('languages', 'ui5xml', 'server', 'server.js'));
 	// The debug options for the server
 	let debugOptions = { execArgv: ["--nolazy", "--debug=6004"] };
 	
@@ -269,7 +238,7 @@ function startXmlViewLanguageServer(): void {
 	// Options to control the language client
 	let clientOptions: LanguageClientOptions = {
 		// Register the server for UI5 xml decuments documents
-		documentSelector: ['ui5xml'],
+		documentSelector: ['xml'],
 		synchronize: {
 			// Synchronize the setting section 'languageServerExample' to the server
 			// configurationSection: 'languageServerExample',
