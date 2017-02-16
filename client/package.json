@@ -22,7 +22,7 @@
   "activationEvents": [
     "onCommand:ui5ts.SetupUi5",
     "workspaceContains:manifest.json",
-    "onLanguage:ui5xml",
+    "onLanguage:xml",
     "onLanguage:ui5manifest"
   ],
   "main": "./out/src/extension",
@@ -56,6 +56,21 @@
         "title": "Swtich to View"
       }
     ],
+    "configuration": {
+      "title": "Settings for UI5 Typescript extension",
+      "properties": {
+        "ui5ts.lang.i18nmodelname": {
+          "type": "string",
+          "default": "i18n",
+          "description": "Sets the name for the i18n model, if not the default name is used. It is used for code completion when referenced on views."
+        },
+        "settings.ui5ts.lang.i18nmodelfilelocation": {
+          "type": "string",
+          "default": "./i18n/i18n.properties",
+          "description": "Location of the i18n file used for code completion"
+        }
+      }
+    },
     "keybindings": [
       {
         "command": "ui5ts.SwitchToController",

@@ -1,3 +1,4 @@
+import { CompletionList } from 'vscode-languageserver-types/lib/main';
 /* --------------------------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -11,7 +12,6 @@ import {
 	InitializeParams, InitializeResult, TextDocumentPositionParams,
 	CompletionItem, CompletionItemKind, Location, Range
 } from 'vscode-languageserver';
-
 import {  } from 'cancellation'
 import * as vscodels from 'vscode-languageserver'
 import { File } from './filehandler';
@@ -42,7 +42,10 @@ connection.onInitialize((params): InitializeResult => {
 			textDocumentSync: documents.syncKind,
 			// Tell the client that the server support code complete
 			definitionProvider: true,
-			completionProvider: true
+			completionProvider: {
+				resolveProvider: true,
+				triggerCharacters: [">"]
+			}
 		}
 	}
 });
@@ -52,7 +55,7 @@ connection.onDefinition((params) => {
 	let doc = documents.get(params.textDocument.uri);
 	let startindex = doc.offsetAt(params.position);
 	let text = doc.getText();
-	let line = getLine(text, startindex);
+	let line = getLineByIndex(text, startindex);
 	let tag = line.match(/(\w+)Name="(.*?)"/);
 
 	if(!tag)
@@ -83,16 +86,64 @@ connection.onDefinition((params) => {
 });
 
 connection.onCompletion((handler) => {
-	return new Promise((resolve, reject) => {
-		resolve()
+	connection.console.info("Completion providing request received");
+	return new Promise<CompletionItem[]>((resolve, reject) => {
+		let cl: CompletionItem[] = [];
+		let doc = documents.get(handler.textDocument.uri);
+		let line = getLine(doc.getText(), handler.position.line);
+		cl = cl.concat(geti18nlabels(line, handler.position.character));
+		resolve(cl);
 	});
 });
 
-connection.onCompletionResolve((handler) => {
-	return new Promise((resolve, reject) => {
-		resolve();
-	});
-});
+function geti18nlabels(line: string, cursorpos: number): CompletionItem[] {
+	let pos = line.match(new RegExp(settings.ui5ts.lang.i18nmodelname + ">(.*?)}?\"")) as RegExpMatchArray;
+	if(!pos)
+		return [];
+	
+	let startpos = pos.index + settings.ui5ts.lang.i18nmodelname.length + 1;
+	let endpos = startpos + pos[1].length
+	if(cursorpos < startpos || cursorpos > endpos)
+		return [];
+
+	if(!storage.i18nItems)
+		storage.i18nItems = getLabelsFormi18nFile();
+	
+	return storage.i18nItems;
+}
+
+function getLabelsFormi18nFile(): CompletionItem[] {
+	if(!settings.ui5ts.lang.i18nmodelfilelocation)
+		settings.ui5ts.lang.i18nmodelfilelocation = "./i18n/i18n.properties";
+	let content = File.open(settings.ui5ts.lang.i18nmodelfilelocation).split("\n");
+	let items: CompletionItem[] = []
+	for(let line of content) {
+		try {
+			// Comment
+		if(line.startsWith("#"))
+			continue;
+		// New label
+		let match = line.match("^(.*?)=(.*)");
+		if(match)
+			items.push({
+				label: match[1],
+				detail: "i18n",
+				documentation: "'" + match[2] + "'",
+				kind: CompletionItemKind.Text,
+
+			});
+		} catch (error) {
+			
+		}
+	}
+	return items;
+}
+
+interface Storage {
+	i18nItems?: CompletionItem[];
+}
+
+var storage: Storage = {};
 
 function tryOpenEventHandler(line: string, positionInLine: number, documentText: string): Location[] {
 	let rightpart = line.substr(positionInLine).match(/(\w*?)"/)[1];
@@ -141,6 +192,11 @@ function tryOpenEventHandler(line: string, positionInLine: number, documentText:
 	return ret;
 }
 
+function getLine(text: string, linenumber: number) {
+	let lines = text.split(/\n/);
+	return lines[linenumber];
+}
+
 documents.onDidChangeContent((e) => {
 	connection.console.info("Did  Change Content Event occurred.")
 });
@@ -165,7 +221,7 @@ function getRange(docText: string, searchPattern: RegExp): Range[] {
 	return ret;
 }
 
-function getLine(input: string, startindex: number): string {
+function getLineByIndex(input: string, startindex: number): string {
 	let rightpart = input.substr(startindex).match(/.*/m)[0];
 	if(!rightpart)
 		return null;
@@ -184,5 +240,27 @@ function getLine(input: string, startindex: number): string {
 	
 	return leftpart + rightpart;
 }
+
+interface Settings {
+	ui5ts: {
+		lang: {
+			i18nmodelname: string,
+			i18nmodelfilelocation: string
+		}
+	}
+}
+
+var settings: Settings = {
+	ui5ts: {
+		lang: {
+			i18nmodelfilelocation: "./i18n/i18n.properties",
+			i18nmodelname: "i18n"
+		}
+	}
+};
+
+connection.onDidChangeConfiguration((change) => {
+	settings = <Settings>change.settings;
+});
 
 connection.listen();

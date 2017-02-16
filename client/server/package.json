@@ -8,13 +8,13 @@
     "node": "*"
   },
   "dependencies": {
-    "vscode-languageserver": "^3.0.5",
-    "ncp": "^2.0.0",
-    "recursive-readdir": "^2.1.1",
-    "linq-es6": "^0.2.1",
     "fs": "^0.0.1-security",
+    "linq-es6": "^0.2.1",
+    "ncp": "^2.0.0",
+    "path": "^0.12.7",
+    "recursive-readdir": "^2.1.1",
     "vscode": "^1.0.3",
-    "path": "^0.12.7"
+    "vscode-languageserver": "^3.0.5"
   },
   "devDependencies": {
     "@types/node": "^7.0.5",

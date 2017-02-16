@@ -1,3 +1,4 @@
+"use strict";
 /* --------------------------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -23,7 +24,10 @@ connection.onInitialize((params) => {
             textDocumentSync: documents.syncKind,
             // Tell the client that the server support code complete
             definitionProvider: true,
-            completionProvider: true
+            completionProvider: {
+                resolveProvider: true,
+                triggerCharacters: [">"]
+            }
         }
     };
 });
@@ -32,7 +36,7 @@ connection.onDefinition((params) => {
     let doc = documents.get(params.textDocument.uri);
     let startindex = doc.offsetAt(params.position);
     let text = doc.getText();
-    let line = getLine(text, startindex);
+    let line = getLineByIndex(text, startindex);
     let tag = line.match(/(\w+)Name="(.*?)"/);
     if (!tag)
         return tryOpenEventHandler(line, params.position.character, text);
@@ -60,15 +64,53 @@ connection.onDefinition((params) => {
     }
 });
 connection.onCompletion((handler) => {
+    connection.console.info("Completion providing request received");
     return new Promise((resolve, reject) => {
-        resolve();
+        let cl = [];
+        let doc = documents.get(handler.textDocument.uri);
+        let line = getLine(doc.getText(), handler.position.line);
+        cl = cl.concat(geti18nlabels(line, handler.position.character));
+        resolve(cl);
     });
 });
-connection.onCompletionResolve((handler) => {
-    return new Promise((resolve, reject) => {
-        resolve();
-    });
-});
+function geti18nlabels(line, cursorpos) {
+    let pos = line.match(new RegExp(settings.ui5ts.lang.i18nmodelname + ">(.*?)}?\""));
+    if (!pos)
+        return [];
+    let startpos = pos.index + settings.ui5ts.lang.i18nmodelname.length + 1;
+    let endpos = startpos + pos[1].length;
+    if (cursorpos < startpos || cursorpos > endpos)
+        return [];
+    if (!storage.i18nItems)
+        storage.i18nItems = getLabelsFormi18nFile();
+    return storage.i18nItems;
+}
+function getLabelsFormi18nFile() {
+    if (!settings.ui5ts.lang.i18nmodelfilelocation)
+        settings.ui5ts.lang.i18nmodelfilelocation = "./i18n/i18n.properties";
+    let content = filehandler_1.File.open(settings.ui5ts.lang.i18nmodelfilelocation).split("\n");
+    let items = [];
+    for (let line of content) {
+        try {
+            // Comment
+            if (line.startsWith("#"))
+                continue;
+            // New label
+            let match = line.match("^(.*?)=(.*)");
+            if (match)
+                items.push({
+                    label: match[1],
+                    detail: "i18n",
+                    documentation: "'" + match[2] + "'",
+                    kind: vscode_languageserver_1.CompletionItemKind.Text,
+                });
+        }
+        catch (error) {
+        }
+    }
+    return items;
+}
+var storage = {};
 function tryOpenEventHandler(line, positionInLine, documentText) {
     let rightpart = line.substr(positionInLine).match(/(\w*?)"/)[1];
     if (!rightpart)
@@ -103,6 +145,10 @@ function tryOpenEventHandler(line, positionInLine, documentText) {
     }
     return ret;
 }
+function getLine(text, linenumber) {
+    let lines = text.split(/\n/);
+    return lines[linenumber];
+}
 documents.onDidChangeContent((e) => {
     connection.console.info("Did  Change Content Event occurred.");
 });
@@ -122,7 +168,7 @@ function getRange(docText, searchPattern) {
     }
     return ret;
 }
-function getLine(input, startindex) {
+function getLineByIndex(input, startindex) {
     let rightpart = input.substr(startindex).match(/.*/m)[0];
     if (!rightpart)
         return null;
@@ -139,5 +185,16 @@ function getLine(input, startindex) {
         return null;
     return leftpart + rightpart;
 }
+var settings = {
+    ui5ts: {
+        lang: {
+            i18nmodelfilelocation: "./i18n/i18n.properties",
+            i18nmodelname: "i18n"
+        }
+    }
+};
+connection.onDidChangeConfiguration((change) => {
+    settings = change.settings;
+});
 connection.listen();
 //# sourceMappingURL=server.js.map

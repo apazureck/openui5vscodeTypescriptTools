@@ -22,7 +22,11 @@ connection.onInitialize((params) => {
             // Tell the client that the server works in FULL text document sync mode
             textDocumentSync: documents.syncKind,
             // Tell the client that the server support code complete
-            definitionProvider: true
+            definitionProvider: true,
+            completionProvider: {
+                resolveProvider: true,
+                triggerCharacters: ["."]
+            }
         }
     };
 });
@@ -57,6 +61,18 @@ connection.onDefinition((params) => {
             // let eventhandlertag = vscode.window.activeTextEditor.selection.active;
             return [];
     }
+});
+connection.onCompletion((handler) => {
+    connection.console.info("Completion providing request received");
+    return new Promise((resolve, reject) => {
+        resolve();
+    });
+});
+connection.onCompletionResolve((handler) => {
+    connection.console.info("Completion resolving request received");
+    return new Promise((resolve, reject) => {
+        resolve();
+    });
 });
 function tryOpenEventHandler(line, positionInLine, documentText) {
     let rightpart = line.substr(positionInLine).match(/(\w*?)"/)[1];
