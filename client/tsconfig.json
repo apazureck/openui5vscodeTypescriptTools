@@ -13,6 +13,7 @@
         "node_modules",
         ".vscode-test",
         "templates",
+        "server",
         "typings/node",
         "languages"
     ]

@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const rrd = require('recursive-readdir');
-const enumerable = require('linq-es6');
 const fs = require('fs');
 const server_1 = require('./server');
 class FileHandler {
@@ -47,9 +46,9 @@ class File {
                         reject(err);
                         return;
                     }
-                    let result = enumerable.asEnumerable(files).Where(x => x.match(matcher) != null);
+                    let result = files.filter(x => x.match(matcher) != null);
                     if (result)
-                        resolve(result.ToArray());
+                        resolve(result);
                     else
                         reject();
                 });

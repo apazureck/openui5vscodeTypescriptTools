@@ -1,6 +1,5 @@
 import * as ncp from 'ncp';
 import * as rrd from 'recursive-readdir';
-import * as enumerable from 'linq-es6';
 import * as fs from 'fs';
 import { TextDocument } from 'vscode-languageserver';
 import { workspaceRoot } from './server';
@@ -119,9 +118,9 @@ export class File {
                     reject(err);
                     return;
                 }
-                let result = enumerable.asEnumerable<string>(files).Where(x => x.match(matcher)!=null);
+                let result = files.filter(x => x.match(matcher)!=null);
                 if(result)
-                    resolve(result.ToArray());
+                    resolve(result);
                 else
                     reject();
             });

@@ -41,11 +41,6 @@
     ],
     "commands": [
       {
-        "category": "UI5 Project",
-        "command": "ui5ts.SetupUi5",
-        "title": "Create new UI5 Project (alpha)"
-      },
-      {
         "category": "UI5 Edit",
         "command": "ui5ts.SwitchToController",
         "title": "Swtich to Controller"

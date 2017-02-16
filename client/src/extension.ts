@@ -10,7 +10,6 @@ import * as defprov from './language/ui5/Ui5DefinitionProviders';
 // import * as mcp from './language/ui5/ManifestCompletionItemProvider';
 import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind } from 'vscode-languageclient';
 import * as path from 'path';
-import * as enumerable from 'linq-es6';
 import { ManifestDiagnostics } from './language/ui5/Ui5ManifestDiagnostics'
 import { Ui5i18nCompletionItemProvider } from './language/ui5/Ui5CompletionProviders'
 import { ManifestCompletionItemProvider } from './language/ui5/Ui5ManifestCompletionProviders'
