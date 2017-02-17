@@ -1,0 +1,22 @@
+{
+	"i18n": {
+		"prefix": "i18n",
+		"description": "Creates a model reference with i18n address",
+		"body": "\"{i18n>$0}\""
+	},
+	"i18nlabel": {
+		"prefix": "labeli18n",
+		"description": "Creates a label with i18n address",
+		"body": "<Label text=\"{i18n>$0}\"/>"
+	},
+	"i18ntitle": {
+		"prefix": "titlei18n",
+		"description": "Creates a title with i18n address",
+		"body": "<Title text=\"{i18n>$0}\"/>"
+	},
+	"model": {
+		"prefix": "sapmodel",
+		"description": "Creates a sap.m.Text element with text property",
+		"body": "{${1:modelname}>/$0}"
+	}
+}

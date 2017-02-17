@@ -14,7 +14,8 @@
     "path": "^0.12.7",
     "recursive-readdir": "^2.1.1",
     "vscode": "^1.0.3",
-    "vscode-languageserver": "^3.0.5"
+    "vscode-languageserver": "^3.0.5",
+    "xml-js-converter": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^7.0.5",

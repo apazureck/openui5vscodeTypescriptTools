@@ -3,6 +3,33 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
     "definitions": {
+        "sap.ui.core.CSSSize": {
+            "type": "string",
+            "pattern": "(\\d+\\s*(em|ex|rem|cm|mm|in|pc|pt|px|%)|calc\\(.*\\)|auto|inherit)",
+            "description": "A string type that represents CSS size values. See [Documentation](https://openui5.hana.ondemand.com/#docs/api/symbols/sap.ui.core.CSSSize.html) for further information."
+        },
+        "sap.ui.core.mvc.view": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "description": "The type of the View. Give just the name, if view is an XML view.",
+                    "type": "string",
+                    "enum": ["HTML","JS","JSON","Template","XML"]
+                },
+                "width": {
+                    "$ref": "#/definitions/sap.ui.core.CSSSize",
+                    "default": "100%"
+                },
+                "height" : {
+                    "$ref": "#/definitions/sap.ui.core.CSSSize"
+                },
+                "displayBlock": {
+                    "description": "Gets current value of property displayBlock.\nWhether the CSS display should be set to \"block\". Set this to \"true\" if the default display \"inline-block\" causes a vertical scrollbar with Views that are set to 100% height. Do not set this to \"true\" if you want to display other content in the same HTML parent on either side of the View (setting to \"true\" may push that other content to the next/previous line). ",
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
         "transition": {
             "type": "string",
             "description": "defines how the transition happens; you can choose between slide (default), flip, fade, and show.",
@@ -338,7 +365,7 @@
             "type": "object",
             "required": ["dependencies", "contentDensities"],
             "properties": {
-                "resuorces": {
+                "resources": {
                     "type": "object",
                     "description": "Relative URLs in the component, taking embeddedBy into account if filled, pointing to js (JavaScript) and css resources that are needed by the app for specifying the mandatory uri and an id (optional) for CSS. The JavaScript files are loaded by the require mechanism. The CSS files are added to the head of the HTML page as a link tag. The resources are resolved relative to the location of the manifest.json file.",
                     "additionalProperties": {
@@ -426,9 +453,10 @@
                     }
                 },
                 "rootView": {
-                    "type": "string",
+                    "type": ["string", "object"],
                     "description": "Specifies the root view that shall be opened; can be the view name as a string for XML views, or the view configuration object with viewName for the view name as a string and type for the type (enumeration of sap.ui.core.mvc.ViewType) and other properties of sap.ui.core.mvc.view.",
-                    "pattern": "^(\\w+\\.?)+\\w+$"
+                    "pattern": "^(\\w+\\.?)+\\w+$",
+                    "$ref": "#/definitions/sap.ui.core.mvc.view"
                 },
                 "handleValidation": {
                     "type": "boolean",

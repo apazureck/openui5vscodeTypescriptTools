@@ -7,6 +7,7 @@ import * as extension from '../../extension';
 export class ManifestDiagnostics extends Ui5ManifestBase {
     constructor(public diagnosticCollection: DiagnosticCollection) {
         super();
+        this.diagnoseManifest.bind(this);
     }
 
     diagnoseManifest(changes: TextDocumentChangeEvent) {

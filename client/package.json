@@ -2,7 +2,7 @@
   "name": "ui5-ts",
   "displayName": "openui5 Typescript Tool",
   "description": "A typescript extension for openui5",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "apazureck",
   "engines": {
     "vscode": "^1.5.0"
@@ -14,13 +14,14 @@
   },
   "icon": "./img/OpenUI5_logo.png",
   "categories": [
-    "Languages", "Snippets", "Other"
+    "Languages",
+    "Snippets",
+    "Other"
   ],
   "galleryBanner": {
     "color": "#17c3d9"
   },
   "activationEvents": [
-    "onCommand:ui5ts.SetupUi5",
     "workspaceContains:manifest.json",
     "onLanguage:xml",
     "onLanguage:ui5manifest"
@@ -37,6 +38,10 @@
       {
         "language": "typescript",
         "path": "./snippets/typescript.json."
+      },
+      {
+        "language": "xml",
+        "path": "./snippets/xml.json"
       }
     ],
     "commands": [
@@ -97,7 +102,8 @@
     "linq-es6": "^0.2.1",
     "ncp": "^2.0.0",
     "recursive-readdir": "^2.1.1",
-     "vscode-languageclient": "^3.0.4"
+    "vscode-languageclient": "^3.0.4",
+    "xml2js": "^0.4.17"
   },
   "bugs": {
     "url": "https://github.com/apazureck/openui5vscodeTypescriptTools/issues"

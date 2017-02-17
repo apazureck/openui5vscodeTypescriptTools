@@ -1,3 +1,10 @@
 {
-	"typescript.tsdk": "./node_modules/typescript/lib"
+	"typescript.tsdk": "./node_modules/typescript/lib",
+	"files.exclude": {
+        "**/*.js": {"when": "$(basename).ts"},
+        "out": false // set this to true to hide the "out" folder with the compiled JS files
+    },
+    "search.exclude": {
+        "out": true // set this to false to include "out" folder in search results
+    }
 }

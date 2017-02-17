@@ -244,18 +244,30 @@ function getLineByIndex(input: string, startindex: number): string {
 interface Settings {
 	ui5ts: {
 		lang: {
-			i18nmodelname: string,
-			i18nmodelfilelocation: string
+			i18n: {
+				modelname: string,
+				modelfilelocation: string
+			}
 		}
+	}
+	xml: {
+		schemastoragelocation: string;
+		schemas: string[];
 	}
 }
 
 var settings: Settings = {
 	ui5ts: {
 		lang: {
-			i18nmodelfilelocation: "./i18n/i18n.properties",
-			i18nmodelname: "i18n"
+			i18n: {
+				modelfilelocation: "./i18n/i18n.properties",
+				modelname: "i18n"
+			}
 		}
+	},
+	xml: {
+		schemastoragelocation: "./.vscode/schemas/xml",
+		schemas: []
 	}
 };
 
