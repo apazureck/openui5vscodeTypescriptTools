@@ -54,17 +54,22 @@
         "category": "UI5 Edit",
         "command": "ui5ts.SwitchToView",
         "title": "Swtich to View"
+      },
+      {
+        "category": "XML",
+        "command": "ui5ts.AddSchemaToStorage",
+        "title": "Add XSD Schema(s) To Storage"
       }
     ],
     "configuration": {
       "title": "Settings for UI5 Typescript extension",
       "properties": {
-        "ui5ts.lang.i18nmodelname": {
+        "ui5ts.lang.i18n.modelname": {
           "type": "string",
           "default": "i18n",
           "description": "Sets the name for the i18n model, if not the default name is used. It is used for code completion when referenced on views."
         },
-        "settings.ui5ts.lang.i18nmodelfilelocation": {
+        "ui5ts.lang.i18n.modelfilelocation": {
           "type": "string",
           "default": "./i18n/i18n.properties",
           "description": "Location of the i18n file used for code completion"

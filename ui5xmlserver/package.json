@@ -10,17 +10,16 @@
   "dependencies": {
     "fs": "^0.0.1-security",
     "linq-es6": "^0.2.1",
-    "ncp": "^2.0.0",
     "path": "^0.12.7",
     "recursive-readdir": "^2.1.1",
     "vscode": "^1.0.3",
     "vscode-languageserver": "^3.0.5",
-    "xml-js-converter": "^1.0.0"
+    "xml-js-converter": "^1.0.0",
+    "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "@types/node": "^7.0.5",
     "fs": "0.0.1-security",
-    "ncp": "2.0.0",
     "recursive-readdir": "2.1.0",
     "typescript": "2.0.10",
     "vscode": "1.0.3"

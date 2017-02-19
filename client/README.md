@@ -2,7 +2,7 @@
 
 This extension improves the experience using UI5 with typescript. It is currently work in progress.
 
-> This extension is not officially supported by SAP or the openUi5 team. It is currently in an early development phase. [Please report issues](https://github.com/apazureck/openui5vscodeTypescriptTools/issues).
+> This extension is not officially supported by SAP or the openUi5 team. It is currently in an early development phase, so [Please report issues](https://github.com/apazureck/openui5vscodeTypescriptTools/issues) you have.
 
 ## Features
 

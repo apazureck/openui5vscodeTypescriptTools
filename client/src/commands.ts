@@ -1,12 +1,17 @@
 import * as vscode from 'vscode';
+import * as ui5ts from './extension'
 import * as ncp from 'ncp';
-import * as ui5ts from './extension';
 import * as log from './helpers/logging';
 import * as file from './helpers/filehandler';
+import * as fs from 'fs'
+import * as path from 'path'
+import { schemastore } from './language/ui5/XmlDiagnostics'
+
+export var core: ui5ts.Ui5Extension;
 
 const namespaceformat = /^(\w+\.?)+\w+$/;
 
-export async function SetupUi5 (context: vscode.ExtensionContext): Promise<void> {
+export async function SetupUi5 (): Promise<void> {
     // The code you place here will be executed every time your command is executed
 
     if(!vscode.workspace.rootPath) {
@@ -38,7 +43,7 @@ export async function SetupUi5 (context: vscode.ExtensionContext): Promise<void>
     }
 
     // Get all project files and copy them to the workspace (with folder structure)
-    ncp.ncp(context.extensionPath+"\\templates\\project", vscode.workspace.rootPath, (err) => { 
+    ncp.ncp(path.join(core.extensionPath, "templates", "project"), vscode.workspace.rootPath, (err) => { 
         if(err) {
             log.showerror("Error while copying files:'"+err.message+"'");
             return;
@@ -77,4 +82,26 @@ export async function SwitchToController() {
     
     let foundcontrollers = await file.File.find(new RegExp(cname+"\\.controller\\.(?:ts|js)$"));
     await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(foundcontrollers.length>1?foundcontrollers[1]:foundcontrollers[0]));
+}
+
+export async function AddSchemaToStore(): Promise<void> {
+    let context = this as vscode.ExtensionContext;
+    let filename = await vscode.window.showInputBox({prompt: 'Schema location (has to be local .xsd file)', ignoreFocusOut: true});
+    // validateInput: (value: string) => {
+    //     if(!value.match(/^[a-z]:((\/|(\\?))[\w .]+)+\.xsd$/i))
+    //         return "Path is not valid.";
+    //     else
+    //         return null;
+    if(filename.endsWith(".xsd")) {
+        fs.createReadStream(filename).pipe(fs.createWriteStream(path.join(context.extensionPath, "schemastore", path.basename(filename))));
+        vscode.window.showInformationMessage("Successfully added schema to storage.");
+    } else {
+        let files = fs.readdirSync(filename);
+        for(let file of files) {
+            fs.createReadStream(path.join(filename, file)).pipe(fs.createWriteStream(path.join(context.extensionPath, "schemastore", path.basename(file))));
+        }
+        vscode.window.showInformationMessage("Successfully added schema to storage.");
+    }
+    schemastore.initializeStorage();
+    // TODO: Validation
 }

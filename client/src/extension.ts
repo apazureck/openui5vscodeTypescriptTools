@@ -16,10 +16,11 @@ import { ManifestCompletionItemProvider } from './language/ui5/Ui5ManifestComple
 import { XmlDiagnostics } from './language/ui5/XmlDiagnostics'
 
 export const name = "ui5-ts";
-export var context: vscode.ExtensionContext;
-export interface Ui5Extension {
+export class Ui5Extension {
     namespacemappings?: { [id: string]: string; };
     manifest?: Manifest;
+    extensionPath?: string;
+    schemaStoragePath?: string;
 }
 
 const ui5_jsonviews: vscode.DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.view.json" };
@@ -31,48 +32,52 @@ const ui5_jsonfragments: vscode.DocumentFilter = { language: 'json', scheme: 'fi
 const ui5_xmlfragments: vscode.DocumentFilter = { language: "xml", scheme: 'file', pattern: "*.fragment.xml" };
 const ui5_manifest: vscode.DocumentFilter = { language: "json", scheme: 'file', pattern: "**/manifest.json" };
 
-export var core: Ui5Extension = { namespacemappings: {} };
+export var core: Ui5Extension = new Ui5Extension();
 export var channel = vscode.window.createOutputChannel("UI5 TS Extension");
+var context: vscode.ExtensionContext;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(c: vscode.ExtensionContext) {
     context = c;
+    core.extensionPath = c.extensionPath;
+    core.schemaStoragePath = c.asAbsolutePath("schemastore");
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Activating UI5 extension.');
 
-    startXmlViewLanguageServer();
+    startXmlViewLanguageServer(context);
     // startManifestLanguageServer();
 
     getAllNamespaceMappings();
 
     // Hook the commands
-    context.subscriptions.push(vscode.commands.registerCommand('ui5ts.SetupUi5', commands.SetupUi5));
-    context.subscriptions.push(vscode.commands.registerCommand('ui5ts.SwitchToView', commands.SwitchToView));
-    context.subscriptions.push(vscode.commands.registerTextEditorCommand('ui5ts.SwitchToController', commands.SwitchToController));
+    // context.subscriptions.push(vscode.commands.registerCommand('ui5ts.SetupUi5', commands.SetupUi5));
+    c.subscriptions.push(vscode.commands.registerTextEditorCommand('ui5ts.SwitchToView', commands.SwitchToView.bind(context)));
+    c.subscriptions.push(vscode.commands.registerTextEditorCommand('ui5ts.SwitchToController', commands.SwitchToController.bind(context)));
+    c.subscriptions.push(vscode.commands.registerCommand('ui5ts.AddSchemaToStorage', commands.AddSchemaToStore.bind(context)));
 
     // Setup Language Providers
-    // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlviews, new defprov.Ui5ViewDefinitionProvider));
-    // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jsonviews, new defprov.Ui5ViewDefinitionProvider));
-    // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_tscontrollers, new defprov.Ui5ControllerDefinitionProvider));
-    // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jscontrollers, new defprov.Ui5ControllerDefinitionProvider));
-    // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlfragments, new defprov.Ui5FragmentDefinitionProvider))
-    // context.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jsonfragments, new defprov.Ui5FragmentDefinitionProvider));
+    // c.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlviews, new defprov.Ui5ViewDefinitionProvider));
+    // c.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jsonviews, new defprov.Ui5ViewDefinitionProvider));
+    // c.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_tscontrollers, new defprov.Ui5ControllerDefinitionProvider));
+    // c.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jscontrollers, new defprov.Ui5ControllerDefinitionProvider));
+    // c.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlfragments, new defprov.Ui5FragmentDefinitionProvider))
+    // c.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_jsonfragments, new defprov.Ui5FragmentDefinitionProvider));
 
     channel.appendLine("Starting Ui5i18nCompletionItemProvider");
-    // context.subscriptions.push(vscode.languages.registerCompletionItemProvider([ui5_xmlviews, ui5_xmlfragments], new Ui5i18nCompletionItemProvider));
+    // c.subscriptions.push(vscode.languages.registerCompletionItemProvider([ui5_xmlviews, ui5_xmlfragments], new Ui5i18nCompletionItemProvider));
 
     let md = new ManifestDiagnostics(vscode.languages.createDiagnosticCollection('json'));
-    let xmld = new XmlDiagnostics(vscode.languages.createDiagnosticCollection('xml'));
+    let xmld = new XmlDiagnostics(vscode.languages.createDiagnosticCollection('xml'), c);
 
-    context.subscriptions.push(md.diagnosticCollection);
-    context.subscriptions.push(xmld.diagnosticCollection);
+    c.subscriptions.push(md.diagnosticCollection);
+    c.subscriptions.push(xmld.diagnosticCollection);
 
     vscode.workspace.onDidChangeTextDocument(md.diagnoseManifest.bind(md));
     vscode.workspace.onDidChangeTextDocument(xmld.diagnose.bind(xmld));
 
-    context.subscriptions.push(vscode.languages.registerCompletionItemProvider(ui5_manifest, new ManifestCompletionItemProvider));
+    c.subscriptions.push(vscode.languages.registerCompletionItemProvider(ui5_manifest, new ManifestCompletionItemProvider));
 }
 
 async function getAllNamespaceMappings() {
@@ -109,10 +114,10 @@ export function deactivate() {
 
 }
 
-function startXmlViewLanguageServer(): void {
+function startXmlViewLanguageServer(context: vscode.ExtensionContext): void {
     // The server is implemented in node
     log.printInfo("Staring XML View language server");
-    let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
+    let serverModule = (context.asAbsolutePath(path.join('server', 'server.js')));
     // The debug options for the server
     let debugOptions = { execArgv: ["--nolazy", "--debug=6009"] };
 
@@ -129,11 +134,11 @@ function startXmlViewLanguageServer(): void {
         documentSelector: ['xml'],
         synchronize: {
             // Synchronize the setting section 'languageServerExample' to the server
-            configurationSection: 'ui5ts.lang',
+            configurationSection: 'ui5ts',
             // Notify the server about file changes to '.clientrc files contain in the workspace
-            fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc'),
-
-        }
+            fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
+        },
+        initializationOptions: { schemastore: context.asAbsolutePath("schemastore") }
     }
 
     // Create the language client and start the client.

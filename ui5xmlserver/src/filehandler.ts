@@ -1,4 +1,3 @@
-import * as ncp from 'ncp';
 import * as rrd from 'recursive-readdir';
 import * as fs from 'fs';
 import { TextDocument } from 'vscode-languageserver';
