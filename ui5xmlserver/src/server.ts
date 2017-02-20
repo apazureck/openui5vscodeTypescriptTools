@@ -254,8 +254,10 @@ class XmlCompletionHandler {
 	}
 
 	processAllowedElements(elements: Element[], schema: StorageSchema): CompletionItem[] {
-		let foundElements: Element[] = [];
+		let foundElements: { namespace: string, elements: Element[] }[] = [];
+		let baseElements: Element[] = [];
 
+		// First get all element references, if referenced.
 		for (let element of elements) {
 			try {
 				let useschema = schema;
@@ -263,9 +265,9 @@ class XmlCompletionHandler {
 					let res = this.getElementFromReference(element.$.ref, useschema);
 					element = res.element;
 					useschema = res.ownerSchema;
-					if(!element)
+					if (!element)
 						continue;
-					foundElements.push(element);
+					baseElements.push(element);
 				}
 				foundElements = foundElements.concat(this.getDerivedElements(element, useschema));
 			} catch (error) {
@@ -274,54 +276,66 @@ class XmlCompletionHandler {
 		}
 
 		let ret: CompletionItem[] = [];
-		for (let entry of foundElements) {
-			try {
-				let citem = CompletionItem.create(entry.$.name);
-				citem.insertText = "<" + entry.$.name + ">$0</" + entry.$.name + ">";
-				citem.insertTextFormat = 2;
-				citem.kind = CompletionItemKind.Class;
+		for (let item of foundElements) {
+			for (let entry of item.elements)
 				try {
-					citem.documentation = entry.annotation[0].documentation[0];
-				} catch (error) {
+					let citem = CompletionItem.create(entry.$.name);
+					let nsprefix = item.namespace.length>0 ? item.namespace + ":" : "";
+					citem.insertText = "<" + nsprefix + entry.$.name + ">$0</" + nsprefix + entry.$.name + ">";
+					citem.insertTextFormat = 2;
+					citem.kind = CompletionItemKind.Class;
+					if(item.namespace.length>0)
+						citem.detail = "Namespace: " + item.namespace;
+					try {
+						citem.documentation = entry.annotation[0].documentation[0];
+					} catch (error) {
 
+					}
+					ret.push(citem);
+				} catch (error) {
+					connection.console.error("Item error: " + error.toString());
 				}
-				ret.push(citem);
-			} catch (error) {
-				connection.console.error("Item error: " + error.toString());
-			}
 		}
 		return ret;
 	}
 
-	getDerivedElements(element: Element, owningSchema: StorageSchema): Element[] {
+	getDerivedElements(element: Element, owningSchema: StorageSchema): { namespace: string, elements: Element[] }[] {
 		var type = this.getType(element.$.type, owningSchema);
 		// Find all schemas using the owningSchema (and so maybe the element)
-		let schemasUsingNamespace: StorageSchema[] = [];
+		let schemasUsingNamespace: { nsabbrevation: string, schema: StorageSchema }[] = [];
 		for (let targetns in schemastorage) {
 			if (targetns === owningSchema.targetNamespace)
 				continue;
 			let curschema = schemastorage[targetns];
 			for (let namespace in curschema.referencedNamespaces)
+				// check if xsd file is referenced in current schema.
 				if (curschema.referencedNamespaces[namespace] === owningSchema.targetNamespace) {
-					schemasUsingNamespace.push(curschema);
+					for (let nsa in this.usedNamespaces)
+						// check if namespace is also used in current xml file
+						if (this.usedNamespaces[nsa] === curschema.targetNamespace) {
+							schemasUsingNamespace.push({ nsabbrevation: nsa, schema: curschema });
+							break;
+						}
 				}
 		}
 
-		let foundElements: Element[] = [];
+		let foundElements: { namespace: string, elements: Element[] }[] = [];
 		for (let schema of schemasUsingNamespace) {
 			try {
-				for (let e of schema.schema.element) {
+				let newentry: { namespace: string, elements: Element[] } = { namespace: schema.nsabbrevation, elements: [] }
+				for (let e of schema.schema.schema.element) {
 					if (!e.$ || !e.$.type)
 						continue;
 					try {
-						let basetypes = this.getBaseTypes(this.getType(e.$.type, schema), schema);
+						let basetypes = this.getBaseTypes(this.getType(e.$.type, schema.schema), schema.schema);
 						let i = basetypes.findIndex(x => { try { return x.$.name === type.$.name; } catch (error) { return false; } });
 						if (i > -1)
-							foundElements.push(e);
+							newentry.elements.push(e);
 					} catch (error) {
 						console.warn("Inner Error when finding basetype: " + error.toString())
 					}
 				}
+				foundElements.push(newentry);
 			} catch (error) {
 				console.warn("Outer Error when finding basetype: " + error.toString())
 			}
