@@ -233,9 +233,21 @@ class XmlCompletionHandler {
 
 		this.getUsedNamespaces(txt);
 		if (isInElement && !isInParamValue) {
-			for (end = pos; end < txt.length; end++)
-				if (txt[end] === endtag)
-					break;
+			quote = undefined;
+			for (end = pos; end < txt.length; end++) {
+				switch (txt[end]) {
+					case quote:
+						quote = undefined;
+						continue;
+					case "'": case '"':
+						if (!quote)
+							quote = txt[end];
+						continue;
+					case endtag:
+						break;
+				}
+				break;
+			}
 
 			connection.console.info("Found cursor location to be in element");
 			return new Promise<CompletionItem[]>((resolve, reject) => {
@@ -248,12 +260,12 @@ class XmlCompletionHandler {
 			let type = this.getType(parent.element.$.type, schema);
 			let elements = this.getElements(type, parent.path, schema);
 			return new Promise<CompletionItem[]>((resolve, reject) => {
-				resolve(this.processAllowedElements(elements, schema));
+				resolve(this.processAllowedElements(parent.element, elements, schema));
 			});
 		}
 	}
 
-	processAllowedElements(elements: Element[], schema: StorageSchema): CompletionItem[] {
+	private processAllowedElements(parent: Element, elements: Element[], schema: StorageSchema): CompletionItem[] {
 		let foundElements: { namespace: string, elements: Element[] }[] = [];
 		let baseElements: Element[] = [];
 
@@ -265,13 +277,22 @@ class XmlCompletionHandler {
 					let res = this.getElementFromReference(element.$.ref, useschema);
 					element = res.element;
 					useschema = res.ownerSchema;
-					if (!element)
+					if (!element) {
 						continue;
-					baseElements.push(element);
+					}
 				}
+				baseElements.push(element);
 				foundElements = foundElements.concat(this.getDerivedElements(element, useschema));
 			} catch (error) {
 				connection.console.error("Error getting element: " + error.toString());
+			}
+		}
+
+		// Append additional elements
+		for (let ns in this.usedNamespaces) {
+			if (this.usedNamespaces[ns] === schema.targetNamespace) {
+				foundElements.push({ namespace: ns, elements: baseElements });
+				break;
 			}
 		}
 
@@ -280,11 +301,11 @@ class XmlCompletionHandler {
 			for (let entry of item.elements)
 				try {
 					let citem = CompletionItem.create(entry.$.name);
-					let nsprefix = item.namespace.length>0 ? item.namespace + ":" : "";
+					let nsprefix = item.namespace.length > 0 ? item.namespace + ":" : "";
 					citem.insertText = "<" + nsprefix + entry.$.name + ">$0</" + nsprefix + entry.$.name + ">";
 					citem.insertTextFormat = 2;
 					citem.kind = CompletionItemKind.Class;
-					if(item.namespace.length>0)
+					if (item.namespace.length > 0)
 						citem.detail = "Namespace: " + item.namespace;
 					try {
 						citem.documentation = entry.annotation[0].documentation[0];
@@ -296,10 +317,11 @@ class XmlCompletionHandler {
 					connection.console.error("Item error: " + error.toString());
 				}
 		}
+
 		return ret;
 	}
 
-	getDerivedElements(element: Element, owningSchema: StorageSchema): { namespace: string, elements: Element[] }[] {
+	private getDerivedElements(element: Element, owningSchema: StorageSchema): { namespace: string, elements: Element[] }[] {
 		var type = this.getType(element.$.type, owningSchema);
 		// Find all schemas using the owningSchema (and so maybe the element)
 		let schemasUsingNamespace: { nsabbrevation: string, schema: StorageSchema }[] = [];
@@ -344,7 +366,7 @@ class XmlCompletionHandler {
 		return foundElements;
 	}
 
-	getBaseTypes(type: ComplexType, schema: StorageSchema, path?: ComplexType[]): ComplexType[] {
+	private getBaseTypes(type: ComplexType, schema: StorageSchema, path?: ComplexType[]): ComplexType[] {
 		if (!path)
 			path = [];
 
@@ -358,7 +380,7 @@ class XmlCompletionHandler {
 		return path;
 	}
 
-	getElementFromReference(elementref: string, schema: StorageSchema): { element: Element, ownerSchema: StorageSchema } {
+	private getElementFromReference(elementref: string, schema: StorageSchema): { element: Element, ownerSchema: StorageSchema } {
 		// Split namespace and 
 		let nsregex = elementref.match(/(\w*?):?(\w+?)$/);
 		if (schema.referencedNamespaces[nsregex[1]] !== schema.targetNamespace)
@@ -367,7 +389,7 @@ class XmlCompletionHandler {
 		return { element: this.findElement(nsregex[2], schema), ownerSchema: schema };
 	}
 
-	getElements(type: ComplexType, path: string[], schema: StorageSchema): Element[] {
+	private getElements(type: ComplexType, path: string[], schema: StorageSchema): Element[] {
 		// Get the sequence from the type
 		let curElement: Element;
 		// is derived type
@@ -386,7 +408,7 @@ class XmlCompletionHandler {
 		return elements;
 	}
 
-	getElementsFromSequenceAndChoice(element: Element, schema: StorageSchema): Element[] {
+	private getElementsFromSequenceAndChoice(element: Element, schema: StorageSchema): Element[] {
 		let res: Element[] = [];
 		// If element contains a complexType
 		if (element.complexType)
@@ -406,37 +428,43 @@ class XmlCompletionHandler {
 	}
 
 	private getParentElement(txt: string, start: number, path: string[]): { element: Element, path: string[] } {
-		let entagfound = false;
-		let quote: string;
-		for (let i = start; i >= 0; i--) {
-			switch (txt[i]) {
-				case '<':
-					if (!quote) {
+		// reverse search string
+		let searchstring = txt.substring(0, start).split("").reverse().join("");
+		let elregex = /.*?[>|<]/g
+		let m: RegExpMatchArray;
+		let level = 0;
+		let comment = false;
+		let startofbaseelement: number;
+		while (m = elregex.exec(searchstring)) {
+			if (!comment) {
+				if (m[0].startsWith("--")) {
+					comment = true;
+				}
+				else if (m[0].endsWith("/<"))
+					level++;
+				else if (m[0].startsWith("/"))
+					level++;
+				else if (m[0].endsWith("<")) {
+					if (level <= 0) {
+						startofbaseelement = m.index;
 						// Add Whitespace to make regex more simple
-						let foundelement = txt.substring(i, start) + " ";
+						let foundelement = txt.substring(start - startofbaseelement - m[0].length, start) + " ";
 						let x = foundelement.match(/<(\w*?):?(\w+?)(\s|\/|>)/);
 						let schema = schemastorage[this.usedNamespaces[x[1]]];
 						let element = this.findElement(x[2].trim(), schema);
 						if (!element) {
 							path.push(x[2].trim());
-							return this.getParentElement(txt, --i, path);
+							return this.getParentElement(txt, start - startofbaseelement - m[0].length - 1, path);
 						}
 						else
 							return { element: element, path: path };
 					}
-					continue;
-				case quote:
-					quote = undefined;
-					continue;
-				case "'": case '"':
-					if (!quote)
-						quote = txt[i];
-					continue;
-				default:
-					continue;
+					level--;
+				}
 			}
+			if (m[0].endsWith("--!<"))
+				comment = false;
 		}
-		return undefined;
 	}
 
 	private processInTag(tagstring: string): CompletionItem[] {
@@ -539,6 +567,14 @@ class XmlCompletionHandler {
 		}
 	}
 
+
+	/**
+	 * gets the used namespaces in the input string. The used namespaces are stored in the usedNamespaces property.
+	 * 
+	 * @param {string} input Input xml string to get the namespaces from
+	 * 
+	 * @memberOf XmlCompletionHandler
+	 */
 	private getUsedNamespaces(input: string): void {
 		let xmlnsregex = /xmlns:?(.*?)=['"](.*?)['"]/g
 		let match: RegExpMatchArray;

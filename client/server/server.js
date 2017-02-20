@@ -206,9 +206,22 @@ class XmlCompletionHandler {
                 endtag = '>';
             this.getUsedNamespaces(txt);
             if (isInElement && !isInParamValue) {
-                for (end = pos; end < txt.length; end++)
-                    if (txt[end] === endtag)
-                        break;
+                quote = undefined;
+                for (end = pos; end < txt.length; end++) {
+                    switch (txt[end]) {
+                        case quote:
+                            quote = undefined;
+                            continue;
+                        case "'":
+                        case '"':
+                            if (!quote)
+                                quote = txt[end];
+                            continue;
+                        case endtag:
+                            break;
+                    }
+                    break;
+                }
                 connection.console.info("Found cursor location to be in element");
                 return new Promise((resolve, reject) => {
                     resolve(this.processInTag(txt.substring(start, end + 1)));
@@ -221,12 +234,12 @@ class XmlCompletionHandler {
                 let type = this.getType(parent.element.$.type, schema);
                 let elements = this.getElements(type, parent.path, schema);
                 return new Promise((resolve, reject) => {
-                    resolve(this.processAllowedElements(elements, schema));
+                    resolve(this.processAllowedElements(parent.element, elements, schema));
                 });
             }
         });
     }
-    processAllowedElements(elements, schema) {
+    processAllowedElements(parent, elements, schema) {
         let foundElements = [];
         let baseElements = [];
         // First get all element references, if referenced.
@@ -237,14 +250,22 @@ class XmlCompletionHandler {
                     let res = this.getElementFromReference(element.$.ref, useschema);
                     element = res.element;
                     useschema = res.ownerSchema;
-                    if (!element)
+                    if (!element) {
                         continue;
-                    baseElements.push(element);
+                    }
                 }
+                baseElements.push(element);
                 foundElements = foundElements.concat(this.getDerivedElements(element, useschema));
             }
             catch (error) {
                 connection.console.error("Error getting element: " + error.toString());
+            }
+        }
+        // Append additional elements
+        for (let ns in this.usedNamespaces) {
+            if (this.usedNamespaces[ns] === schema.targetNamespace) {
+                foundElements.push({ namespace: ns, elements: baseElements });
+                break;
             }
         }
         let ret = [];
@@ -373,38 +394,43 @@ class XmlCompletionHandler {
         return res;
     }
     getParentElement(txt, start, path) {
-        let entagfound = false;
-        let quote;
-        for (let i = start; i >= 0; i--) {
-            switch (txt[i]) {
-                case '<':
-                    if (!quote) {
+        // reverse search string
+        let searchstring = txt.substring(0, start).split("").reverse().join("");
+        let elregex = /.*?[>|<]/g;
+        let m;
+        let level = 0;
+        let comment = false;
+        let startofbaseelement;
+        while (m = elregex.exec(searchstring)) {
+            if (!comment) {
+                if (m[0].startsWith("--")) {
+                    comment = true;
+                }
+                else if (m[0].endsWith("/<"))
+                    level++;
+                else if (m[0].startsWith("/"))
+                    level++;
+                else if (m[0].endsWith("<")) {
+                    if (level <= 0) {
+                        startofbaseelement = m.index;
                         // Add Whitespace to make regex more simple
-                        let foundelement = txt.substring(i, start) + " ";
+                        let foundelement = txt.substring(start - startofbaseelement - m[0].length, start) + " ";
                         let x = foundelement.match(/<(\w*?):?(\w+?)(\s|\/|>)/);
                         let schema = schemastorage[this.usedNamespaces[x[1]]];
                         let element = this.findElement(x[2].trim(), schema);
                         if (!element) {
                             path.push(x[2].trim());
-                            return this.getParentElement(txt, --i, path);
+                            return this.getParentElement(txt, start - startofbaseelement - m[0].length - 1, path);
                         }
                         else
                             return { element: element, path: path };
                     }
-                    continue;
-                case quote:
-                    quote = undefined;
-                    continue;
-                case "'":
-                case '"':
-                    if (!quote)
-                        quote = txt[i];
-                    continue;
-                default:
-                    continue;
+                    level--;
+                }
             }
+            if (m[0].endsWith("--!<"))
+                comment = false;
         }
-        return undefined;
     }
     processInTag(tagstring) {
         let tagmatch = tagstring.match(/^<(\w*?):?(\w*?)[\s\/]/);
@@ -500,6 +526,13 @@ class XmlCompletionHandler {
             return element;
         }
     }
+    /**
+     * gets the used namespaces in the input string. The used namespaces are stored in the usedNamespaces property.
+     *
+     * @param {string} input Input xml string to get the namespaces from
+     *
+     * @memberOf XmlCompletionHandler
+     */
     getUsedNamespaces(input) {
         let xmlnsregex = /xmlns:?(.*?)=['"](.*?)['"]/g;
         let match;
