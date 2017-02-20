@@ -143,40 +143,262 @@ class XmlCompletionHandler {
             let txt = doc.getText();
             let pos = doc.offsetAt(handler.position);
             let start, end;
-            let isInTag = true;
+            let isInElement = true;
+            let isInParamValue = false;
             // Catch border Problem i always equals the element right of the cursor.
             if (txt[pos] === ">")
                 pos--;
             else if (txt[pos] === "<")
                 pos++;
+            let quote;
+            let quotesfoundct = 0;
             for (start = pos; start >= 0; start--) {
+                switch (txt[start]) {
+                    case '<':
+                        if (!quote)
+                            break;
+                    case "=":
+                        // if = occurs maybe search is a parameter value
+                        if (quotesfoundct == 1)
+                            for (let checkpos = pos; checkpos < txt.length; checkpos++) {
+                                switch (txt[checkpos]) {
+                                    case quote:
+                                        isInParamValue = true;
+                                        break;
+                                    case "<":
+                                    case ">":
+                                    case "/":
+                                        break;
+                                    default:
+                                        continue;
+                                }
+                                break;
+                            }
+                        if (isInParamValue)
+                            break;
+                        else
+                            continue;
+                    case '>':
+                        if (!quote)
+                            isInElement = false;
+                        break;
+                    case quote:
+                        quote = undefined;
+                        continue;
+                    case "'":
+                    case '"':
+                        quotesfoundct++;
+                        if (!quote)
+                            quote = txt[start];
+                        continue;
+                    default:
+                        continue;
+                }
                 if (txt[start] === '<') {
                     break;
                 }
                 else if (txt[start] === '>')
-                    isInTag = false;
+                    isInElement = false;
+                break;
             }
             let endtag = '<';
-            if (isInTag)
+            if (isInElement)
                 endtag = '>';
-            for (end = pos; end < txt.length; end++)
-                if (txt[end] === endtag)
-                    break;
-            if (isInTag) {
-                this.getUsedNamespaces(txt);
+            this.getUsedNamespaces(txt);
+            if (isInElement && !isInParamValue) {
+                for (end = pos; end < txt.length; end++)
+                    if (txt[end] === endtag)
+                        break;
+                connection.console.info("Found cursor location to be in element");
                 return new Promise((resolve, reject) => {
                     resolve(this.processInTag(txt.substring(start, end + 1)));
                 });
             }
+            else if (!isInElement) {
+                let parent = this.getParentElement(txt, start, []);
+                let tag = parent.element.$.name.match(/(\w*?):?(\w*)$/);
+                let schema = schemastorage[this.usedNamespaces[tag[1]]];
+                let type = this.getType(parent.element.$.type, schema);
+                let elements = this.getElements(type, parent.path, schema);
+                return new Promise((resolve, reject) => {
+                    resolve(this.processAllowedElements(elements, schema));
+                });
+            }
         });
+    }
+    processAllowedElements(elements, schema) {
+        let foundElements = [];
+        for (let element of elements) {
+            try {
+                let useschema = schema;
+                if (element.$ && element.$.ref) {
+                    let res = this.getElementFromReference(element.$.ref, useschema);
+                    element = res.element;
+                    useschema = res.ownerSchema;
+                    if (!element)
+                        continue;
+                    foundElements.push(element);
+                }
+                foundElements = foundElements.concat(this.getDerivedElements(element, useschema));
+            }
+            catch (error) {
+                connection.console.error("Error getting element: " + error.toString());
+            }
+        }
+        let ret = [];
+        for (let entry of foundElements) {
+            try {
+                let citem = vscode_languageserver_1.CompletionItem.create(entry.$.name);
+                citem.insertText = "<" + entry.$.name + ">$0</" + entry.$.name + ">";
+                citem.insertTextFormat = 2;
+                citem.kind = vscode_languageserver_1.CompletionItemKind.Class;
+                try {
+                    citem.documentation = entry.annotation[0].documentation[0];
+                }
+                catch (error) {
+                }
+                ret.push(citem);
+            }
+            catch (error) {
+                connection.console.error("Item error: " + error.toString());
+            }
+        }
+        return ret;
+    }
+    getDerivedElements(element, owningSchema) {
+        var type = this.getType(element.$.type, owningSchema);
+        // Find all schemas using the owningSchema (and so maybe the element)
+        let schemasUsingNamespace = [];
+        for (let targetns in schemastorage) {
+            if (targetns === owningSchema.targetNamespace)
+                continue;
+            let curschema = schemastorage[targetns];
+            for (let namespace in curschema.referencedNamespaces)
+                if (curschema.referencedNamespaces[namespace] === owningSchema.targetNamespace) {
+                    schemasUsingNamespace.push(curschema);
+                }
+        }
+        let foundElements = [];
+        for (let schema of schemasUsingNamespace) {
+            try {
+                for (let e of schema.schema.element) {
+                    if (!e.$ || !e.$.type)
+                        continue;
+                    try {
+                        let basetypes = this.getBaseTypes(this.getType(e.$.type, schema), schema);
+                        let i = basetypes.findIndex(x => { try {
+                            return x.$.name === type.$.name;
+                        }
+                        catch (error) {
+                            return false;
+                        } });
+                        if (i > -1)
+                            foundElements.push(e);
+                    }
+                    catch (error) {
+                        console.warn("Inner Error when finding basetype: " + error.toString());
+                    }
+                }
+            }
+            catch (error) {
+                console.warn("Outer Error when finding basetype: " + error.toString());
+            }
+        }
+        return foundElements;
+    }
+    getBaseTypes(type, schema, path) {
+        if (!path)
+            path = [];
+        try {
+            let newtypename = type.complexContent[0].extension[0].$.base;
+            let newtype = this.getType(newtypename, schema);
+            path.push(newtype);
+            this.getBaseTypes(newtype, schema, path);
+        }
+        catch (error) {
+        }
+        return path;
+    }
+    getElementFromReference(elementref, schema) {
+        // Split namespace and 
+        let nsregex = elementref.match(/(\w*?):?(\w+?)$/);
+        if (schema.referencedNamespaces[nsregex[1]] !== schema.targetNamespace)
+            schema = schemastorage[schema.referencedNamespaces[nsregex[1]]];
+        return { element: this.findElement(nsregex[2], schema), ownerSchema: schema };
+    }
+    getElements(type, path, schema) {
+        // Get the sequence from the type
+        let curElement;
+        // is derived type
+        if (type.complexContent) {
+            curElement = type.complexContent[0].extension[0];
+            // Resolve path -> Crawl down the sequences (which contain the xml elements)
+            let curPath;
+            while (curPath = path.pop())
+                curElement = curElement.sequence[0].element.find(x => x.$.name === curPath);
+        }
+        let elements = this.getElementsFromSequenceAndChoice(curElement, schema);
+        // Get choice // TODO: Maybe this is not the only way
+        return elements;
+    }
+    getElementsFromSequenceAndChoice(element, schema) {
+        let res = [];
+        // If element contains a complexType
+        if (element.complexType)
+            element = element.complexType[0];
+        if (element.sequence) {
+            let sequence = element.sequence[0];
+            if (sequence.choice) {
+                let choice = sequence.choice[0];
+                if (choice.element)
+                    res = res.concat(choice.element);
+            }
+            if (sequence.element)
+                res = res.concat(sequence.element);
+        }
+        return res;
+    }
+    getParentElement(txt, start, path) {
+        let entagfound = false;
+        let quote;
+        for (let i = start; i >= 0; i--) {
+            switch (txt[i]) {
+                case '<':
+                    if (!quote) {
+                        // Add Whitespace to make regex more simple
+                        let foundelement = txt.substring(i, start) + " ";
+                        let x = foundelement.match(/<(\w*?):?(\w+?)(\s|\/|>)/);
+                        let schema = schemastorage[this.usedNamespaces[x[1]]];
+                        let element = this.findElement(x[2].trim(), schema);
+                        if (!element) {
+                            path.push(x[2].trim());
+                            return this.getParentElement(txt, --i, path);
+                        }
+                        else
+                            return { element: element, path: path };
+                    }
+                    continue;
+                case quote:
+                    quote = undefined;
+                    continue;
+                case "'":
+                case '"':
+                    if (!quote)
+                        quote = txt[i];
+                    continue;
+                default:
+                    continue;
+            }
+        }
+        return undefined;
     }
     processInTag(tagstring) {
         let tagmatch = tagstring.match(/^<(\w*?):?(\w*?)[\s\/]/);
         let tag = { name: tagmatch[2], namespace: tagmatch[1] };
         let namespace = this.usedNamespaces[tag.namespace];
         let schema = schemastorage[namespace];
-        let element = this.findElement(tag, schema);
-        let elementType = this.getType(element, schema);
+        let element = this.findElement(tag.name, schema);
+        let elementType = this.getType(element.$.type, schema);
         let attributes = this.getAttributes(elementType, schema);
         let ret = [];
         for (let attribute of attributes) {
@@ -185,32 +407,52 @@ class XmlCompletionHandler {
         return ret;
     }
     getCompletionItemFromAttribute(attribute, schema) {
-        let schemansprefix = schema.schemanamespace !== "" ? schema.schemanamespace + ":" : "";
-        return {
+        let ce = {
             label: attribute.$.name,
-            detail: attribute[schemansprefix + "annotation"][0][schemansprefix + "documentation"][0],
-            kind: vscode_languageserver_1.CompletionItemKind.Property
+            kind: vscode_languageserver_1.CompletionItemKind.Property,
+            insertText: " " + attribute.$.name + "=\"$0\" ",
+            insertTextFormat: 2
         };
+        try {
+            ce.detail = attribute.__owner ? "from " + attribute.__owner.$.name : undefined;
+        }
+        catch (error) {
+        }
+        try {
+            ce.documentation = attribute.annotation[0].documentation[0];
+        }
+        catch (error) {
+        }
+        return ce;
     }
     getAttributes(type, schema) {
-        let schemansprefix = schema.schemanamespace !== "" ? schema.schemanamespace + ":" : "";
-        return type[schemansprefix + "complexContent"][0][schemansprefix + "extension"][0][schemansprefix + "attribute"];
-    }
-    getType(element, schema) {
-        let schemansprefix = schema.schemanamespace !== "" ? schema.schemanamespace + ":" : "";
-        let aType = element.$.type.split(":");
-        let typename, namespace;
-        if (aType.length > 1) {
-            namespace = aType[0];
-            typename = aType[1];
+        if (type.basetype) {
+            for (let att of type.complexContent[0].extension[0].attribute)
+                att.__owner = type;
+            return this.getAttributes(type.basetype, type.schema).concat(type.complexContent[0].extension[0].attribute);
         }
         else {
-            typename = element.$.name;
+            for (let att of type.attribute)
+                att.__owner = type;
+            return type.attribute;
         }
-        let complexTypes = schema.schema[schemansprefix + "schema"][schemansprefix + "complexType"];
+    }
+    getType(typename, schema) {
+        let aType = typename.split(":");
+        let tn, namespace;
+        if (aType.length > 1) {
+            namespace = aType[0];
+            tn = aType[1];
+        }
+        else {
+            tn = typename;
+        }
+        let complexTypes = schema.schema.complexType;
         if (namespace) {
-            if (schema.referencedNamespaces[namespace] !== schema.targetNamespace)
-                connection.console.info("Getting Information from other xsd files is not implemented yet"); // Handle other namespaces
+            if (schema.referencedNamespaces[namespace] !== schema.targetNamespace) {
+                let newschema = schemastorage[schema.referencedNamespaces[namespace]];
+                return this.getType(typename, newschema);
+            }
         }
         let complextype;
         for (complextype of complexTypes) {
@@ -218,19 +460,26 @@ class XmlCompletionHandler {
                 continue;
             if (!complextype.$.name)
                 continue;
-            if (complextype.$.name === typename)
+            if (complextype.$.name === tn) {
+                // If complextype has complex content it is derived.
+                if (complextype.complexContent) {
+                    let basetypename = complextype.complexContent[0].extension[0].$.base;
+                    let basetype = this.getType(basetypename, schema);
+                    complextype.basetype = basetype;
+                }
+                complextype.schema = schema;
                 return complextype;
+            }
         }
     }
-    findElement(tag, schema) {
-        let schemansprefix = schema.schemanamespace !== "" ? schema.schemanamespace + ":" : "";
-        // Traverse over all
-        for (let element of schema.schema[schemansprefix + "schema"][schemansprefix + "element"]) {
+    findElement(name, schema) {
+        // Iterate over all
+        for (let element of schema.schema.element) {
             if (!element.$)
                 continue;
             if (!element.$.name)
                 continue;
-            if (element.$.name !== tag.name)
+            if (element.$.name !== name)
                 continue;
             if (!element.$.type)
                 continue;
@@ -247,6 +496,7 @@ class XmlCompletionHandler {
     createSchemas() {
         return __awaiter(this, void 0, void 0, function* () {
             schemastorage = {};
+            connection.console.info("Creating Schema storage.");
             for (let file of fs.readdirSync(exports.schemastorePath)) {
                 try {
                     let xmltext = fs.readFileSync(path.join(exports.schemastorePath, file)).toString();
@@ -266,8 +516,20 @@ class XmlCompletionHandler {
                                     else
                                         namespaces[ns[1]] = ns[2];
                                 }
+                                connection.console.info("Found a valid schema. Renaming namespace abbrevation '" + schemanamespace + " to empty abbrevation to make it more readable for programmers.");
+                                if (namespaces[""]) {
+                                    connection.console.error("There is an empty namespace. It will be missinterpreted, as for lazynessreasons of the author the xsd namespace will be removed from all elements.");
+                                }
+                                var start = schemanamespace + ":";
+                                res = substitute(res, (key, value) => {
+                                    if (key.startsWith(start)) {
+                                        return key.split(":")[1];
+                                    }
+                                    return key;
+                                });
+                                connection.console.info("Converted schema " + schemanamespace);
                                 if (schemanamespace)
-                                    schemastorage[tns[1]] = { schemanamespace: schemanamespace, schema: res, referencedNamespaces: namespaces, targetNamespace: tns[1] };
+                                    schemastorage[tns[1]] = { schemanamespace: schemanamespace, schema: res.schema, referencedNamespaces: namespaces, targetNamespace: tns[1] };
                                 else
                                     return reject("No Schema namespace defined, make sure your schema is compared against 'http://www.w3.org/2001/XMLSchema'");
                                 return resolve();
@@ -381,7 +643,7 @@ connection.onDidChangeConfiguration((change) => {
 connection.listen();
 function traverse(o, func) {
     for (let i in o) {
-        func.apply(this, [i, o[i]]);
+        func.apply(this, [i, o[i], o]);
         if (o[i] !== null && typeof (o[i]) == "object") {
             if (o[i] instanceof Array)
                 for (let entry of o[i])
@@ -390,5 +652,29 @@ function traverse(o, func) {
             traverse(o[i], func);
         }
     }
+}
+/**
+ * Replaces the key. Return old key if key should not be renamed.
+ *
+ * @param {*} o
+ * @param {(key: string, value: any, parent: {}) => string} func
+ */
+function substitute(o, func) {
+    let build = {};
+    for (let i in o) {
+        let newkey = func.apply(this, [i, o[i], o]);
+        let newobject = o[i];
+        if (o[i] !== null && typeof (o[i]) == "object") {
+            if (o[i] instanceof Array) {
+                newobject = [];
+                for (let entry of o[i])
+                    newobject.push(substitute({ [i]: entry }, func)[newkey]);
+            }
+            else
+                newobject = substitute(o[i], func);
+        }
+        build[newkey] = newobject;
+    }
+    return build;
 }
 //# sourceMappingURL=server.js.map
