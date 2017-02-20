@@ -2,7 +2,8 @@
 
 This extension improves the experience using UI5 with typescript. It is currently work in progress.
 
-> This extension is not officially supported by SAP or the openUi5 team. It is currently in an early development phase, so [Please report issues](https://github.com/apazureck/openui5vscodeTypescriptTools/issues) you have.
+## Disclaimer 
+> This extension is not officially supported by SAP or the openUi5 team. It is currently in an early development phase, so [please report any issues](https://github.com/apazureck/openui5vscodeTypescriptTools/issues) you have. If you want to contribute, feel free to conatct me via [Github](https://github.com/apazureck/openui5vscodeTypescriptTools/issues). I will also update it quite frequently for the next time, which may cause some new bugs.
 
 ## Features
 
@@ -18,6 +19,9 @@ This extension improves the experience using UI5 with typescript. It is currentl
 * **manifest.json** support
     * JSON Schema
     * Autocomplete for routings
+* **XML** support
+    * Code completion for XML views
+    * Linter for correct/parsable xml files
 
 ## Requirements
 

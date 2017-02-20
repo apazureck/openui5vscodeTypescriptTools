@@ -113,7 +113,6 @@ export class XmlDiagnostics {
             if (schemastore.schemas.findIndex((val) => val.targetNamespace === match[2]) < 0) {
                 hits.push(new Diagnostic(new Range(changes.document.positionAt(match.index), changes.document.positionAt(match.index + match[0].length)), "Could not find definition file in storage. Add using the add to storage command.", vscode.DiagnosticSeverity.Warning));
             }
-
         }
         return hits
     }
