@@ -3,6 +3,7 @@
   "displayName": "openui5 Typescript Tool",
   "description": "A typescript extension for openui5",
   "version": "0.1.0",
+  "versvsce publishion": "0.1.0",
   "publisher": "apazureck",
   "engines": {
     "vscode": "^1.5.0"
@@ -12,7 +13,7 @@
     "email": "andreas@pazureck.de",
     "url": "www.pazureck.de"
   },
-  "icon": "./img/OpenUI5_logo.png",
+  "icon": "img/OpenUI5_logo.png",
   "categories": [
     "Languages",
     "Snippets",
