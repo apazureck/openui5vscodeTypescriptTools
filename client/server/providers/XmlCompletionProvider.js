@@ -36,6 +36,7 @@ class XmlCompletionHandler extends Log_1.Log {
                 pos++;
             let quote;
             let quotesfoundct = 0;
+            // Crawl backwards to find out where the cursor location is. In a parameter quote part or inside an element body.
             for (start = pos; start >= 0; start--) {
                 switch (txt[start]) {
                     case '<':
@@ -90,12 +91,14 @@ class XmlCompletionHandler extends Log_1.Log {
             if (isInElement)
                 endtag = '>';
             this.getUsedNamespaces(txt);
+            // todo: Maybe bind to this necessary
             this.logDebug((() => {
                 let ret = "Used Namespaces: ";
                 for (let ns in this.usedNamespaces)
                     ret += ns + " = " + this.usedNamespaces[ns] + " | ";
                 return ret.substring(0, ret.length - 3);
-            }).bind(this));
+            }));
+            // If current position is in an element, but not in a parameter: <Tag text="Hello" |src="123"...
             if (isInElement && !isInParamValue) {
                 quote = undefined;
                 for (end = pos; end < txt.length; end++) {
@@ -113,12 +116,13 @@ class XmlCompletionHandler extends Log_1.Log {
                     }
                     break;
                 }
-                this.connection.console.info("Found cursor location to be in element");
+                this.logDebug("Found cursor location to be in element");
                 return new Promise((resolve, reject) => {
                     resolve(this.processInTag(txt.substring(start, end + 1)));
                 });
             }
             else if (!isInElement) {
+                this.logDebug("Cursor location is in an element body.");
                 let parent = this.getParentElement(txt, start, []);
                 let tag = parent.element.$.name.match(/(\w*?):?(\w*)$/);
                 let schema = this.schemastorage[this.usedNamespaces[tag[1]]];
@@ -285,6 +289,8 @@ class XmlCompletionHandler extends Log_1.Log {
         return res;
     }
     getParentElement(txt, start, path) {
+        this.log();
+        this.logDebug("Getting parent element");
         // reverse search string
         let searchstring = txt.substring(0, start).split("").reverse().join("");
         let elregex = /.*?[>|<]/g;
@@ -293,44 +299,62 @@ class XmlCompletionHandler extends Log_1.Log {
         let comment = false;
         let startofbaseelement;
         while (m = elregex.exec(searchstring)) {
+            this.logDebug(() => "New Search string: '" + m[0].split('').reverse().join('') + "' Original: '" + m[0] + "'");
             if (!comment) {
                 if (m[0].startsWith("--")) {
+                    this.logDebug(" '--' found: Starting Comment");
                     comment = true;
                 }
-                else if (m[0].endsWith("/<"))
-                    level++;
-                else if (m[0].startsWith("/"))
-                    level++;
+                else if (m[0].endsWith("/<")) {
+                    this.logDebug("'</' found at the start: New Level: " + (++level));
+                }
+                else if (m[0].startsWith("/")) {
+                    this.logDebug("'/>' found at the end: New Level: " + (++level));
+                }
                 else if (m[0].endsWith("<")) {
                     if (level <= 0) {
                         startofbaseelement = m.index;
                         // Add Whitespace to make regex more simple
                         let foundelement = txt.substring(start - startofbaseelement - m[0].length, start) + " ";
+                        this.logDebug("Found Element '" + foundelement + "', trying to get name and namespace");
                         let x = foundelement.match(/<(\w*?):?(\w+?)(\s|\/|>)/);
                         let schema = this.schemastorage[this.usedNamespaces[x[1]]];
+                        this.logDebug("Found Schema for namespace abbrevation: " + schema.targetNamespace);
                         let element = this.findElement(x[2].trim(), schema);
+                        this.logDebug(() => "Found element " + element.$.name);
                         if (!element) {
                             path.push(x[2].trim());
+                            this.logDebug(() => "No Element found. Crawling up to next element via path: " + path.join("/"));
                             return this.getParentElement(txt, start - startofbaseelement - m[0].length - 1, path);
                         }
                         else
                             return { element: element, path: path };
                     }
-                    level--;
+                    else {
+                        this.logDebug("'<' found at the end: New Level: " + --level);
+                    }
                 }
             }
-            if (m[0].endsWith("--!<"))
+            if (m[0].endsWith("--!<")) {
+                this.logDebug("Found end of comment.");
                 comment = false;
+            }
         }
     }
     processInTag(tagstring) {
+        this.logDebug("Processing Tagstring: " + tagstring);
         let tagmatch = tagstring.match(/^<(\w*?):?(\w*?)[\s\/]/);
         let tag = { name: tagmatch[2], namespace: tagmatch[1] };
         let namespace = this.usedNamespaces[tag.namespace];
+        this.logDebug("Using Namespace: " + namespace);
         let schema = this.schemastorage[namespace];
+        this.logDebug("Using Schema: " + schema.targetNamespace);
         let element = this.findElement(tag.name, schema);
+        this.logDebug(() => "Found element: " + element.$.name);
         let elementType = this.getType(element.$.type, schema);
+        this.logDebug(() => "Found Element type: " + elementType.$.name);
         let attributes = this.getAttributes(elementType, schema);
+        this.logDebug(() => "Found " + attributes.length + " Attributes");
         let ret = [];
         for (let attribute of attributes) {
             ret.push(this.getCompletionItemFromAttribute(attribute, schema));

@@ -36,7 +36,7 @@ connection.onInitialize((params) => {
             // Tell the client that the server support code complete
             definitionProvider: true,
             completionProvider: {
-                resolveProvider: true,
+                resolveProvider: false,
                 triggerCharacters: [">"]
             }
         }
