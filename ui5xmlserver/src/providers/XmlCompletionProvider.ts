@@ -1,12 +1,13 @@
 import { TextDocumentPositionParams, CompletionItem, TextDocuments, IConnection, CompletionItemKind } from 'vscode-languageserver'
 import { Storage, StorageSchema, XmlStorage, ComplexTypeEx } from '../../typings/types'
+import { Log, LogLevel } from '../Log';
 import * as fs from 'fs'
 import * as path from 'path'
 import * as xml from 'xml2js'
 
-export class XmlCompletionHandler {
-    constructor(public schemastorage: XmlStorage, private documents: TextDocuments, private connection: IConnection, private schemastorePath: string) {
-
+export class XmlCompletionHandler extends Log {
+    constructor(public schemastorage: XmlStorage, private documents: TextDocuments, connection: IConnection, private schemastorePath: string, loglevel: LogLevel) {
+        super(connection, loglevel);
     }
 	private usedNamespaces: { [abbrevation: string]: string };
 	async getCompletionSuggestions(handler: TextDocumentPositionParams): Promise<CompletionItem[]> {
@@ -76,11 +77,21 @@ export class XmlCompletionHandler {
 			break;
 		}
 
+        this.logDebug(() => "Found start tag at index "+start+" '" + txt.substring(start, pos) + "'");
+
 		let endtag = '<';
 		if (isInElement)
 			endtag = '>'
 
 		this.getUsedNamespaces(txt);
+
+        this.logDebug((() => {
+            let ret: string = "Used Namespaces: "
+            for(let ns in this.usedNamespaces)
+                ret += ns + " = " + this.usedNamespaces[ns] + " | ";
+            return ret.substring(0, ret.length-3);
+         }).bind(this));
+         
 		if (isInElement && !isInParamValue) {
 			quote = undefined;
 			for (end = pos; end < txt.length; end++) {

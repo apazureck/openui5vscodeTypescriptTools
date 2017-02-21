@@ -96,6 +96,39 @@
 					"type": "string",
 					"default": "./i18n/i18n.properties",
 					"description": "Location of the i18n file used for code completion"
+				},
+				"ui5ts.lang.xml.autoCloseEmptyElement": {
+					"type": "boolean",
+					"default": true,
+					"description": "Closes empty tag when a '/' is typed at the end."
+				},
+				"ui5ts.lang.xml.LogLevel": {
+					"type": "number",
+					"default": 0,
+					"description": "Loglevel of the language server. Debug: 0, Warning: 1, Error: 2, None, 3. A low loglevel may cause language server to slow down.",
+					"oneOf": [
+						{
+							"description": "Debug",
+							"enum": [
+								0
+							]
+						}, {
+							"description": "Warning",
+							"enum": [
+								1
+							]
+						}, {
+							"description": "Error",
+							"enum": [
+								2
+							]
+						}, {
+							"description": "None",
+							"enum": [
+								3
+							]
+						}
+					]
 				}
 			}
 		},

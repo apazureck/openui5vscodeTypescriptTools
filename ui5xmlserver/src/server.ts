@@ -20,6 +20,7 @@ import * as xml from 'xml2js';
 import * as fs from 'fs';
 import { XmlStorage, Storage, StorageSchema } from '../typings/types'
 import { XmlCompletionHandler } from './providers/XmlCompletionProvider'
+import { LogLevel } from './Log'
 
 const controllerFileEx = "\\.controller\\.(js|ts)$";
 
@@ -107,7 +108,7 @@ connection.onCompletion(async (handler) => {
 		connection.console.error("Error when getting i18n completion entries: " + JSON.stringify(error));
 	}
 	try {
-		let ch = new XmlCompletionHandler(schemastorage, documents, connection, schemastorePath);
+		let ch = new XmlCompletionHandler(schemastorage, documents, connection, schemastorePath, settings.ui5ts.lang.xml.LogLevel);
 		cl = cl.concat(await ch.getCompletionSuggestions(handler));
 		schemastorage = ch.schemastorage;
 	} catch (error) {
@@ -218,17 +219,6 @@ function getLine(text: string, linenumber: number) {
 	return lines[linenumber];
 }
 
-connection.onDidChangeTextDocument((textchangeparams) => {
-	connection.console.info("Did  Change Content Event occurred.");
-	autoCloseTags(textchangeparams);
-})
-
-function autoCloseTags(tcp: DidChangeTextDocumentParams) {
-	if (settings.ui5ts.lang.xml.autoCloseTags) {
-		let change = tcp.contentChanges.pop();
-	}
-}
-
 function getRange(docText: string, searchPattern: RegExp): Range[] {
 	const lineRegex = /.*(?:\n|\r\n)/gm;
 	let l;
@@ -277,7 +267,8 @@ interface Settings {
 				modelfilelocation: string
 			}
 			xml: {
-				autoCloseTags: boolean
+				autoCloseEmptyElement: boolean,
+				LogLevel: LogLevel
 			}
 		}
 
