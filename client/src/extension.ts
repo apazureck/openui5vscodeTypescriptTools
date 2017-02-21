@@ -1,4 +1,5 @@
 'use strict';
+import { Position } from 'vscode-languageserver-types/lib/main';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
@@ -13,7 +14,8 @@ import * as path from 'path';
 import { ManifestDiagnostics } from './language/ui5/Ui5ManifestDiagnostics'
 import { Ui5i18nCompletionItemProvider } from './language/ui5/Ui5CompletionProviders'
 import { ManifestCompletionItemProvider } from './language/ui5/Ui5ManifestCompletionProviders'
-import { XmlDiagnostics } from './language/ui5/XmlDiagnostics'
+import { XmlDiagnostics } from './language/xml/XmlDiagnostics'
+import { closeEmptyTag } from './language/xml/xmlCodeProviders'
 
 export const name = "ui5-ts";
 export class Ui5Extension {
@@ -25,7 +27,7 @@ export class Ui5Extension {
 
 const ui5_jsonviews: vscode.DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.view.json" };
 const ui5_xmlviews: vscode.DocumentFilter = { language: 'xml', scheme: "file", pattern: "*.view.xml" };
-const xml = { language: 'xml', scheme: "file", pattern: "*.xml" };
+const langxml = { language: 'xml', scheme: "file", pattern: "*.xml" };
 const ui5_tscontrollers: vscode.DocumentFilter = { language: 'typescript', scheme: 'file', pattern: "*.controller.ts" };
 const ui5_jscontrollers: vscode.DocumentFilter = { language: 'javascript', scheme: 'file', pattern: "*.controller.js" };
 const ui5_jsonfragments: vscode.DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.fragment.json" };
@@ -56,6 +58,7 @@ export function activate(c: vscode.ExtensionContext) {
     c.subscriptions.push(vscode.commands.registerTextEditorCommand('ui5ts.SwitchToView', commands.SwitchToView.bind(context)));
     c.subscriptions.push(vscode.commands.registerTextEditorCommand('ui5ts.SwitchToController', commands.SwitchToController.bind(context)));
     c.subscriptions.push(vscode.commands.registerCommand('ui5ts.AddSchemaToStorage', commands.AddSchemaToStore.bind(context)));
+    vscode.window.onDidChangeTextEditorSelection(closeEmptyTag);
 
     // Setup Language Providers
     // c.subscriptions.push(vscode.languages.registerDefinitionProvider(ui5_xmlviews, new defprov.Ui5ViewDefinitionProvider));
@@ -130,8 +133,8 @@ function startXmlViewLanguageServer(context: vscode.ExtensionContext): void {
 
     // Options to control the language client
     let clientOptions: LanguageClientOptions = {
-        // Register the server for UI5 xml decuments documents
-        documentSelector: ['xml'],
+        // Register the server for xml decuments documents
+        documentSelector: ['xml', 'xsd'],
         synchronize: {
             // Synchronize the setting section 'languageServerExample' to the server
             configurationSection: 'ui5ts',

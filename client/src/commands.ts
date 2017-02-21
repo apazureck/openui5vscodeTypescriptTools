@@ -5,7 +5,7 @@ import * as log from './helpers/logging';
 import * as file from './helpers/filehandler';
 import * as fs from 'fs'
 import * as path from 'path'
-import { schemastore } from './language/ui5/XmlDiagnostics'
+import { schemastore } from './language/xml/XmlDiagnostics'
 
 export var core: ui5ts.Ui5Extension;
 

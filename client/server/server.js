@@ -633,9 +633,15 @@ function getLine(text, linenumber) {
     let lines = text.split(/\n/);
     return lines[linenumber];
 }
-documents.onDidChangeContent((e) => {
+connection.onDidChangeTextDocument((textchangeparams) => {
     connection.console.info("Did  Change Content Event occurred.");
+    autoCloseTags(textchangeparams);
 });
+function autoCloseTags(tcp) {
+    if (settings.ui5ts.lang.xml.autoCloseTags) {
+        let change = tcp.contentChanges.pop();
+    }
+}
 function getRange(docText, searchPattern) {
     const lineRegex = /.*(?:\n|\r\n)/gm;
     let l;
@@ -669,20 +675,7 @@ function getLineByIndex(input, startindex) {
         return null;
     return leftpart + rightpart;
 }
-var settings = {
-    ui5ts: {
-        lang: {
-            i18n: {
-                modelfilelocation: "./i18n/i18n.properties",
-                modelname: "i18n"
-            }
-        }
-    },
-    xml: {
-        schemastoragelocation: "./.vscode/schemas/xml",
-        schemas: []
-    }
-};
+var settings;
 connection.onDidChangeConfiguration((change) => {
     connection.console.info("Changed settings: " + JSON.stringify(change));
     settings = change.settings;
