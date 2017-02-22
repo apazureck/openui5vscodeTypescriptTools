@@ -304,8 +304,58 @@ export class XmlCompletionHandler extends Log {
 		let level = 0;
 		let comment = false;
 		let startofbaseelement: number;
+
+		let foundstring = "";
+		let quote;
+
+		let regx = /(>(?!--|.*>)[\s\S]*?<)/g;
+		let rpos = 0
+		let p: string[] = []
+		let lm: RegExpMatchArray = regx.exec(txt);
+		while(m = regx.exec(txt)) {
+			if(m.index > start) {
+				let i = 0;
+			}
+			let part = txt.substring(lm.index, m.index);
+			let inner = txt.substring(lm.index + lm[0].length, m.index)
+			lm = m;
+			this.logDebug("Found potential element '" + inner + "'")
+			// 1: slash at start, if closing tag
+			// 2: namespace
+			// 3: name
+			// 4: whole name with namespace
+			// 5: space or stringend, if empty opening tag
+			// 6: arguments, if There
+			// 7: / at the end if self closing element
+			let tag = inner.match(/^(\/?)(\w*?):?(\w+?)(\s|.$)(.*?)(\/?)$/);
+			if(comment || !tag) {
+				if(inner.startsWith("!--")) {
+					comment = true;
+					this.logDebug("Found comment");
+				}
+				if(inner.endsWith("--")) {
+					comment = false;
+					this.logDebug("Comment ended");	
+				}					
+			}
+			// todo: Handle potential open and closing tags when in attribute values
+			// Case closing tag
+			else if(tag[1] === "/") {
+				p.pop();
+				this.logDebug(() => "Found closing tag. New Stack: " + p.join(" > ") )
+			} else if(tag[6]) {
+				this.logDebug("Found self closing element '" + tag[2] + "'")
+			} else {
+				if(tag[4].match(/\w/))
+					p.push(tag[3] + tag[4]);
+				else
+					p.push(tag[3]);
+				this.logDebug("Found opening tag '" + tag[2] + "'. New Stack: " + p.join(" > "))
+			}
+		}
+
 		while (m = elregex.exec(searchstring)) {
-			this.logDebug(() => "New Search string: '" + m[0].split('').reverse().join('') + "' Original: '" + m[0] + "'");
+			this.logDebug(() => "New Search string: '" + m[0].split('').reverse().join('') + "'");
 			if (!comment) {
 				if (m[0].startsWith("--")) {
 					this.logDebug(" '--' found: Starting Comment");
