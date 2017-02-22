@@ -1,9 +1,40 @@
 import { TextDocumentPositionParams, CompletionItem, TextDocuments, IConnection, CompletionItemKind } from 'vscode-languageserver'
 import { Storage, StorageSchema, XmlStorage, ComplexTypeEx } from '../../typings/types'
-import {Log, LogLevel} from '../Log';
+import { Log, LogLevel } from '../Log';
 import * as fs from 'fs'
 import * as path from 'path'
 import * as xml from 'xml2js'
+
+interface FoundAttribute {
+	name: string,
+	value?: string
+	startpos: number,
+	endpos: number
+}
+
+export interface FoundCursor {
+	absoluteCursorPosition: number
+	relativeCursorPosition: number
+	isInElement: boolean
+	elementcontent: string
+	path: string[]
+	tagName: string
+	tagNamespace: string
+
+	fullName: string
+	isClosingTag: boolean
+	isSelfClosingTag: boolean
+	isInAttribute: boolean
+	/**
+	 * Name of the attribute, if cursor is in attribute
+	 * 
+	 * @type {string}
+	 * @memberOf FoundCursor
+	 */
+	attributeName?: FoundAttribute
+
+	attributes?: FoundAttribute[]
+}
 
 export class XmlCompletionHandler extends Log {
 	constructor(public schemastorage: XmlStorage, private documents: TextDocuments, connection: IConnection, private schemastorePath: string, loglevel: LogLevel) {
@@ -17,74 +48,9 @@ export class XmlCompletionHandler extends Log {
 		let doc = this.documents.get(handler.textDocument.uri);
 		let txt = doc.getText();
 		let pos = doc.offsetAt(handler.position);
-		let start, end: number;
-		let isInElement: boolean = true;
-		let isInParamValue: boolean = false;
-
-		// Catch border Problem i always equals the element right of the cursor.
-		if (txt[pos] === ">")
-			pos--;
-		else if (txt[pos] === "<")
-			pos++;
-
-		let quote: string;
-		let quotesfoundct = 0;
-
-		// Crawl backwards to find out where the cursor location is. In a parameter quote part or inside an element body.
-		for (start = pos; start >= 0; start--) {
-			switch (txt[start]) {
-				case '<':
-					if (!quote)
-						break;
-				case "=":
-					// if = occurs maybe search is a parameter value
-					if (quotesfoundct == 1)
-						for (let checkpos = pos; checkpos < txt.length; checkpos++) {
-							switch (txt[checkpos]) {
-								case quote:
-									isInParamValue = true;
-									break;
-								case "<": case ">": case "/":
-									break;
-								default:
-									continue;
-							}
-							break;
-						}
-
-					if (isInParamValue)
-						break;
-					else
-						continue;
-				case '>':
-					if (!quote)
-						isInElement = false;
-					break;
-				case quote:
-					quote = undefined
-					continue;
-				case "'": case '"':
-					quotesfoundct++;
-					if (!quote)
-						quote = txt[start];
-					continue;
-				default:
-					continue;
-			}
-			if (txt[start] === '<') {
-				break;
-			} else if (txt[start] === '>')
-				isInElement = false;
-			break;
-		}
-
-		this.logDebug(() => "Found start tag at index " + start + " '" + txt.substring(start, pos) + "'");
-
-		let endtag = '<';
-		if (isInElement)
-			endtag = '>'
-
+		
 		this.getUsedNamespaces(txt);
+		let foundCursor = this.getElementAtCursorPos(txt, pos);
 
 		// todo: Maybe bind to this necessary
 		this.logDebug((() => {
@@ -95,33 +61,17 @@ export class XmlCompletionHandler extends Log {
 		}));
 
 		// If current position is in an element, but not in a parameter: <Tag text="Hello" |src="123"...
-		if (isInElement && !isInParamValue) {
-			quote = undefined;
-			for (end = pos; end < txt.length; end++) {
-				switch (txt[end]) {
-					case quote:
-						quote = undefined;
-						continue;
-					case "'": case '"':
-						if (!quote)
-							quote = txt[end];
-						continue;
-					case endtag:
-						break;
-				}
-				break;
-			}
-
+		if (foundCursor.isInElement && !foundCursor.isInAttribute) {
 			this.logDebug("Found cursor location to be in element");
 
 			return new Promise<CompletionItem[]>((resolve, reject) => {
-				resolve(this.processInTag(txt.substring(start, end + 1)));
+				 resolve(this.processInTag(foundCursor));
 			});
 
-		} else if (!isInElement) {
+		} else if (!foundCursor.isInElement) {
 			this.logDebug("Cursor location is in an element body.");
 
-			let parent = this.getParentElement(txt, start, []);
+			let parent = this.getParentElement(txt, 10, []);
 			let tag = parent.element.$.name.match(/(\w*?):?(\w*)$/);
 			let schema = this.schemastorage[this.usedNamespaces[tag[1]]];
 			let type = this.getType(parent.element.$.type, schema);
@@ -294,6 +244,106 @@ export class XmlCompletionHandler extends Log {
 		return res;
 	}
 
+	private getElementAtCursorPos(txt: string, start: number): FoundCursor {
+		let regx = /(>(?!--|.*>)[\s\S]*?<)/g;
+		let p: string[] = [];
+		let comment = false;
+		let m: RegExpMatchArray;
+		let lm: RegExpMatchArray = regx.exec(txt);
+		while (m = regx.exec(txt)) {
+			if (m.index > start) {
+				break;
+			}
+			let part = txt.substring(lm.index, m.index);
+			let inner = txt.substring(lm.index + lm[0].length, m.index)
+			lm = m;
+			this.logDebug("Found potential element '" + inner + "'")
+			// 1: slash at start, if closing tag
+			// 2: namespace
+			// 3: name
+			// 4: space or stringend, if empty opening tag
+			// 5: arguments, if There
+			// 6: / at the end if self closing element
+			let tag = inner.match(/^(\/?)(\w*?):?(\w+?)(\s|.$)(.*?)(\/?)$/);
+			if (comment || !tag) {
+				if (inner.startsWith("!--")) {
+					comment = true;
+					this.logDebug("Found comment");
+				}
+				if (inner.endsWith("--")) {
+					comment = false;
+					this.logDebug("Comment ended");
+				}
+			}
+			// todo: Handle potential open and closing tags when in attribute values
+			// Case closing tag
+			else if (tag[1] === "/") {
+				p.pop();
+				this.logDebug(() => "Found closing tag. New Stack: " + p.join(" > "))
+			} else if (tag[6]) {
+				this.logDebug("Found self closing element '" + tag[2] + "'")
+			} else {
+				let fulltag = (tag[2].match(/\w+/) ? tag[2] + ":" : "") + tag[3];
+				if (tag[4].match(/\w/))
+					p.push(fulltag + tag[4]);
+				else
+					p.push(fulltag);
+				this.logDebug(() => "Found opening tag '" + tag[2] + "'. New Stack: " + p.join(" > "))
+			}
+		}
+
+		// If cursor is in element is inbetween elements the index of start is smaller than the found index of lm and the length of the part: tag'> .... stuff .... <'
+		// Otherwise the cursor is in the following element
+		let ec = txt.substring(lm.index + lm[0].length, m.index);
+		let tag = (ec + " ").match(/^\s*?(\/?)\s*?(\w*?):?(\w+?)(\s|\/)/);
+		let foundcursor: FoundCursor = {
+			absoluteCursorPosition: start,
+			relativeCursorPosition: start - lm.index,
+			isInElement: start >= lm.index + lm[0].length,
+			elementcontent: ec,
+			isClosingTag: tag[1] !== '',
+			isSelfClosingTag: ec.endsWith("/"),
+			tagName: tag[3],
+			tagNamespace: tag[2],
+			fullName: tag[2] ? tag[2] + ":" + tag[3] : tag[2],
+			path: p,
+			isInAttribute: false
+		}
+
+		if(foundcursor.isInElement) {
+			let quote: string = undefined
+			let attributename = "";
+			let attributes: FoundAttribute[] = [];
+			let isinattributename: boolean = false;
+			let amatch: RegExpMatchArray
+
+			// 1: attributename
+			// 2: opening quote
+			let attributeregex = /\s*?(\w+?)\s*?=\s*?(["'])?/g;
+			attributeregex.lastIndex = foundcursor.fullName.length;
+			
+			while(amatch = attributeregex.exec(ec)) {
+				for(let i = amatch.index + amatch[0].length + 1; i<ec.length; i++) {
+					if(foundcursor.relativeCursorPosition === i)
+						foundcursor.isInAttribute = true;
+					if(ec[i] === amatch[2]) {
+						attributes.push({
+							startpos: amatch.index,
+							endpos: i,
+							name: amatch[1],
+							value: ec.substring(amatch.index + amatch[0].length, i)
+						});
+						attributeregex.lastIndex = i+1;
+						break;
+					}
+				}
+			}
+			foundcursor.attributes = attributes;
+		}
+
+		return foundcursor;
+	}
+
 	private getParentElement(txt: string, start: number, path: string[]): { element: Element, path: string[] } {
 		this.log();
 		this.logDebug("Getting parent element");
@@ -308,51 +358,7 @@ export class XmlCompletionHandler extends Log {
 		let foundstring = "";
 		let quote;
 
-		let regx = /(>(?!--|.*>)[\s\S]*?<)/g;
-		let rpos = 0
-		let p: string[] = []
-		let lm: RegExpMatchArray = regx.exec(txt);
-		while(m = regx.exec(txt)) {
-			if(m.index > start) {
-				let i = 0;
-			}
-			let part = txt.substring(lm.index, m.index);
-			let inner = txt.substring(lm.index + lm[0].length, m.index)
-			lm = m;
-			this.logDebug("Found potential element '" + inner + "'")
-			// 1: slash at start, if closing tag
-			// 2: namespace
-			// 3: name
-			// 4: whole name with namespace
-			// 5: space or stringend, if empty opening tag
-			// 6: arguments, if There
-			// 7: / at the end if self closing element
-			let tag = inner.match(/^(\/?)(\w*?):?(\w+?)(\s|.$)(.*?)(\/?)$/);
-			if(comment || !tag) {
-				if(inner.startsWith("!--")) {
-					comment = true;
-					this.logDebug("Found comment");
-				}
-				if(inner.endsWith("--")) {
-					comment = false;
-					this.logDebug("Comment ended");	
-				}					
-			}
-			// todo: Handle potential open and closing tags when in attribute values
-			// Case closing tag
-			else if(tag[1] === "/") {
-				p.pop();
-				this.logDebug(() => "Found closing tag. New Stack: " + p.join(" > ") )
-			} else if(tag[6]) {
-				this.logDebug("Found self closing element '" + tag[2] + "'")
-			} else {
-				if(tag[4].match(/\w/))
-					p.push(tag[3] + tag[4]);
-				else
-					p.push(tag[3]);
-				this.logDebug("Found opening tag '" + tag[2] + "'. New Stack: " + p.join(" > "))
-			}
-		}
+		
 
 		while (m = elregex.exec(searchstring)) {
 			this.logDebug(() => "New Search string: '" + m[0].split('').reverse().join('') + "'");
@@ -364,7 +370,7 @@ export class XmlCompletionHandler extends Log {
 				else if (m[0].endsWith("/<")) {
 					this.logDebug("'</' found at the start: New Level: " + (++level));
 				}
-				else if (m[0].startsWith("/")){
+				else if (m[0].startsWith("/")) {
 					this.logDebug("'/>' found at the end: New Level: " + (++level));
 				}
 				else if (m[0].endsWith("<")) {
@@ -372,7 +378,7 @@ export class XmlCompletionHandler extends Log {
 						startofbaseelement = m.index;
 						// Add Whitespace to make regex more simple
 						let foundelement = txt.substring(start - startofbaseelement - m[0].length, start) + " ";
-						this.logDebug("Found Element '"+ foundelement + "', trying to get name and namespace");
+						this.logDebug("Found Element '" + foundelement + "', trying to get name and namespace");
 						let x = foundelement.match(/<(\w*?):?(\w+?)(\s|\/|>)/);
 						let schema = this.schemastorage[this.usedNamespaces[x[1]]];
 						this.logDebug("Found Schema for namespace abbrevation: " + schema.targetNamespace);
@@ -387,7 +393,7 @@ export class XmlCompletionHandler extends Log {
 							return { element: element, path: path };
 					} else {
 						this.logDebug("'<' found at the end: New Level: " + --level);
-					} 
+					}
 				}
 			}
 			if (m[0].endsWith("--!<")) {
@@ -397,15 +403,13 @@ export class XmlCompletionHandler extends Log {
 		}
 	}
 
-	private processInTag(tagstring: string): CompletionItem[] {
-		this.logDebug("Processing Tagstring: " + tagstring);
-		let tagmatch = tagstring.match(/^<(\w*?):?(\w*?)[\s\/]/);
-		let tag = { name: tagmatch[2], namespace: tagmatch[1] };
-		let namespace = this.usedNamespaces[tag.namespace];
+	private processInTag(cursor: FoundCursor): CompletionItem[] {
+		this.logDebug("Processing Tagstring: " + cursor.tagName);
+		let namespace = this.usedNamespaces[cursor.tagNamespace];
 		this.logDebug("Using Namespace: " + namespace)
 		let schema = this.schemastorage[namespace];
 		this.logDebug("Using Schema: " + schema.targetNamespace);
-		let element = this.findElement(tag.name, schema);
+		let element = this.findElement(cursor.tagName, schema);
 		this.logDebug(() => "Found element: " + element.$.name);
 		let elementType = this.getType(element.$.type, schema);
 		this.logDebug(() => "Found Element type: " + elementType.$.name);
@@ -413,7 +417,8 @@ export class XmlCompletionHandler extends Log {
 		this.logDebug(() => "Found " + attributes.length + " Attributes");
 		let ret: CompletionItem[] = [];
 		for (let attribute of attributes) {
-			ret.push(this.getCompletionItemFromAttribute(attribute, schema));
+			if(!(cursor.attributes.findIndex(x => x.name === attribute.$.name)>0))
+				ret.push(this.getCompletionItemFromAttribute(attribute, schema));
 		}
 		return ret;
 	}
