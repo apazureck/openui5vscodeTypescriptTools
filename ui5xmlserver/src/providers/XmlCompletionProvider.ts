@@ -1,5 +1,5 @@
 import { TextDocumentPositionParams, CompletionItem, TextDocuments, IConnection, CompletionItemKind } from 'vscode-languageserver'
-import { Storage, StorageSchema, XmlStorage, ComplexTypeEx } from '../../typings/types'
+import { Storage, StorageSchema, XmlStorage, ComplexTypeEx, ElementEx } from '../../typings/types'
 import { Log, LogLevel } from '../Log';
 import * as fs from 'fs'
 import * as path from 'path'
@@ -48,7 +48,7 @@ export class XmlCompletionHandler extends Log {
 		let doc = this.documents.get(handler.textDocument.uri);
 		let txt = doc.getText();
 		let pos = doc.offsetAt(handler.position);
-		
+
 		this.getUsedNamespaces(txt);
 		let foundCursor = this.getElementAtCursorPos(txt, pos);
 
@@ -65,54 +65,100 @@ export class XmlCompletionHandler extends Log {
 			this.logDebug("Found cursor location to be in element");
 
 			return new Promise<CompletionItem[]>((resolve, reject) => {
-				 resolve(this.processInTag(foundCursor));
+				resolve(this.processInTag(foundCursor));
 			});
 
 		} else if (!foundCursor.isInElement) {
 			this.logDebug("Cursor location is in an element body.");
 
-			let parent = this.getParentElement(txt, 10, []);
-			let tag = parent.element.$.name.match(/(\w*?):?(\w*)$/);
-			let schema = this.schemastorage[this.usedNamespaces[tag[1]]];
-			let type = this.getType(parent.element.$.type, schema);
-			let elements = this.getElements(type, parent.path, schema);
 			return new Promise<CompletionItem[]>((resolve, reject) => {
-				resolve(this.processAllowedElements(parent.element, elements, schema));
+				resolve(this.processAllowedElements(foundCursor));
 			});
 		}
 	}
 
-	private processAllowedElements(parent: Element, elements: Element[], schema: StorageSchema): CompletionItem[] {
+
+	/**
+	 * Gets the schema from an element, which can come in form of '<namespace:name ... ' or '<name ...   '
+	 * 
+	 * @param {string} fullElementName 
+	 * @returns 
+	 * 
+	 * @memberOf XmlCompletionHandler
+	 */
+	getSchema(fullElementName: string) {
+		return this.schemastorage[this.usedNamespaces[fullElementName.match(/(\w*?):?\w+/)[1]]]
+	}
+
+	private processAllowedElements(cursor: FoundCursor): CompletionItem[] {
 		let foundElements: { namespace: string, elements: Element[] }[] = [];
 		let baseElements: Element[] = [];
 
-		// First get all element references, if referenced.
-		for (let element of elements) {
-			try {
-				let useschema = schema;
-				if (element.$ && element.$.ref) {
-					let res = this.getElementFromReference(element.$.ref, useschema);
-					element = res.element;
-					useschema = res.ownerSchema;
-					if (!element) {
-						continue;
-					}
-				}
-				baseElements.push(element);
-				foundElements = foundElements.concat(this.getDerivedElements(element, useschema));
-			} catch (error) {
-				this.connection.console.error("Error getting element: " + error.toString());
+		// copy path to leave original intact
+		let path = cursor.path;
+		let part: string;
+		let downpath: string[] = [];
+		let element: ElementEx;
+
+		// go down the path to get the first parent element in the owning schema
+		while (part = path.pop()) {
+			element = this.findElement(part, this.getSchema(part))
+			if (element) {
+				break;
+			} else {
+				downpath.push(part);
 			}
 		}
 
+		// Find out if element is referenced first
+		if (element.$ && element.$.ref) {
+			element = this.getElementFromReference(element.$.ref, element.ownerschema);
+		}
+
+		let type: ComplexTypeEx;
+		// Find out if element got a type reference
+		if (element.$ && element.$.type) {
+			this.logDebug("Element " + element.$.name + " has a type reference.");
+			type = this.getType(element.$.type, element.ownerschema);
+
+			// Check if element has a complex type declaration inside
+		} else if (element.complexType[0]) {
+			this.logDebug("Element " + element.$.name + " has a complex type inside.");
+			let ctype = element.complexType[0] as ComplexTypeEx;
+			ctype.schema = element.ownerschema;
+		} else {
+			this.logDebug("Element must be of simple type. Code Completion not supported for simple types.");
+			return [];
+		}
+
+		// Distinguish between sequences and choices, etc. to display only elements that can be placed here.
+		let elements = this.getAllElementsInComplexType(type);
+		let derivedelements: { namespace: string, elements: Element[] } [] = [];
+
+		let ownelements: Element[] = [];
+
+		for(let e of elements)
+		// Get Type if type is given as attribute, which indicates it may be used by others.
+			if(e.$ && e.$.type) {
+				derivedelements = derivedelements.concat(this.getDerivedElements(e, this.getSchema(e.$.name)))
+				// Get Elements if type is a reference
+			} else if(e.$ && e.$.ref) {
+				e = this.getElementFromReference(e.$.ref, this.getSchema(e.$.ref))
+				if(e && e.$ && e.$.type)
+					derivedelements = derivedelements.concat(this.getDerivedElements(e, this.getSchema(e.$.name)));
+			} else {
+				ownelements.push(e);
+			}
+
 		// Append additional elements
 		for (let ns in this.usedNamespaces) {
-			if (this.usedNamespaces[ns] === schema.targetNamespace) {
-				foundElements.push({ namespace: ns, elements: baseElements });
+			if (this.usedNamespaces[ns] === element.ownerschema.targetNamespace) {
+				foundElements.push({ namespace: ns, elements: ownelements });
 				break;
 			}
 		}
 
+		foundElements = foundElements.concat(derivedelements);
 		let ret: CompletionItem[] = [];
 		for (let item of foundElements) {
 			for (let entry of item.elements)
@@ -138,17 +184,37 @@ export class XmlCompletionHandler extends Log {
 		return ret;
 	}
 
-	private getDerivedElements(element: Element, owningSchema: StorageSchema): { namespace: string, elements: Element[] }[] {
-		var type = this.getType(element.$.type, owningSchema);
+	private getAllElementsInComplexType(type: ComplexTypeEx): Element[] {
+		let alltypes = [type]
+		alltypes = alltypes.concat(this.getBaseTypes(type));
+
+		let elements: Element[] = [];
+		for(let t of alltypes) {
+			if(t.complexContent && t.complexContent[0].extension) {
+				if(t.complexContent[0].extension[0].element)
+					elements = elements.concat(t.complexContent[0].extension[0].element);
+				if(t.complexContent[0].extension[0].sequence && t.complexContent[0].extension[0].sequence[0].element) {
+					elements = elements.concat(t.complexContent[0].extension[0].sequence[0].element);
+					if(t.complexContent[0].extension[0].sequence[0].choice && t.complexContent[0].extension[0].sequence[0].choice[0].element)
+						elements = elements.concat(t.complexContent[0].extension[0].sequence[0].choice[0].element);
+				}
+			}
+		}
+		return elements;
+	}
+
+	private getDerivedElements(element: Element, schema: StorageSchema): { namespace: string, elements: Element[] }[] {
+		var type = this.getType(element.$.type, schema);
+		schema = type.schema
 		// Find all schemas using the owningSchema (and so maybe the element)
 		let schemasUsingNamespace: { nsabbrevation: string, schema: StorageSchema }[] = [];
 		for (let targetns in this.schemastorage) {
-			if (targetns === owningSchema.targetNamespace)
+			if (targetns === schema.targetNamespace)
 				continue;
 			let curschema = this.schemastorage[targetns];
 			for (let namespace in curschema.referencedNamespaces)
 				// check if xsd file is referenced in current schema.
-				if (curschema.referencedNamespaces[namespace] === owningSchema.targetNamespace) {
+				if (curschema.referencedNamespaces[namespace] === type.schema.targetNamespace) {
 					for (let nsa in this.usedNamespaces)
 						// check if namespace is also used in current xml file
 						if (this.usedNamespaces[nsa] === curschema.targetNamespace) {
@@ -166,7 +232,7 @@ export class XmlCompletionHandler extends Log {
 					if (!e.$ || !e.$.type)
 						continue;
 					try {
-						let basetypes = this.getBaseTypes(this.getType(e.$.type, schema.schema), schema.schema);
+						let basetypes = this.getBaseTypes(this.getType(e.$.type, schema.schema));
 						let i = basetypes.findIndex(x => { try { return x.$.name === type.$.name; } catch (error) { return false; } });
 						if (i > -1)
 							newentry.elements.push(e);
@@ -183,27 +249,27 @@ export class XmlCompletionHandler extends Log {
 		return foundElements;
 	}
 
-	private getBaseTypes(type: ComplexTypeEx, schema: StorageSchema, path?: ComplexTypeEx[]): ComplexTypeEx[] {
+	private getBaseTypes(type: ComplexTypeEx, path?: ComplexTypeEx[]): ComplexTypeEx[] {
 		if (!path)
 			path = [];
 
 		try {
 			let newtypename = type.complexContent[0].extension[0].$.base
-			let newtype = this.getType(newtypename, schema);
+			let newtype = this.getType(newtypename, type.schema);
 			path.push(newtype);
-			this.getBaseTypes(newtype, schema, path);
+			this.getBaseTypes(newtype, path);
 		} catch (error) {
 		}
 		return path;
 	}
 
-	private getElementFromReference(elementref: string, schema: StorageSchema): { element: Element, ownerSchema: StorageSchema } {
+	private getElementFromReference(elementref: string, schema: StorageSchema): ElementEx {
 		// Split namespace and 
 		let nsregex = elementref.match(/(\w*?):?(\w+?)$/);
 		if (schema.referencedNamespaces[nsregex[1]] !== schema.targetNamespace)
 			schema = this.schemastorage[schema.referencedNamespaces[nsregex[1]]];
 
-		return { element: this.findElement(nsregex[2], schema), ownerSchema: schema };
+		return this.findElement(nsregex[2], schema);
 	}
 
 	private getElements(type: ComplexTypeEx, path: string[], schema: StorageSchema): Element[] {
@@ -310,7 +376,7 @@ export class XmlCompletionHandler extends Log {
 			isInAttribute: false
 		}
 
-		if(foundcursor.isInElement) {
+		if (foundcursor.isInElement) {
 			let quote: string = undefined
 			let attributename = "";
 			let attributes: FoundAttribute[] = [];
@@ -321,19 +387,19 @@ export class XmlCompletionHandler extends Log {
 			// 2: opening quote
 			let attributeregex = /\s*?(\w+?)\s*?=\s*?(["'])?/g;
 			attributeregex.lastIndex = foundcursor.fullName.length;
-			
-			while(amatch = attributeregex.exec(ec)) {
-				for(let i = amatch.index + amatch[0].length + 1; i<ec.length; i++) {
-					if(foundcursor.relativeCursorPosition === i)
+
+			while (amatch = attributeregex.exec(ec)) {
+				for (let i = amatch.index + amatch[0].length + 1; i < ec.length; i++) {
+					if (foundcursor.relativeCursorPosition === i)
 						foundcursor.isInAttribute = true;
-					if(ec[i] === amatch[2]) {
+					if (ec[i] === amatch[2]) {
 						attributes.push({
 							startpos: amatch.index,
 							endpos: i,
 							name: amatch[1],
 							value: ec.substring(amatch.index + amatch[0].length, i)
 						});
-						attributeregex.lastIndex = i+1;
+						attributeregex.lastIndex = i + 1;
 						break;
 					}
 				}
@@ -342,65 +408,6 @@ export class XmlCompletionHandler extends Log {
 		}
 
 		return foundcursor;
-	}
-
-	private getParentElement(txt: string, start: number, path: string[]): { element: Element, path: string[] } {
-		this.log();
-		this.logDebug("Getting parent element");
-		// reverse search string
-		let searchstring = txt.substring(0, start).split("").reverse().join("");
-		let elregex = /.*?[>|<]/g
-		let m: RegExpMatchArray;
-		let level = 0;
-		let comment = false;
-		let startofbaseelement: number;
-
-		let foundstring = "";
-		let quote;
-
-		
-
-		while (m = elregex.exec(searchstring)) {
-			this.logDebug(() => "New Search string: '" + m[0].split('').reverse().join('') + "'");
-			if (!comment) {
-				if (m[0].startsWith("--")) {
-					this.logDebug(" '--' found: Starting Comment");
-					comment = true;
-				}
-				else if (m[0].endsWith("/<")) {
-					this.logDebug("'</' found at the start: New Level: " + (++level));
-				}
-				else if (m[0].startsWith("/")) {
-					this.logDebug("'/>' found at the end: New Level: " + (++level));
-				}
-				else if (m[0].endsWith("<")) {
-					if (level <= 0) {
-						startofbaseelement = m.index;
-						// Add Whitespace to make regex more simple
-						let foundelement = txt.substring(start - startofbaseelement - m[0].length, start) + " ";
-						this.logDebug("Found Element '" + foundelement + "', trying to get name and namespace");
-						let x = foundelement.match(/<(\w*?):?(\w+?)(\s|\/|>)/);
-						let schema = this.schemastorage[this.usedNamespaces[x[1]]];
-						this.logDebug("Found Schema for namespace abbrevation: " + schema.targetNamespace);
-						let element = this.findElement(x[2].trim(), schema);
-						this.logDebug(() => "Found element " + element.$.name);
-						if (!element) {
-							path.push(x[2].trim());
-							this.logDebug(() => "No Element found. Crawling up to next element via path: " + path.join("/"));
-							return this.getParentElement(txt, start - startofbaseelement - m[0].length - 1, path);
-						}
-						else
-							return { element: element, path: path };
-					} else {
-						this.logDebug("'<' found at the end: New Level: " + --level);
-					}
-				}
-			}
-			if (m[0].endsWith("--!<")) {
-				this.logDebug("Found end of comment.");
-				comment = false;
-			}
-		}
 	}
 
 	private processInTag(cursor: FoundCursor): CompletionItem[] {
@@ -417,7 +424,7 @@ export class XmlCompletionHandler extends Log {
 		this.logDebug(() => "Found " + attributes.length + " Attributes");
 		let ret: CompletionItem[] = [];
 		for (let attribute of attributes) {
-			if(!(cursor.attributes.findIndex(x => x.name === attribute.$.name)>0))
+			if (!(cursor.attributes.findIndex(x => x.name === attribute.$.name) > 0))
 				ret.push(this.getCompletionItemFromAttribute(attribute, schema));
 		}
 		return ret;
@@ -492,7 +499,7 @@ export class XmlCompletionHandler extends Log {
 		}
 	}
 
-	private findElement(name: string, schema: StorageSchema): Element {
+	private findElement(name: string, schema: StorageSchema): ElementEx {
 		// Iterate over all
 		for (let element of schema.schema.element) {
 			if (!element.$)
@@ -504,6 +511,7 @@ export class XmlCompletionHandler extends Log {
 			if (!element.$.type)
 				continue;
 
+			(<ElementEx>element).ownerschema = schema;
 			return element;
 		}
 	}
@@ -601,4 +609,18 @@ function substitute(o: any, func: (key: string, value: any) => string): {} {
 		build[newkey] = newobject;
 	}
 	return build;
+}
+
+function traverse(o: any, func: (key: string, value: any) => boolean) {
+	for (let i in o) {
+		if(func.apply(this, [i, o[i], o]))
+			continue;
+		if (o[i] !== null && typeof (o[i]) == "object") {
+			if (o[i] instanceof Array)
+				for (let entry of o[i])
+					traverse({ [i]: entry }, func);
+			//going on step down in the object tree!!
+			traverse(o[i], func);
+		}
+	}
 }

@@ -11,12 +11,14 @@ interface Element extends XmlBase {
 		maxOccurs?: number | string
 		ref?: string
 	}
-	sequence?: Sequence[];
+
+	attribute?: Attribute[];
 	complexType?: ComplexType[];
 	annotation?: Annotation[];
+	sequence?: any[]
 }
 
-interface XmlComplexContent extends XmlBase {
+interface ComplexContent extends XmlBase {
 	extension?: Extension[];
 }
 
@@ -41,20 +43,50 @@ interface Any extends XmlBase {
 	}
 }
 
-interface ComplexType extends XmlBase {
+interface ComplexType extends Annotated {
 	$: {
+		/**
+		 * Will be restricted to required or prohibited
+		 * 
+		 * @type {string}
+		 */
 		name: string
+		/**
+		 * Not allowed if simpleContent child is chosen. May be overridden by setting on complexContent child.
+		 * 
+		 * @type {boolean}
+		 */
+		mixed?: boolean
+		abstract?: boolean
+		final?: any
+		block?: any
+		defaultAttributesApply?: boolean
+		id?: string
 	}
-	complexContent?: XmlComplexContent[];
 	attribute?: Attribute[];
 }
 
-interface Extension extends XmlBase {
+/**
+ * This type is extended by all types which allow annotation
+       other than <schema> itself
+     
+ * 
+ * @interface Annotated
+ * @extends {XmlBase}
+ */
+interface Annotated extends XmlBase {
+	$: {
+		id?: string
+	}
+}
+
+interface Extension extends Element {
 	$: {
 		base: string;
 	}
 	attribute?: Attribute[];
 	sequence?: Sequence[];
+	element?: Element[];
 }
 
 interface Attribute extends XmlBase {
