@@ -364,7 +364,7 @@ export class XmlCompletionHandler extends Log {
 		let tag = (ec + " ").match(/^\s*?(\/?)\s*?(\w*?):?(\w+?)(\s|\/)/);
 		let foundcursor: FoundCursor = {
 			absoluteCursorPosition: start,
-			relativeCursorPosition: start - lm.index,
+			relativeCursorPosition: start - lm.index - lm[0].length,
 			isInElement: start >= lm.index + lm[0].length,
 			elementcontent: ec,
 			isClosingTag: tag[1] !== '',
@@ -389,7 +389,7 @@ export class XmlCompletionHandler extends Log {
 			attributeregex.lastIndex = foundcursor.fullName.length;
 
 			while (amatch = attributeregex.exec(ec)) {
-				for (let i = amatch.index + amatch[0].length + 1; i < ec.length; i++) {
+				for (let i = amatch.index + amatch[0].length; i < ec.length; i++) {
 					if (foundcursor.relativeCursorPosition === i)
 						foundcursor.isInAttribute = true;
 					if (ec[i] === amatch[2]) {
