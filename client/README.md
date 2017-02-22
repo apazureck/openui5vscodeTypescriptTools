@@ -20,8 +20,9 @@ This extension improves the experience using UI5 with typescript. It is currentl
     * JSON Schema
     * Autocomplete for routings
 * **XML** support
-    * Code completion for XML views
-    * Linter for correct/parsable xml files
+    * Code completion for XML views (Attributes and Elements)
+    * Simple check for well-formed xml files
+    * Autoclosing tags when putting '/' at the end of the opening tag of an empty XML Element
 
 ## Requirements
 
