@@ -74,21 +74,32 @@ connection.onDefinition((params) => {
             return [];
     }
 });
-connection.onCompletion((handler) => __awaiter(this, void 0, void 0, function* () {
+connection.onCompletion((params, token) => __awaiter(this, void 0, void 0, function* () {
     connection.console.info("Completion providing request received");
-    let cl = [];
-    let doc = documents.get(handler.textDocument.uri);
-    let line = getLine(doc.getText(), handler.position.line);
+    // Use completion list, as the return will be called before 
+    let cl = {
+        isIncomplete: true,
+        items: []
+    };
+    let doc = documents.get(params.textDocument.uri);
+    let line = getLine(doc.getText(), params.position.line);
     try {
-        cl = cl.concat(new I18NCompletionHandler().geti18nlabels(line, handler.position.character));
+        let i18ncl = new I18NCompletionHandler().geti18nlabels(line, params.position.character);
+        cl.items = cl.items.concat(i18ncl);
+        if (cl.items.length > 0) {
+            cl.isIncomplete = false;
+            return cl;
+        }
+        if (token.isCancellationRequested)
+            return;
     }
     catch (error) {
         connection.console.error("Error when getting i18n completion entries: " + JSON.stringify(error));
     }
     try {
         let ch = new XmlCompletionProvider_1.XmlCompletionHandler(schemastorage, documents, connection, exports.schemastorePath, settings.ui5ts.lang.xml.LogLevel);
-        cl = cl.concat(yield ch.getCompletionSuggestions(handler));
-        schemastorage = ch.schemastorage;
+        cl.items = cl.items.concat(yield ch.getCompletionSuggestions(params));
+        cl.isIncomplete = false;
     }
     catch (error) {
         connection.console.error("Error when getting XML completion entries: " + JSON.stringify(error));

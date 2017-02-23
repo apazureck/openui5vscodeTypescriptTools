@@ -9,7 +9,6 @@ This extension improves the experience using UI5 with typescript. It is currentl
 
 * **Code snippets**
     * generate views and controllers in typescript
-    * generate i18n labels
 * **Navigation** between views and controllers
     * Navigation between views and controllers using `CTRL+F7` _(view)_ or `CTRL+SHIFT+F7` _(controller)_.
     * Go to event handlers by pressing `F12`.

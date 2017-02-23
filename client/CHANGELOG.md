@@ -11,3 +11,7 @@
 * **FEATURE** Autoclose on empty XML Elements when putting / at the end.
 * **FEATURE** Context menu entries for switch to controller and switch to view
 * **BUGFIX** Replaced document crawling algorithm for code completion with a much more stable one
+
+### Version 0.2.1 - 2017-02-23
+* **BUGFIX** Completion Items for i18n model weren't generated
+* Removed wrong feature in Readme.md

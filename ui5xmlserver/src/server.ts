@@ -10,7 +10,7 @@ import {
 	createConnection, IConnection, TextDocumentSyncKind,
 	TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
 	InitializeParams, InitializeResult, TextDocumentPositionParams,
-	CompletionItem, CompletionItemKind, Location, Range, DidChangeTextDocumentParams
+	CompletionItem, CompletionItemKind, Location, Range, DidChangeTextDocumentParams, CompletionList
 } from 'vscode-languageserver';
 import { } from 'cancellation'
 import * as vscodels from 'vscode-languageserver';
@@ -96,25 +96,35 @@ connection.onDefinition((params) => {
 	}
 });
 
-connection.onCompletion(async (handler) => {
+connection.onCompletion(async (params, token): Promise<CompletionList> => {
 	connection.console.info("Completion providing request received");
-	let cl: CompletionItem[] = [];
-	let doc = documents.get(handler.textDocument.uri);
-	let line = getLine(doc.getText(), handler.position.line);
+	// Use completion list, as the return will be called before 
+	let cl: CompletionList = {
+		isIncomplete: true,
+		items: []
+	};
+
+	let doc = documents.get(params.textDocument.uri);
+	let line = getLine(doc.getText(), params.position.line);
 
 	try {
-		cl = cl.concat(new I18NCompletionHandler().geti18nlabels(line, handler.position.character));
+		let i18ncl = new I18NCompletionHandler().geti18nlabels(line, params.position.character);
+		cl.items = cl.items.concat(i18ncl);
+		if(cl.items.length>0) {
+			cl.isIncomplete = false;
+			return cl;
+		}
+		if(token.isCancellationRequested) return;
 	} catch (error) {
 		connection.console.error("Error when getting i18n completion entries: " + JSON.stringify(error));
 	}
 	try {
 		let ch = new XmlCompletionHandler(schemastorage, documents, connection, schemastorePath, settings.ui5ts.lang.xml.LogLevel);
-		cl = cl.concat(await ch.getCompletionSuggestions(handler));
-		schemastorage = ch.schemastorage;
+		cl.items = cl.items.concat(await ch.getCompletionSuggestions(params));
+		cl.isIncomplete = false;
 	} catch (error) {
 		connection.console.error("Error when getting XML completion entries: " + JSON.stringify(error));
 	}
-
 	return cl;
 });
 
