@@ -1,9 +1,21 @@
 'use strict';
+import { I18nDfinitionProvider } from './language/ui5/Ui5DefinitionProviders';
+import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from './commands';
+import {
+    commands,
+    DiagnosticCollection,
+    DocumentFilter,
+    ExtensionContext,
+    languages,
+    TextDocument,
+    TextDocumentChangeEvent,
+    Uri,
+    window,
+    workspace
+} from 'vscode';
 import { Position } from 'vscode-languageserver-types/lib/main';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
-import * as commands from './commands';
 import * as file from './helpers/filehandler';
 import * as fs from 'fs';
 import * as log from './helpers/logging';
@@ -18,6 +30,11 @@ import { XmlDiagnostics } from './language/xml/XmlDiagnostics'
 import { closeEmptyTag } from './language/xml/xmlCodeProviders'
 import { I18nCodeActionprovider } from './language/xml/XmlActionProviders'
 
+export interface IDiagnose {
+    diagnose(document: TextDocument)
+    diagnosticCollection: DiagnosticCollection
+}
+
 export const name = "ui5-ts";
 export class Ui5Extension {
     namespacemappings?: { [id: string]: string; };
@@ -26,20 +43,20 @@ export class Ui5Extension {
     schemaStoragePath?: string;
 }
 
-const ui5_jsonviews: vscode.DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.view.json" };
-const ui5_tscontrollers: vscode.DocumentFilter = { language: 'typescript', scheme: 'file', pattern: "*.controller.ts" };
-const ui5_jscontrollers: vscode.DocumentFilter = { language: 'javascript', scheme: 'file', pattern: "*.controller.js" };
-const ui5_jsonfragments: vscode.DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.fragment.json" };
-const ui5_xml: vscode.DocumentFilter = { language: "xml", scheme: 'file', pattern: "**/*.{fragment,view}.xml" };
-const ui5_manifest: vscode.DocumentFilter = { language: "json", scheme: 'file', pattern: "**/manifest.json" };
+const ui5_jsonviews: DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.view.json" };
+const ui5_tscontrollers: DocumentFilter = { language: 'typescript', scheme: 'file', pattern: "*.controller.ts" };
+const ui5_jscontrollers: DocumentFilter = { language: 'javascript', scheme: 'file', pattern: "*.controller.js" };
+const ui5_jsonfragments: DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.fragment.json" };
+const ui5_xml: DocumentFilter = { language: "xml", scheme: 'file', pattern: "**/*.{fragment,view}.xml" };
+const ui5_manifest: DocumentFilter = { language: "json", scheme: 'file', pattern: "**/manifest.json" };
 
 export var core: Ui5Extension = new Ui5Extension();
-export var channel = vscode.window.createOutputChannel("UI5 TS Extension");
-var context: vscode.ExtensionContext;
+export var channel = window.createOutputChannel("UI5 TS Extension");
+var context: ExtensionContext;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export async function activate(c: vscode.ExtensionContext) {
+export async function activate(c: ExtensionContext) {
     context = c;
     core.extensionPath = c.extensionPath;
     core.schemaStoragePath = c.asAbsolutePath("schemastore");
@@ -53,30 +70,40 @@ export async function activate(c: vscode.ExtensionContext) {
     getAllNamespaceMappings();
 
     // Hook the commands
-    // context.subscriptions.push(vscode.commands.registerCommand('ui5ts.SetupUi5', commands.SetupUi5));
-    c.subscriptions.push(vscode.commands.registerTextEditorCommand('ui5ts.SwitchToView', commands.SwitchToView.bind(context)));
-    c.subscriptions.push(vscode.commands.registerTextEditorCommand('ui5ts.SwitchToController', commands.SwitchToController.bind(context)));
-    c.subscriptions.push(vscode.commands.registerCommand('ui5ts.AddSchemaToStorage', commands.AddSchemaToStore.bind(context)));
-    c.subscriptions.push(vscode.commands.registerCommand('ui5ts.CreateNewI18nLabel', commands.AddI18nLabel.bind(context)));
-    vscode.window.onDidChangeTextEditorSelection(closeEmptyTag);
+    // context.subscriptions.push(commands.registerCommand('ui5ts.SetupUi5', commands.SetupUi5));
+    c.subscriptions.push(commands.registerTextEditorCommand('ui5ts.SwitchToView', SwitchToView.bind(context)));
+    c.subscriptions.push(commands.registerTextEditorCommand('ui5ts.SwitchToController', SwitchToController.bind(context)));
+    c.subscriptions.push(commands.registerCommand('ui5ts.AddSchemaToStorage', AddSchemaToStore.bind(context)));
+    c.subscriptions.push(commands.registerCommand('ui5ts.CreateNewI18nLabel', AddI18nLabel.bind(context)));
+    c.subscriptions.push(commands.registerCommand('ui5ts.ResetI18NStorage', ResetI18nStorage.bind(context)));
+    window.onDidChangeTextEditorSelection(closeEmptyTag);
 
     // Setup Language Providers
     console.log("Creating I18N Provider!");
-    c.subscriptions.push(vscode.languages.registerCodeActionsProvider(ui5_xml, new I18nCodeActionprovider));
+    c.subscriptions.push(languages.registerCodeActionsProvider(ui5_xml, new I18nCodeActionprovider));
 
     channel.appendLine("Starting Ui5i18nCompletionItemProvider");
-    // c.subscriptions.push(vscode.languages.registerCompletionItemProvider([ui5_xmlviews, ui5_xmlfragments], new Ui5i18nCompletionItemProvider));
+    // c.subscriptions.push(languages.registerCompletionItemProvider([ui5_xmlviews, ui5_xmlfragments], new Ui5i18nCompletionItemProvider));
 
-    let md = new ManifestDiagnostics(vscode.languages.createDiagnosticCollection('json'));
-    let xmld = new XmlDiagnostics(vscode.languages.createDiagnosticCollection('xml'), c);
+    let diags: IDiagnose[] = [new ManifestDiagnostics(languages.createDiagnosticCollection('json')), new XmlDiagnostics(languages.createDiagnosticCollection('xml'), c)]
 
-    c.subscriptions.push(md.diagnosticCollection);
-    c.subscriptions.push(xmld.diagnosticCollection);
+    createDiagnosticSubscriptions(c, diags);
 
-    vscode.workspace.onDidChangeTextDocument(md.diagnoseManifest.bind(md));
-    vscode.workspace.onDidChangeTextDocument(xmld.diagnose.bind(xmld));
+    c.subscriptions.push(languages.registerCompletionItemProvider(ui5_manifest, new ManifestCompletionItemProvider));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new I18nDfinitionProvider));
+}
 
-    c.subscriptions.push(vscode.languages.registerCompletionItemProvider(ui5_manifest, new ManifestCompletionItemProvider));
+function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) {
+    for (let diag of diags) {
+        c.subscriptions.push(diag.diagnosticCollection);
+        workspace.onDidChangeTextDocument((changes: TextDocumentChangeEvent) => {
+            diag.diagnose(changes.document);
+        });
+        workspace.onDidOpenTextDocument(diag.diagnose.bind(diag));
+    }
+    for(let otd of workspace.textDocuments)
+        for(let diag of diags)
+            diag.diagnose(otd);
 }
 
 async function getAllNamespaceMappings() {
@@ -85,7 +112,7 @@ async function getAllNamespaceMappings() {
     let docs = await file.File.find(".*\\.(html|htm)$");
     for (let doc of docs) {
         try {
-            let text = (await vscode.workspace.openTextDocument(vscode.Uri.parse("file:///" + doc))).getText();
+            let text = (await workspace.openTextDocument(Uri.parse("file:///" + doc))).getText();
             // get script html tag with data-sap-ui-resourceroots
             let scripttag = text.match(/<\s*script[\s\S]*sap-ui-core[\s\S]*data-sap-ui-resourceroots[\s\S]*?>/m)[0];
             if (!scripttag)
@@ -113,7 +140,7 @@ export function deactivate() {
 
 }
 
-function startXmlViewLanguageServer(context: vscode.ExtensionContext): Promise<void> {
+function startXmlViewLanguageServer(context: ExtensionContext): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         // The server is implemented in node
         log.printInfo("Staring XML View language server");
@@ -136,7 +163,7 @@ function startXmlViewLanguageServer(context: vscode.ExtensionContext): Promise<v
                 // Synchronize the setting section 'languageServerExample' to the server
                 configurationSection: 'ui5ts',
                 // Notify the server about file changes to '.clientrc files contain in the workspace
-                fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
+                fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
             },
             initializationOptions: { schemastore: context.asAbsolutePath("schemastore") }
         }

@@ -14,7 +14,8 @@ This extension improves the experience using UI5 with typescript. It is currentl
     * Go to event handlers by pressing `F12`.
 * **i18n** support
     * Code completion for labels in xml models
-    * Autogeneration for labels
+    * Autogeneration for labels (via Command and CodeAction)
+    * Peek and Goto i18n label definition
 * **manifest.json** support
     * JSON Schema
     * Autocomplete for routings

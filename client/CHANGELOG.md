@@ -1,3 +1,10 @@
+### Version 0.2.3 - 2017-02-23
+* **FEATURE** I18n Diagnostic provider for existing labels
+* **FEATURE** Create new I18n Label via command or CodeAction
+* **FEATURE** Go to definition of i18n label
+* **BUGFIX** Code completion for i18n label
+* Split some ui5 specific features from xml language server
+
 ### Version 0.2.2 - 2017-02-23
 * **BUGFIX** Fixed false auto delete empty tag closing wrong element.
 

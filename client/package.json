@@ -69,6 +69,11 @@
         "category": "i18n",
         "command": "ui5ts.CreateNewI18nLabel",
         "title": "Add XSD Schema(s) To Storage"
+      },
+      {
+        "category": "i18n",
+        "command": "ui5ts.ResetI18NStorage",
+        "title": "Reset i18n Storage"
       }
     ],
     "menus": {

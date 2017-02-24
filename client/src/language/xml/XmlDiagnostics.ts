@@ -1,16 +1,18 @@
+import { IDiagnose } from '../../extension';
 import { Message } from '_debugger';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import {
+    CancellationToken,
     Diagnostic,
     DiagnosticCollection,
     DiagnosticSeverity,
     ExtensionContext,
     Range,
+    TextDocument,
     TextDocumentChangeEvent,
     TextLine,
-    CancellationToken,
-    TextDocument
+    Uri
 } from 'vscode';
 import * as extension from '../../extension';
 import * as xml2js from 'xml2js';
@@ -18,22 +20,34 @@ import { getNamespaces, XmlError, XmlCheckerError } from '../xmlbase'
 import * as fs from 'fs';
 var xmlChecker = require('xmlChecker');
 import { File } from '../../helpers/filehandler';
-export class I18nLabels {
+
+export interface I18nLabel {
+    text: string
+    line: number
+}
+export class I18nLabelStorage {
     constructor() {
         this.create();
     }
 
-    labels: { [label: string]: string }
-    private modelfilename: string
-
+    labels: { [label: string]: I18nLabel }
+    modelfilename: string
+    modelfile: Uri
+    linecount: number;
     create() {
         this.labels = {};
         this.modelfilename = <string>vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelfilelocation") || "./i18n/i18n.properties";
-        let content = fs.readFileSync(path.join(vscode.workspace.rootPath, this.modelfilename), "utf-8").split("\n");
+        this.modelfile = Uri.parse("file:///"+path.join(vscode.workspace.rootPath, this.modelfilename));
+        let content = fs.readFileSync(this.modelfile.fsPath, "utf-8").split("\n");
+        this.linecount  = 0;
         for (let line of content) {
             let match = line.match("^(.*?)=(.*)");
             if (match)
-                this.labels[match[1]] = match[2];
+                this.labels[match[1]] = {
+                    text: match[2],
+                    line: this.linecount
+                }
+            this.linecount++;
         }
     }
 
@@ -43,7 +57,10 @@ export class I18nLabels {
 
         let modelfilename = <string>vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelfilelocation") || "./i18n/i18n.properties";
         fs.appendFileSync(path.join(vscode.workspace.rootPath, this.modelfilename), "\n" + label + "=" + text);
-        this.labels[label] = text;
+        this.labels[label] = {
+            line: this.linecount++,
+            text: text
+         };
     }
 }
 
@@ -86,36 +103,36 @@ export interface I18nDiagnostic extends Diagnostic {
 export namespace Storage {
 
     export var schemastore: Schemastore;
-    export const i18n: I18nLabels = new I18nLabels();
+    export const i18n: I18nLabelStorage = new I18nLabelStorage();
 }
 
-export class XmlDiagnostics {
+export class XmlDiagnostics implements IDiagnose {
     constructor(public diagnosticCollection: DiagnosticCollection, private context: ExtensionContext) {
 
     }
 
-    async diagnose(changes: TextDocumentChangeEvent) {
-        if (!changes.document.fileName.endsWith(".xml"))
+    async diagnose(document: TextDocument) {
+        if (!document.fileName.endsWith(".xml"))
             return;
-        this.diagnosticCollection.delete(changes.document.uri);
-        let items = await this.diagXml2Js(changes);
-        items = items.concat(this.diagXmlChecker(changes));
-        items = items.concat(await this.getNamespaces(changes));
-        items = items.concat(await this.diagi18n(changes))
+        this.diagnosticCollection.delete(document.uri);
+        let items = await this.diagXml2Js(document);
+        items = items.concat(this.diagXmlChecker(document));
+        items = items.concat(await this.getNamespaces(document));
+        items = items.concat(await this.diagi18n(document))
         if (items.length > 0)
-            this.diagnosticCollection.set(changes.document.uri, items);
+            this.diagnosticCollection.set(document.uri, items);
     }
 
-    diagi18n(changes: TextDocumentChangeEvent): Diagnostic[] {
+    diagi18n(document: TextDocument): Diagnostic[] {
         try {
-            let text = changes.document.getText();
+            let text = document.getText();
             let i18nreg = new RegExp("\"\s*?{\s*?" + vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelname") + "\s*?>\s*?(.*?)\s*?}\s*?\"", "g");
             let match: RegExpMatchArray;
             let ret: I18nDiagnostic[] = []
             while (match = i18nreg.exec(text))
                 if (!Storage.i18n.labels[match[1]]) {
                     ret.push({
-                        range: this.getRange(changes.document, match.index, match[0].length),
+                        range: this.getRange(document, match.index, match[0].length),
                         message: "Label " + match[1] + " does not exist",
                         severity: DiagnosticSeverity.Warning,
                         source: "ui5ts",
@@ -132,22 +149,22 @@ export class XmlDiagnostics {
     getRange(document: TextDocument, startIndex: number, length: number): Range {
         return new Range(document.positionAt(startIndex), document.positionAt(startIndex + length));
     }
-    diagXmlChecker(changes: TextDocumentChangeEvent): Diagnostic[] {
+    diagXmlChecker(document: TextDocument): Diagnostic[] {
         try {
-            xmlChecker.check(changes.document.getText());
+            xmlChecker.check(document.getText());
             return [];
         } catch (error) {
             let err = error as XmlCheckerError;
             err.line--;
             err.column--;
             console.log(JSON.stringify(error));
-            return [new Diagnostic(new Range(err.line, err.column, err.line, changes.document.lineAt(err.line).text.length - 1), err.message, DiagnosticSeverity.Warning)];
+            return [new Diagnostic(new Range(err.line, err.column, err.line, document.lineAt(err.line).text.length - 1), err.message, DiagnosticSeverity.Warning)];
         }
     }
 
-    diagXml2Js(changes: TextDocumentChangeEvent): Promise<Diagnostic[]> {
+    diagXml2Js(document: TextDocument): Promise<Diagnostic[]> {
         return new Promise((resolve, reject) => {
-            xml2js.parseString(changes.document.getText(), { xmlns: true }, (error, result) => {
+            xml2js.parseString(document.getText(), { xmlns: true }, (error, result) => {
                 if (error) {
                     // let namespaces = getNamespaces(result);
                     let errorlines = error.message.split("\n");
@@ -157,7 +174,7 @@ export class XmlDiagnostics {
                     let char = errorlines[3].split(":")[1];
                     if (char)
                         error.message += "Character: '" + char + "'";
-                    resolve([new Diagnostic(new Range(error.Line, error.Column, changes.document.lineCount, changes.document.lineAt(changes.document.lineCount - 1).text.length - 1), error.message, DiagnosticSeverity.Error)])
+                    resolve([new Diagnostic(new Range(error.Line, error.Column, document.lineCount, document.lineAt(document.lineCount - 1).text.length - 1), error.message, DiagnosticSeverity.Error)])
                 }
                 resolve([]);
             });
@@ -166,18 +183,18 @@ export class XmlDiagnostics {
 
     }
 
-    async getNamespaces(changes: TextDocumentChangeEvent): Promise<Diagnostic[]> {
+    async getNamespaces(document: TextDocument): Promise<Diagnostic[]> {
         let match: RegExpMatchArray;
         // Group 1: namespace abbrevation
         // Group 2: namespace name
         let xmlnsregex = /xmlns:?(.*?)=['"](.*?)['"]/g
-        let doc: string = changes.document.getText();
+        let doc: string = document.getText();
         if (!Storage.schemastore)
             Storage.schemastore = new Schemastore(this.context.asAbsolutePath("schemastore"));
         let hits: Diagnostic[] = []
         while (match = xmlnsregex.exec(doc)) {
             if (Storage.schemastore.schemas.findIndex((val) => val.targetNamespace === match[2]) < 0) {
-                hits.push(new Diagnostic(new Range(changes.document.positionAt(match.index), changes.document.positionAt(match.index + match[0].length)), "Could not find definition file in storage. Add using the add to storage command.", vscode.DiagnosticSeverity.Warning));
+                hits.push(new Diagnostic(new Range(document.positionAt(match.index), document.positionAt(match.index + match[0].length)), "Could not find definition file in storage. Add using the add to storage command.", vscode.DiagnosticSeverity.Warning));
             }
         }
         return hits;

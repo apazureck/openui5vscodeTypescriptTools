@@ -106,13 +106,23 @@ export async function AddSchemaToStore(): Promise<void> {
     // TODO: Validation
 }
 
-export async function AddI18nLabel(label: string) {
+export async function AddI18nLabel(label?: string, onSuccess?: () => void) {
     label = label || await vscode.window.showInputBox({prompt: 'Name of the label', ignoreFocusOut: true});
     let text = await vscode.window.showInputBox({prompt: 'Text the user will see', ignoreFocusOut: true});
 
     try {
         Storage.i18n.addNewLabel(label, text);
+        try {
+            if(onSuccess)
+                onSuccess();
+        } catch (error) {
+            // TODO: Create error message on console
+        }
     } catch (error) {
         return vscode.window.showErrorMessage(error.toString());   
     }
+}
+
+export async function ResetI18nStorage() {
+    Storage.i18n.create();
 }

@@ -1,24 +1,24 @@
+import { IDiagnose } from '../../extension';
 import * as vscode from 'vscode'
 import { Ui5ManifestBase } from '../../baseclasses';
 import * as path from 'path';
 import { DiagnosticCollection, TextDocumentChangeEvent, Diagnostic, DiagnosticSeverity, Range } from 'vscode';
 import * as extension from '../../extension';
 
-export class ManifestDiagnostics extends Ui5ManifestBase {
+export class ManifestDiagnostics extends Ui5ManifestBase implements IDiagnose {
     constructor(public diagnosticCollection: DiagnosticCollection) {
         super();
-        this.diagnoseManifest.bind(this);
     }
 
-    diagnoseManifest(changes: TextDocumentChangeEvent) {
-        if(path.basename(changes.document.fileName) != "manifest.json")
+    diagnose(document: vscode.TextDocument) {
+        if(path.basename(document.fileName) != "manifest.json")
             return;
 
         try {
             this.diagnosticCollection.clear();
             let diag: Diagnostic[] = [];
 
-            let text = changes.document.getText();
+            let text = document.getText();
             let jcontent: Manifest = JSON.parse(text);
             let targets = this.getTargets(jcontent);
             for(let route of jcontent["sap.ui5"].routing.routes) {
@@ -50,7 +50,7 @@ export class ManifestDiagnostics extends Ui5ManifestBase {
             }
 
             if(diag.length>0)
-                this.diagnosticCollection.set(changes.document.uri, diag);
+                this.diagnosticCollection.set(document.uri, diag);
                 if(jcontent)
                     extension.core.manifest = jcontent;
         } catch (error) {
