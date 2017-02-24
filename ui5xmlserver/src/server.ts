@@ -55,11 +55,16 @@ connection.onInitialize((params): InitializeResult => {
 			definitionProvider: true,
 			completionProvider: {
 				resolveProvider: false,
-				triggerCharacters: [">"]
-			}
+				triggerCharacters: [">", '"', "'", ".", "/"]
+			},
+			codeActionProvider: true
 		}
 	}
 });
+
+connection.onCodeAction((params) => {
+	return [];
+})
 
 connection.onDefinition((params) => {
 	let files: string[];
@@ -96,7 +101,6 @@ connection.onDefinition((params) => {
 	}
 });
 
-<<<<<<< Updated upstream
 connection.onCompletion(async (params, token): Promise<CompletionList> => {
 	connection.console.info("Completion providing request received");
 	// Use completion list, as the return will be called before 
@@ -111,11 +115,11 @@ connection.onCompletion(async (params, token): Promise<CompletionList> => {
 	try {
 		let i18ncl = new I18NCompletionHandler().geti18nlabels(line, params.position.character);
 		cl.items = cl.items.concat(i18ncl);
-		if(cl.items.length>0) {
+		if (cl.items.length > 0) {
 			cl.isIncomplete = false;
 			return cl;
 		}
-		if(token.isCancellationRequested) return;
+		if (token.isCancellationRequested) return;
 	} catch (error) {
 		connection.console.error("Error when getting i18n completion entries: " + JSON.stringify(error));
 	}
@@ -127,7 +131,8 @@ connection.onCompletion(async (params, token): Promise<CompletionList> => {
 		connection.console.error("Error when getting XML completion entries: " + JSON.stringify(error));
 	}
 	return cl;
-=======
+});
+
 connection.onCompletion(async (handler) => {
 	return new Promise<CompletionItem[]>(async (resolve, reject) => {
 		connection.console.info("Completion providing request received");
@@ -151,11 +156,17 @@ connection.onCompletion(async (handler) => {
 
 		return cl;
 	})
->>>>>>> Stashed changes
+
 });
+
+connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+	item.detail = "TESTESTESTE";
+	return item;
+})
 
 class I18NCompletionHandler {
 	geti18nlabels(line: string, cursorpos: number): CompletionItem[] {
+		// 1 = name so far
 		let pos = line.match(new RegExp(settings.ui5ts.lang.i18n.modelname + ">(.*?)}?\"")) as RegExpMatchArray;
 		if (!pos)
 			return [];
@@ -168,7 +179,27 @@ class I18NCompletionHandler {
 		if (!storage.i18nItems)
 			storage.i18nItems = this.getLabelsFormi18nFile();
 
-		return storage.i18nItems;
+		let curlist: CompletionItem[] = [];
+		for(let item of storage.i18nItems) {
+			if(item.label.startsWith(pos[1])) {
+				let labelpart = item.label.substring(pos[1].length, item.label.length);
+				curlist.push({
+					label: item.label,
+					detail: item.detail,
+					documentation: item.documentation,
+					filterText: labelpart,
+					insertText: labelpart,
+					kind: item.kind
+				})
+			}
+		}
+		
+		return curlist;
+	}
+
+	resolve(item: CompletionItem): CompletionItem {
+		let i =0;
+		return item;
 	}
 
 	getLabelsFormi18nFile(): CompletionItem[] {
@@ -188,8 +219,7 @@ class I18NCompletionHandler {
 						label: match[1],
 						detail: "i18n",
 						documentation: "'" + match[2] + "'",
-						kind: CompletionItemKind.Text,
-
+						kind: CompletionItemKind.Text
 					});
 			} catch (error) {
 

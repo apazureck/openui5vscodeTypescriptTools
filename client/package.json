@@ -64,6 +64,11 @@
         "category": "XML",
         "command": "ui5ts.AddSchemaToStorage",
         "title": "Add XSD Schema(s) To Storage"
+      },
+      {
+        "category": "i18n",
+        "command": "ui5ts.CreateNewI18nLabel",
+        "title": "Add XSD Schema(s) To Storage"
       }
     ],
     "menus": {

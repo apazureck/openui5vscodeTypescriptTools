@@ -37,10 +37,14 @@ connection.onInitialize((params) => {
             definitionProvider: true,
             completionProvider: {
                 resolveProvider: false,
-                triggerCharacters: [">"]
-            }
+                triggerCharacters: [">", '"', "'", ".", "/"]
+            },
+            codeActionProvider: true
         }
     };
+});
+connection.onCodeAction((params) => {
+    return [];
 });
 connection.onDefinition((params) => {
     let files;
@@ -106,8 +110,37 @@ connection.onCompletion((params, token) => __awaiter(this, void 0, void 0, funct
     }
     return cl;
 }));
+connection.onCompletion((handler) => __awaiter(this, void 0, void 0, function* () {
+    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+        connection.console.info("Completion providing request received");
+        let cl = [];
+        let doc = documents.get(handler.textDocument.uri);
+        let line = getLine(doc.getText(), handler.position.line);
+        try {
+            resolve(new I18NCompletionHandler().geti18nlabels(line, handler.position.character));
+        }
+        catch (error) {
+            connection.console.error("Error when getting i18n completion entries: " + JSON.stringify(error));
+        }
+        try {
+            let ch = new XmlCompletionProvider_1.XmlCompletionHandler(schemastorage, documents, connection, exports.schemastorePath, settings.ui5ts.lang.xml.LogLevel);
+            cl = yield ch.getCompletionSuggestions(handler);
+            cl = cl.concat();
+            schemastorage = ch.schemastorage;
+        }
+        catch (error) {
+            connection.console.error("Error when getting XML completion entries: " + JSON.stringify(error));
+        }
+        return cl;
+    }));
+}));
+connection.onCompletionResolve((item) => {
+    item.detail = "TESTESTESTE";
+    return item;
+});
 class I18NCompletionHandler {
     geti18nlabels(line, cursorpos) {
+        // 1 = name so far
         let pos = line.match(new RegExp(settings.ui5ts.lang.i18n.modelname + ">(.*?)}?\""));
         if (!pos)
             return [];
@@ -117,7 +150,25 @@ class I18NCompletionHandler {
             return [];
         if (!storage.i18nItems)
             storage.i18nItems = this.getLabelsFormi18nFile();
-        return storage.i18nItems;
+        let curlist = [];
+        for (let item of storage.i18nItems) {
+            if (item.label.startsWith(pos[1])) {
+                let labelpart = item.label.substring(pos[1].length, item.label.length);
+                curlist.push({
+                    label: item.label,
+                    detail: item.detail,
+                    documentation: item.documentation,
+                    filterText: labelpart,
+                    insertText: labelpart,
+                    kind: item.kind
+                });
+            }
+        }
+        return curlist;
+    }
+    resolve(item) {
+        let i = 0;
+        return item;
     }
     getLabelsFormi18nFile() {
         if (!settings.ui5ts.lang.i18n.modelfilelocation)
@@ -136,7 +187,7 @@ class I18NCompletionHandler {
                         label: match[1],
                         detail: "i18n",
                         documentation: "'" + match[2] + "'",
-                        kind: vscode_languageserver_1.CompletionItemKind.Text,
+                        kind: vscode_languageserver_1.CompletionItemKind.Text
                     });
             }
             catch (error) {

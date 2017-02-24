@@ -5,7 +5,7 @@ import * as log from './helpers/logging';
 import * as file from './helpers/filehandler';
 import * as fs from 'fs'
 import * as path from 'path'
-import { schemastore } from './language/xml/XmlDiagnostics'
+import { Storage } from './language/xml/XmlDiagnostics'
 
 export var core: ui5ts.Ui5Extension;
 
@@ -102,6 +102,17 @@ export async function AddSchemaToStore(): Promise<void> {
         }
         vscode.window.showInformationMessage("Successfully added schema to storage.");
     }
-    schemastore.initializeStorage();
+    Storage.schemastore.initializeStorage();
     // TODO: Validation
+}
+
+export async function AddI18nLabel(label: string) {
+    label = label || await vscode.window.showInputBox({prompt: 'Name of the label', ignoreFocusOut: true});
+    let text = await vscode.window.showInputBox({prompt: 'Text the user will see', ignoreFocusOut: true});
+
+    try {
+        Storage.i18n.addNewLabel(label, text);
+    } catch (error) {
+        return vscode.window.showErrorMessage(error.toString());   
+    }
 }
