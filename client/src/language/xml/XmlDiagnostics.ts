@@ -126,7 +126,7 @@ export class XmlDiagnostics implements IDiagnose {
     diagi18n(document: TextDocument): Diagnostic[] {
         try {
             let text = document.getText();
-            let i18nreg = new RegExp("\"\s*?{\s*?" + vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelname") + "\s*?>\s*?(.*?)\s*?}\s*?\"", "g");
+            let i18nreg = new RegExp("\"\\s*?{\\s*?" + vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelname") + "\\s*?>\\s*?(.*?)\\s*?}\\s*?\"", "g");
             let match: RegExpMatchArray;
             let ret: I18nDiagnostic[] = []
             while (match = i18nreg.exec(text))

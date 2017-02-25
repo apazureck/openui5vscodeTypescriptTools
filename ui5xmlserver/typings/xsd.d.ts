@@ -43,6 +43,10 @@ interface Any extends XmlBase {
 	}
 }
 
+interface SimpleType {
+
+}
+
 interface ComplexType extends Annotated {
 	$: {
 		/**
@@ -64,6 +68,9 @@ interface ComplexType extends Annotated {
 		id?: string
 	}
 	attribute?: Attribute[];
+	complexContent: ComplexContent[];
+	element?: Element[];
+	sequence?: any[]
 }
 
 /**
@@ -80,13 +87,32 @@ interface Annotated extends XmlBase {
 	}
 }
 
-interface Extension extends Element {
+interface Extension extends ComplexType {
 	$: {
-		base: string;
+		/**
+		 * Will be restricted to required or prohibited
+		 * 
+		 * @type {string}
+		 */
+		name: string
+		/**
+		 * Not allowed if simpleContent child is chosen. May be overridden by setting on complexContent child.
+		 * 
+		 * @type {boolean}
+		 */
+		mixed?: boolean
+		abstract?: boolean
+		final?: any
+		block?: any
+		defaultAttributesApply?: boolean
+		id?: string
+		/**
+		 * Reference to the base type, will always be (<namespace>:)<typename> (namespace is optional)
+		 * 
+		 * @type {string}
+		 */
+		base: string
 	}
-	attribute?: Attribute[];
-	sequence?: Sequence[];
-	element?: Element[];
 }
 
 interface Attribute extends XmlBase {

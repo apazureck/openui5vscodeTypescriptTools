@@ -115,36 +115,21 @@ export class XmlCompletionHandler extends Log {
 			element = this.getElementFromReference(element.$.ref, element.ownerschema);
 		}
 
-		let type: ComplexTypeEx;
-		// Find out if element got a type reference
-		if (element.$ && element.$.type) {
-			this.logDebug("Element " + element.$.name + " has a type reference.");
-			type = this.getType(element.$.type, element.ownerschema);
+		// Get the type (if there)
+		let elements = this.getRightSubElements(element, downpath);
 
-			// Check if element has a complex type declaration inside
-		} else if (element.complexType[0]) {
-			this.logDebug("Element " + element.$.name + " has a complex type inside.");
-			let ctype = element.complexType[0] as ComplexTypeEx;
-			ctype.schema = element.ownerschema;
-		} else {
-			this.logDebug("Element must be of simple type. Code Completion not supported for simple types.");
-			return [];
-		}
-
-		// Distinguish between sequences and choices, etc. to display only elements that can be placed here.
-		let elements = this.getAllElementsInComplexType(type);
-		let derivedelements: { namespace: string, elements: Element[] } [] = [];
+		let derivedelements: { namespace: string, elements: Element[] }[] = [];
 
 		let ownelements: Element[] = [];
 
-		for(let e of elements)
-		// Get Type if type is given as attribute, which indicates it may be used by others.
-			if(e.$ && e.$.type) {
+		for (let e of elements)
+			// Get Type if type is given as attribute, which indicates it may be used by others.
+			if (e.$ && e.$.type) {
 				derivedelements = derivedelements.concat(this.getDerivedElements(e, this.getSchema(e.$.name)))
 				// Get Elements if type is a reference
-			} else if(e.$ && e.$.ref) {
+			} else if (e.$ && e.$.ref) {
 				e = this.getElementFromReference(e.$.ref, this.getSchema(e.$.ref))
-				if(e && e.$ && e.$.type)
+				if (e && e.$ && e.$.type)
 					derivedelements = derivedelements.concat(this.getDerivedElements(e, this.getSchema(e.$.name)));
 			} else {
 				ownelements.push(e);
@@ -184,27 +169,92 @@ export class XmlCompletionHandler extends Log {
 		return ret;
 	}
 
-	private getAllElementsInComplexType(type: ComplexTypeEx): Element[] {
-		let alltypes = [type]
-		alltypes = alltypes.concat(this.getBaseTypes(type));
+	private getRightSubElements(element: ElementEx, downpath: string[]): Element[] {
+		let type= this.getTypeOfElement(element);
 
-		let elements: Element[] = [];
-		for(let t of alltypes) {
-			if(t.complexContent && t.complexContent[0].extension) {
-				if(t.complexContent[0].extension[0].element)
-					elements = elements.concat(t.complexContent[0].extension[0].element);
-				if(t.complexContent[0].extension[0].sequence && t.complexContent[0].extension[0].sequence[0].element) {
-					elements = elements.concat(t.complexContent[0].extension[0].sequence[0].element);
-					if(t.complexContent[0].extension[0].sequence[0].choice && t.complexContent[0].extension[0].sequence[0].choice[0].element)
-						elements = elements.concat(t.complexContent[0].extension[0].sequence[0].choice[0].element);
+		// Distinguish between sequences and choices, etc. to display only elements that can be placed here.
+		let elements = this.getAllElementsInComplexType(type);
+		if (downpath.length > 0) {
+			let part: string;
+			if(part = downpath.pop()) {
+				let child = elements.find(x => {
+					try {
+						return x.$.name === part;
+					} catch (error) {
+						false;
+					}
+				});
+				if (child) {
+					return this.getRightSubElements(child, downpath)
 				}
 			}
 		}
 		return elements;
 	}
 
+	/**
+	 * Gets the (complex) type of a given element (with schema)
+	 * 
+	 * @private
+	 * @param {ElementEx} element Element to get the type from
+	 * @returns {ComplexTypeEx} The Complex type of the elment
+	 * 
+	 * @memberOf XmlCompletionHandler
+	 */
+	private getTypeOfElement(element: ElementEx): ComplexTypeEx {
+		try {
+			// Check if complex Type is directly on element
+			if (element.complexType) {
+				let t: ComplexTypeEx = element.complexType[0] as ComplexTypeEx;
+				t.schema = element.ownerschema;
+				return t;
+				// Check if type is referenced by the element via type="<tname>"
+			} else if (element.$ && element.$.type) {
+				return this.findTypeByName(element.$.type, element.ownerschema);
+			} else {
+				// Check for simple type?
+				return null;
+			}
+		} catch (error) {
+			return undefined
+		}
+	}
+
+	private getAllElementsInComplexType(type: ComplexTypeEx): Element[] {
+		let alltypes = [type]
+		alltypes = alltypes.concat(this.getBaseTypes(type));
+
+		let elements: Element[] = [];
+		for (let t of alltypes) {
+			// Check if type is inheriting other type
+			if (t.complexContent && t.complexContent[0].extension) {
+				let st = t.complexContent[0].extension[0];
+				elements = elements.concat(this.getElementsOfComplexType(st));
+			} else {
+				try {
+					elements = elements.concat(this.getElementsOfComplexType(t))
+				} catch (error) {
+					this.logDebug(() => "Could not get elements of type " + t.$.name);
+				}
+			}
+		}
+		return elements;
+	}
+
+	private getElementsOfComplexType(type: ComplexType): Element[] {
+		let elements: Element[] = [];
+		if (type.element)
+			elements = elements.concat(type.element);
+		if (type.sequence) {
+			if(type.sequence[0].element)
+				elements = elements.concat(type.sequence[0].element);
+			if (type.sequence[0].choice && type.sequence[0].choice[0].element)
+				elements = elements.concat(type.sequence[0].choice[0].element);
+		}
+		return elements;
+	}
 	private getDerivedElements(element: Element, schema: StorageSchema): { namespace: string, elements: Element[] }[] {
-		var type = this.getType(element.$.type, schema);
+		var type = this.findTypeByName(element.$.type, schema);
 		schema = type.schema
 		// Find all schemas using the owningSchema (and so maybe the element)
 		let schemasUsingNamespace: { nsabbrevation: string, schema: StorageSchema }[] = [];
@@ -232,7 +282,7 @@ export class XmlCompletionHandler extends Log {
 					if (!e.$ || !e.$.type)
 						continue;
 					try {
-						let basetypes = this.getBaseTypes(this.getType(e.$.type, schema.schema));
+						let basetypes = this.getBaseTypes(this.findTypeByName(e.$.type, schema.schema));
 						let i = basetypes.findIndex(x => { try { return x.$.name === type.$.name; } catch (error) { return false; } });
 						if (i > -1)
 							newentry.elements.push(e);
@@ -255,7 +305,7 @@ export class XmlCompletionHandler extends Log {
 
 		try {
 			let newtypename = type.complexContent[0].extension[0].$.base
-			let newtype = this.getType(newtypename, type.schema);
+			let newtype = this.findTypeByName(newtypename, type.schema);
 			path.push(newtype);
 			this.getBaseTypes(newtype, path);
 		} catch (error) {
@@ -418,7 +468,7 @@ export class XmlCompletionHandler extends Log {
 		this.logDebug("Using Schema: " + schema.targetNamespace);
 		let element = this.findElement(cursor.tagName, schema);
 		this.logDebug(() => "Found element: " + element.$.name);
-		let elementType = this.getType(element.$.type, schema);
+		let elementType = this.findTypeByName(element.$.type, schema);
 		this.logDebug(() => "Found Element type: " + elementType.$.name);
 		let attributes = this.getAttributes(elementType, schema);
 		this.logDebug(() => "Found " + attributes.length + " Attributes");
@@ -463,7 +513,7 @@ export class XmlCompletionHandler extends Log {
 		}
 	}
 
-	private getType(typename: string, schema: StorageSchema): ComplexTypeEx {
+	private findTypeByName(typename: string, schema: StorageSchema): ComplexTypeEx {
 		let aType = typename.split(":");
 		let tn, namespace: string;
 		if (aType.length > 1) {
@@ -476,7 +526,10 @@ export class XmlCompletionHandler extends Log {
 		if (namespace) {
 			if (schema.referencedNamespaces[namespace] !== schema.targetNamespace) {
 				let newschema = this.schemastorage[schema.referencedNamespaces[namespace]];
-				return this.getType(typename, newschema);
+				if (!newschema) {
+					throw new Error("No schema found for namespace abbrevation '" + namespace + "' in schema '" + schema.targetNamespace + "'.");
+				}
+				return this.findTypeByName(typename, newschema);
 			}
 		}
 		let complextype: ComplexTypeEx;
@@ -490,7 +543,7 @@ export class XmlCompletionHandler extends Log {
 				// If complextype has complex content it is derived.
 				if (complextype.complexContent) {
 					let basetypename = complextype.complexContent[0].extension[0].$.base as string;
-					let basetype = this.getType(basetypename, schema);
+					let basetype = this.findTypeByName(basetypename, schema);
 					complextype.basetype = basetype;
 				}
 				complextype.schema = schema;
@@ -613,7 +666,7 @@ function substitute(o: any, func: (key: string, value: any) => string): {} {
 
 function traverse(o: any, func: (key: string, value: any) => boolean) {
 	for (let i in o) {
-		if(func.apply(this, [i, o[i], o]))
+		if (func.apply(this, [i, o[i], o]))
 			continue;
 		if (o[i] !== null && typeof (o[i]) == "object") {
 			if (o[i] instanceof Array)

@@ -133,37 +133,6 @@ connection.onCompletion(async (params, token): Promise<CompletionList> => {
 	return cl;
 });
 
-connection.onCompletion(async (handler) => {
-	return new Promise<CompletionItem[]>(async (resolve, reject) => {
-		connection.console.info("Completion providing request received");
-		let cl: CompletionItem[] = [];
-		let doc = documents.get(handler.textDocument.uri);
-		let line = getLine(doc.getText(), handler.position.line);
-
-		try {
-			resolve(new I18NCompletionHandler().geti18nlabels(line, handler.position.character));
-		} catch (error) {
-			connection.console.error("Error when getting i18n completion entries: " + JSON.stringify(error));
-		}
-		try {
-			let ch = new XmlCompletionHandler(schemastorage, documents, connection, schemastorePath, settings.ui5ts.lang.xml.LogLevel);
-			cl = await ch.getCompletionSuggestions(handler)
-			cl = cl.concat();
-			schemastorage = ch.schemastorage;
-		} catch (error) {
-			connection.console.error("Error when getting XML completion entries: " + JSON.stringify(error));
-		}
-
-		return cl;
-	})
-
-});
-
-connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-	item.detail = "TESTESTESTE";
-	return item;
-})
-
 class I18NCompletionHandler {
 	geti18nlabels(line: string, cursorpos: number): CompletionItem[] {
 		// 1 = name so far

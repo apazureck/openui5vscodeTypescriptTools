@@ -18,7 +18,6 @@ declare interface ComplexTypeEx extends ComplexType {
 	// Additional properties for navigation
 	basetype?: ComplexTypeEx;
 	schema: StorageSchema;
-	complexContent?: ComplexContent[];
 }
 
 declare interface ElementEx extends Element {

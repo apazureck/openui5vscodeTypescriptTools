@@ -83,23 +83,8 @@ class XmlCompletionHandler extends Log_1.Log {
         if (element.$ && element.$.ref) {
             element = this.getElementFromReference(element.$.ref, element.ownerschema);
         }
-        let type;
-        // Find out if element got a type reference
-        if (element.$ && element.$.type) {
-            this.logDebug("Element " + element.$.name + " has a type reference.");
-            type = this.getType(element.$.type, element.ownerschema);
-        }
-        else if (element.complexType[0]) {
-            this.logDebug("Element " + element.$.name + " has a complex type inside.");
-            let ctype = element.complexType[0];
-            ctype.schema = element.ownerschema;
-        }
-        else {
-            this.logDebug("Element must be of simple type. Code Completion not supported for simple types.");
-            return [];
-        }
-        // Distinguish between sequences and choices, etc. to display only elements that can be placed here.
-        let elements = this.getAllElementsInComplexType(type);
+        // Get the type (if there)
+        let elements = this.getRightSubElements(element, downpath);
         let derivedelements = [];
         let ownelements = [];
         for (let e of elements)
@@ -147,25 +132,92 @@ class XmlCompletionHandler extends Log_1.Log {
         }
         return ret;
     }
-    getAllElementsInComplexType(type) {
-        let alltypes = [type];
-        alltypes = alltypes.concat(this.getBaseTypes(type));
-        let elements = [];
-        for (let t of alltypes) {
-            if (t.complexContent && t.complexContent[0].extension) {
-                if (t.complexContent[0].extension[0].element)
-                    elements = elements.concat(t.complexContent[0].extension[0].element);
-                if (t.complexContent[0].extension[0].sequence && t.complexContent[0].extension[0].sequence[0].element) {
-                    elements = elements.concat(t.complexContent[0].extension[0].sequence[0].element);
-                    if (t.complexContent[0].extension[0].sequence[0].choice && t.complexContent[0].extension[0].sequence[0].choice[0].element)
-                        elements = elements.concat(t.complexContent[0].extension[0].sequence[0].choice[0].element);
+    getRightSubElements(element, downpath) {
+        let type = this.getTypeOfElement(element);
+        // Distinguish between sequences and choices, etc. to display only elements that can be placed here.
+        let elements = this.getAllElementsInComplexType(type);
+        if (downpath.length > 0) {
+            let part;
+            if (part = downpath.pop()) {
+                let child = elements.find(x => {
+                    try {
+                        return x.$.name === part;
+                    }
+                    catch (error) {
+                        false;
+                    }
+                });
+                if (child) {
+                    return this.getRightSubElements(child, downpath);
                 }
             }
         }
         return elements;
     }
+    /**
+     * Gets the (complex) type of a given element (with schema)
+     *
+     * @private
+     * @param {ElementEx} element Element to get the type from
+     * @returns {ComplexTypeEx} The Complex type of the elment
+     *
+     * @memberOf XmlCompletionHandler
+     */
+    getTypeOfElement(element) {
+        try {
+            // Check if complex Type is directly on element
+            if (element.complexType) {
+                let t = element.complexType[0];
+                t.schema = element.ownerschema;
+                return t;
+            }
+            else if (element.$ && element.$.type) {
+                return this.findTypeByName(element.$.type, element.ownerschema);
+            }
+            else {
+                // Check for simple type?
+                return null;
+            }
+        }
+        catch (error) {
+            return undefined;
+        }
+    }
+    getAllElementsInComplexType(type) {
+        let alltypes = [type];
+        alltypes = alltypes.concat(this.getBaseTypes(type));
+        let elements = [];
+        for (let t of alltypes) {
+            // Check if type is inheriting other type
+            if (t.complexContent && t.complexContent[0].extension) {
+                let st = t.complexContent[0].extension[0];
+                elements = elements.concat(this.getElementsOfComplexType(st));
+            }
+            else {
+                try {
+                    elements = elements.concat(this.getElementsOfComplexType(t));
+                }
+                catch (error) {
+                    this.logDebug(() => "Could not get elements of type " + t.$.name);
+                }
+            }
+        }
+        return elements;
+    }
+    getElementsOfComplexType(type) {
+        let elements = [];
+        if (type.element)
+            elements = elements.concat(type.element);
+        if (type.sequence) {
+            if (type.sequence[0].element)
+                elements = elements.concat(type.sequence[0].element);
+            if (type.sequence[0].choice && type.sequence[0].choice[0].element)
+                elements = elements.concat(type.sequence[0].choice[0].element);
+        }
+        return elements;
+    }
     getDerivedElements(element, schema) {
-        var type = this.getType(element.$.type, schema);
+        var type = this.findTypeByName(element.$.type, schema);
         schema = type.schema;
         // Find all schemas using the owningSchema (and so maybe the element)
         let schemasUsingNamespace = [];
@@ -192,7 +244,7 @@ class XmlCompletionHandler extends Log_1.Log {
                     if (!e.$ || !e.$.type)
                         continue;
                     try {
-                        let basetypes = this.getBaseTypes(this.getType(e.$.type, schema.schema));
+                        let basetypes = this.getBaseTypes(this.findTypeByName(e.$.type, schema.schema));
                         let i = basetypes.findIndex(x => { try {
                             return x.$.name === type.$.name;
                         }
@@ -219,7 +271,7 @@ class XmlCompletionHandler extends Log_1.Log {
             path = [];
         try {
             let newtypename = type.complexContent[0].extension[0].$.base;
-            let newtype = this.getType(newtypename, type.schema);
+            let newtype = this.findTypeByName(newtypename, type.schema);
             path.push(newtype);
             this.getBaseTypes(newtype, path);
         }
@@ -368,7 +420,7 @@ class XmlCompletionHandler extends Log_1.Log {
         this.logDebug("Using Schema: " + schema.targetNamespace);
         let element = this.findElement(cursor.tagName, schema);
         this.logDebug(() => "Found element: " + element.$.name);
-        let elementType = this.getType(element.$.type, schema);
+        let elementType = this.findTypeByName(element.$.type, schema);
         this.logDebug(() => "Found Element type: " + elementType.$.name);
         let attributes = this.getAttributes(elementType, schema);
         this.logDebug(() => "Found " + attributes.length + " Attributes");
@@ -410,7 +462,7 @@ class XmlCompletionHandler extends Log_1.Log {
             return type.attribute;
         }
     }
-    getType(typename, schema) {
+    findTypeByName(typename, schema) {
         let aType = typename.split(":");
         let tn, namespace;
         if (aType.length > 1) {
@@ -424,7 +476,10 @@ class XmlCompletionHandler extends Log_1.Log {
         if (namespace) {
             if (schema.referencedNamespaces[namespace] !== schema.targetNamespace) {
                 let newschema = this.schemastorage[schema.referencedNamespaces[namespace]];
-                return this.getType(typename, newschema);
+                if (!newschema) {
+                    throw new Error("No schema found for namespace abbrevation '" + namespace + "' in schema '" + schema.targetNamespace + "'.");
+                }
+                return this.findTypeByName(typename, newschema);
             }
         }
         let complextype;
@@ -437,7 +492,7 @@ class XmlCompletionHandler extends Log_1.Log {
                 // If complextype has complex content it is derived.
                 if (complextype.complexContent) {
                     let basetypename = complextype.complexContent[0].extension[0].$.base;
-                    let basetype = this.getType(basetypename, schema);
+                    let basetype = this.findTypeByName(basetypename, schema);
                     complextype.basetype = basetype;
                 }
                 complextype.schema = schema;
