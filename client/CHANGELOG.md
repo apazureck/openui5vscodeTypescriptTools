@@ -1,4 +1,4 @@
-### Version 0.2.3 - 2017-02-23
+### Version 0.2.3 - 2017-02-25
 * **FEATURE** I18n Diagnostic provider for existing labels
 * **FEATURE** Create new I18n Label via command or CodeAction
 * **FEATURE** Go to definition of i18n label
