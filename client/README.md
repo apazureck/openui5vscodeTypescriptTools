@@ -22,7 +22,7 @@ This extension improves the experience using UI5 with typescript. It is currentl
 * **XML** support
     * Code completion for XML views (Attributes and Elements)
     * Simple check for well-formed xml files
-    * Autoclosing tags when putting '/' at the end of the opening tag of an empty XML Element
+    * Autoclosing tags when putting '/' at the end of the opening tag of an empty XML Element **will be removed in the next release, please use plug-ins that can do that much better**. Can be deactivated in the settings
 
 ## Requirements
 
@@ -31,6 +31,8 @@ This extension improves the experience using UI5 with typescript. It is currentl
 ## Usage
 
 Check out the [Wiki on Github](https://github.com/apazureck/openui5vscodeTypescriptTools/wiki).
+
+Will be updated in the next weeks (~ 3-10-17)
 
 ## Known Issues
 

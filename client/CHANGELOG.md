@@ -3,6 +3,7 @@
 * **FEATURE** Create new I18n Label via command or CodeAction
 * **FEATURE** Go to definition of i18n label
 * **BUGFIX** Code completion for i18n label
+* **BUGFIX** Improved Element Crawling in language server, can now resolve subelements properly
 * Split some ui5 specific features from xml language server
 
 ### Version 0.2.2 - 2017-02-23
