@@ -1,5 +1,5 @@
 import { TextDocumentPositionParams, CompletionItem, TextDocuments, IConnection, CompletionItemKind } from 'vscode-languageserver'
-import { Storage, StorageSchema, XmlStorage, ComplexTypeEx, ElementEx } from '../../typings/types'
+import { StorageSchema, XmlStorage, ComplexTypeEx, ElementEx } from '../xmltypes'
 import { Log, LogLevel } from '../Log';
 import * as fs from 'fs'
 import * as path from 'path'
@@ -37,13 +37,13 @@ export interface FoundCursor {
 }
 
 export class XmlCompletionHandler extends Log {
-	constructor(public schemastorage: XmlStorage, private documents: TextDocuments, connection: IConnection, private schemastorePath: string, loglevel: LogLevel) {
+	public schemastorage: { [targetNamespace:string]: StorageSchema }
+	private usedNamespaces: { [abbrevation: string]: string }
+	constructor(schemastorage: XmlStorage, private documents: TextDocuments, connection: IConnection, private schemastorePath: string, loglevel: LogLevel) {
 		super(connection, loglevel);
+		this.schemastorage = schemastorage.schemas
 	}
-	private usedNamespaces: { [abbrevation: string]: string };
 	async getCompletionSuggestions(handler: TextDocumentPositionParams): Promise<CompletionItem[]> {
-		if (!this.schemastorage)
-			await this.createSchemas();
 
 		let doc = this.documents.get(handler.textDocument.uri);
 		let txt = doc.getText();
@@ -76,7 +76,6 @@ export class XmlCompletionHandler extends Log {
 			});
 		}
 	}
-
 
 	/**
 	 * Gets the schema from an element, which can come in form of '<namespace:name ... ' or '<name ...   '
@@ -582,98 +581,5 @@ export class XmlCompletionHandler extends Log {
 		this.usedNamespaces = {};
 		while (match = xmlnsregex.exec(input))
 			this.usedNamespaces[match[1]] = match[2];
-	}
-
-	async createSchemas(): Promise<void> {
-		this.schemastorage = {};
-		this.connection.console.info("Creating Schema storage.")
-		for (let file of fs.readdirSync(this.schemastorePath)) {
-			try {
-				let xmltext = fs.readFileSync(path.join(this.schemastorePath, file)).toString();
-				await new Promise<void>((resolve, reject) => {
-					xml.parseString(xmltext, { normalize: true }, (err, res) => {
-						if (err)
-							return reject(err);
-						let tns = xmltext.match(/targetNamespace\s*?=\s*?["'](.*?)["']/);
-						if (tns) {
-							let nsregex = /xmlns:(.*?)\s*?=\s*?["'](.*?)["']/g;
-							let ns: RegExpMatchArray;
-							let schemanamespace: string;
-							let namespaces = {}
-							while (ns = nsregex.exec(xmltext)) {
-								if (ns[2] === "http://www.w3.org/2001/XMLSchema")
-									schemanamespace = ns[1];
-								else
-									namespaces[ns[1]] = ns[2];
-							}
-
-							this.connection.console.info("Found a valid schema. Renaming namespace abbrevation '" + schemanamespace + " to empty abbrevation to make it more readable for programmers.");
-
-							if (namespaces[""]) {
-								this.connection.console.error("There is an empty namespace. It will be missinterpreted, as for lazynessreasons of the author the xsd namespace will be removed from all elements.");
-							}
-
-							var start = schemanamespace + ":"
-							res = substitute(res, (key, value) => {
-								if (key.startsWith(start)) {
-									return key.split(":")[1];
-								}
-								return key;
-							});
-
-							this.connection.console.info("Converted schema " + schemanamespace);
-
-							if (schemanamespace)
-								this.schemastorage[tns[1]] = { schemanamespace: schemanamespace, schema: res.schema, referencedNamespaces: namespaces, targetNamespace: tns[1] };
-							else
-								return reject("No Schema namespace defined, make sure your schema is compared against 'http://www.w3.org/2001/XMLSchema'")
-							return resolve();
-						}
-						else
-							return reject({ message: "No Target Namespace found in schema '" + file + "'" });
-					});
-				});
-			} catch (error) {
-				return this.connection.console.warn("Could not open Schema '" + file + "': " + JSON.stringify(error));
-			}
-		}
-	}
-}
-
-/**
- * Replaces the key. Return old key if key should not be renamed.
- * 
- * @param {*} o 
- * @param {(key: string, value: any, parent: {}) => string} func 
- */
-function substitute(o: any, func: (key: string, value: any) => string): {} {
-	let build = {};
-	for (let i in o) {
-		let newkey = func.apply(this, [i, o[i], o]);
-		let newobject = o[i];
-		if (o[i] !== null && typeof (o[i]) == "object") {
-			if (o[i] instanceof Array) {
-				newobject = [];
-				for (let entry of o[i])
-					newobject.push(substitute({ [i]: entry }, func)[newkey]);
-			} else
-				newobject = substitute(o[i], func);
-		}
-		build[newkey] = newobject;
-	}
-	return build;
-}
-
-function traverse(o: any, func: (key: string, value: any) => boolean) {
-	for (let i in o) {
-		if (func.apply(this, [i, o[i], o]))
-			continue;
-		if (o[i] !== null && typeof (o[i]) == "object") {
-			if (o[i] instanceof Array)
-				for (let entry of o[i])
-					traverse({ [i]: entry }, func);
-			//going on step down in the object tree!!
-			traverse(o[i], func);
-		}
 	}
 }

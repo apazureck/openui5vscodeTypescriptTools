@@ -14,8 +14,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 'use strict';
 const vscode_languageserver_1 = require('vscode-languageserver');
 const filehandler_1 = require('./filehandler');
+const xmltypes_1 = require('./xmltypes');
 const XmlCompletionProvider_1 = require('./providers/XmlCompletionProvider');
+const Log_1 = require('./Log');
+const XmlDiagnosticProvider_1 = require('./providers/XmlDiagnosticProvider');
 const controllerFileEx = "\\.controller\\.(js|ts)$";
+var Global;
+(function (Global) {
+})(Global = exports.Global || (exports.Global = {}));
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection = vscode_languageserver_1.createConnection(new vscode_languageserver_1.IPCMessageReader(process), new vscode_languageserver_1.IPCMessageWriter(process));
 // Create a simple text document manager. The text document manager
@@ -27,56 +33,22 @@ documents.listen(connection);
 connection.onInitialize((params) => {
     connection.console.info("Initializing UI5 XML language server");
     connection.console.log("params: " + JSON.stringify(params));
-    exports.workspaceRoot = params.rootPath;
-    exports.schemastorePath = params.initializationOptions.schemastore;
+    Global.serverSettings = params.initializationOptions;
+    Global.workspaceRoot = params.rootPath;
+    Global.schemastore = new xmltypes_1.XmlStorage(Global.serverSettings.storagepath, connection, Log_1.LogLevel.None);
     return {
         capabilities: {
             // Tell the client that the server works in FULL text document sync mode
             textDocumentSync: documents.syncKind,
             // Tell the client that the server support code complete
-            definitionProvider: true,
+            definitionProvider: false,
             completionProvider: {
                 resolveProvider: false,
-                triggerCharacters: [">", '"', "'", ".", "/"]
+                triggerCharacters: ["<", ">", '"', "'", ".", "/"]
             },
-            codeActionProvider: true
+            codeActionProvider: false
         }
     };
-});
-connection.onCodeAction((params) => {
-    return [];
-});
-connection.onDefinition((params) => {
-    let files;
-    let doc = documents.get(params.textDocument.uri);
-    let startindex = doc.offsetAt(params.position);
-    let text = doc.getText();
-    let line = getLineByIndex(text, startindex);
-    let tag = line.match(/(\w+)Name="(.*?)"/);
-    if (!tag)
-        return tryOpenEventHandler(line, params.position.character, text);
-    let tName = tag[2].split(".").pop();
-    let ret = [];
-    switch (tag[1]) {
-        case "controller":
-            files = filehandler_1.File.find(new RegExp(tName + controllerFileEx));
-            // Check typescript (dirty)
-            for (let i = 0; i < files.length; i = i + 2) {
-                let f = files.length > 1 ? files[i + 1] : files[i];
-                ret.push({ range: { start: { character: 0, line: 0 }, end: { character: 0, line: 0 } }, uri: "file:///" + f });
-            }
-            return ret;
-        case "view":
-            files = filehandler_1.File.find(new RegExp(tName + "\\.view\\.(xml|json)$"));
-            for (let f in files)
-                ret.push({ range: { start: { character: 0, line: 0 }, end: { character: 0, line: 0 } }, uri: "file:///" + files[0] });
-        case "fragment":
-            files = filehandler_1.File.find(new RegExp(tName + "\\.fragment\\.(xml|json)$"));
-            return { range: { start: { character: 0, line: 0 }, end: { character: 0, line: 0 } }, uri: "file:///" + files[0] };
-        default:
-            // let eventhandlertag = vscode.window.activeTextEditor.selection.active;
-            return [];
-    }
 });
 connection.onCompletion((params, token) => __awaiter(this, void 0, void 0, function* () {
     connection.console.info("Completion providing request received");
@@ -88,20 +60,7 @@ connection.onCompletion((params, token) => __awaiter(this, void 0, void 0, funct
     let doc = documents.get(params.textDocument.uri);
     let line = getLine(doc.getText(), params.position.line);
     try {
-        let i18ncl = new I18NCompletionHandler().geti18nlabels(line, params.position.character);
-        cl.items = cl.items.concat(i18ncl);
-        if (cl.items.length > 0) {
-            cl.isIncomplete = false;
-            return cl;
-        }
-        if (token.isCancellationRequested)
-            return;
-    }
-    catch (error) {
-        connection.console.error("Error when getting i18n completion entries: " + JSON.stringify(error));
-    }
-    try {
-        let ch = new XmlCompletionProvider_1.XmlCompletionHandler(schemastorage, documents, connection, exports.schemastorePath, settings.ui5ts.lang.xml.LogLevel);
+        let ch = new XmlCompletionProvider_1.XmlCompletionHandler(Global.schemastore, documents, connection, "./schemastore", Global.settings.ui5ts.lang.xml.LogLevel);
         cl.items = cl.items.concat(yield ch.getCompletionSuggestions(params));
         cl.isIncomplete = false;
     }
@@ -110,66 +69,64 @@ connection.onCompletion((params, token) => __awaiter(this, void 0, void 0, funct
     }
     return cl;
 }));
-class I18NCompletionHandler {
-    geti18nlabels(line, cursorpos) {
-        // 1 = name so far
-        let pos = line.match(new RegExp(settings.ui5ts.lang.i18n.modelname + ">(.*?)}?\""));
-        if (!pos)
-            return [];
-        let startpos = pos.index + settings.ui5ts.lang.i18n.modelname.length + 1;
-        let endpos = startpos + pos[1].length;
-        if (cursorpos < startpos || cursorpos > endpos)
-            return [];
-        if (!storage.i18nItems)
-            storage.i18nItems = this.getLabelsFormi18nFile();
-        let curlist = [];
-        for (let item of storage.i18nItems) {
-            if (item.label.startsWith(pos[1])) {
-                let labelpart = item.label.substring(pos[1].length, item.label.length);
-                curlist.push({
-                    label: item.label,
-                    detail: item.detail,
-                    documentation: item.documentation,
-                    filterText: labelpart,
-                    insertText: labelpart,
-                    kind: item.kind
-                });
-            }
-        }
-        return curlist;
+connection.onDidChangeTextDocument((changeparams) => __awaiter(this, void 0, void 0, function* () {
+    let doc = documents.get(changeparams.textDocument.uri);
+    if (!doc)
+        return;
+    let dp = new XmlDiagnosticProvider_1.XmlWellFormedDiagnosticProvider(connection, Global.settings.ui5ts.lang.xml.LogLevel);
+    let diagnostics = yield dp.diagnose(changeparams.textDocument.uri, doc.getText());
+    connection.sendDiagnostics(diagnostics);
+}));
+connection.onDidChangeWatchedFiles((params) => {
+    params.changes[0].uri;
+});
+connection.onDidChangeConfiguration((change) => {
+    connection.console.info("Changed settings: " + JSON.stringify(change));
+    Global.settings = change.settings;
+});
+function getLine(text, linenumber) {
+    let lines = text.split(/\n/);
+    return lines[linenumber];
+}
+exports.getLine = getLine;
+function getRange(docText, searchPattern) {
+    const lineRegex = /.*(?:\n|\r\n)/gm;
+    let l;
+    let ret = [];
+    let linectr = 0;
+    while ((l = lineRegex.exec(docText)) !== null) {
+        linectr = linectr + 1;
+        if (l.index === lineRegex.lastIndex)
+            lineRegex.lastIndex++;
+        let match = searchPattern.exec(l);
+        if (!match)
+            continue;
+        ret.push({ start: { line: linectr, character: match.index }, end: { line: linectr, character: match.index + match[0].length }, });
     }
-    resolve(item) {
-        let i = 0;
-        return item;
-    }
-    getLabelsFormi18nFile() {
-        if (!settings.ui5ts.lang.i18n.modelfilelocation)
-            settings.ui5ts.lang.i18n.modelfilelocation = "./i18n/i18n.properties";
-        let content = filehandler_1.File.open(settings.ui5ts.lang.i18n.modelfilelocation).split("\n");
-        let items = [];
-        for (let line of content) {
-            try {
-                // Comment
-                if (line.startsWith("#"))
-                    continue;
-                // New label
-                let match = line.match("^(.*?)=(.*)");
-                if (match)
-                    items.push({
-                        label: match[1],
-                        detail: "i18n",
-                        documentation: "'" + match[2] + "'",
-                        kind: vscode_languageserver_1.CompletionItemKind.Text
-                    });
-            }
-            catch (error) {
-            }
+    return ret;
+}
+exports.getRange = getRange;
+function getPositionFromIndex(input, index) {
+    let lines = input.split("\n");
+    let curindex = 0;
+    let lineindex = 0;
+    let curline;
+    for (let line of lines) {
+        if (index <= curindex + line.length) {
+            return {
+                line: lineindex,
+                character: index - curindex
+            };
         }
-        return items;
+        curindex += line.length;
+        lineindex++;
     }
 }
-var schemastorage;
-var storage = {};
+exports.getPositionFromIndex = getPositionFromIndex;
+function getLineCount(input) {
+    return input.split("\n").length;
+}
+exports.getLineCount = getLineCount;
 function tryOpenEventHandler(line, positionInLine, documentText) {
     let rightpart = line.substr(positionInLine).match(/(\w*?)"/)[1];
     if (!rightpart)
@@ -204,59 +161,5 @@ function tryOpenEventHandler(line, positionInLine, documentText) {
     }
     return ret;
 }
-function getLine(text, linenumber) {
-    let lines = text.split(/\n/);
-    return lines[linenumber];
-}
-function getRange(docText, searchPattern) {
-    const lineRegex = /.*(?:\n|\r\n)/gm;
-    let l;
-    let ret = [];
-    let linectr = 0;
-    while ((l = lineRegex.exec(docText)) !== null) {
-        linectr = linectr + 1;
-        if (l.index === lineRegex.lastIndex)
-            lineRegex.lastIndex++;
-        let match = searchPattern.exec(l);
-        if (!match)
-            continue;
-        ret.push({ start: { line: linectr, character: match.index }, end: { line: linectr, character: match.index + match[0].length }, });
-    }
-    return ret;
-}
-function getLineByIndex(input, startindex) {
-    let rightpart = input.substr(startindex).match(/.*/m)[0];
-    if (!rightpart)
-        return null;
-    const getLastLineRegex = /\n.*/gm;
-    let leftinput = input.substr(0, startindex);
-    let l, m;
-    while ((l = getLastLineRegex.exec(leftinput)) !== null) {
-        if (l.index === getLastLineRegex.lastIndex)
-            getLastLineRegex.lastIndex++;
-        m = l;
-    }
-    let leftpart = m.pop().substr(1);
-    if (!leftpart)
-        return null;
-    return leftpart + rightpart;
-}
-var settings;
-connection.onDidChangeConfiguration((change) => {
-    connection.console.info("Changed settings: " + JSON.stringify(change));
-    settings = change.settings;
-});
 connection.listen();
-function traverse(o, func) {
-    for (let i in o) {
-        func.apply(this, [i, o[i], o]);
-        if (o[i] !== null && typeof (o[i]) == "object") {
-            if (o[i] instanceof Array)
-                for (let entry of o[i])
-                    traverse({ [i]: entry }, func);
-            //going on step down in the object tree!!
-            traverse(o[i], func);
-        }
-    }
-}
 //# sourceMappingURL=server.js.map

@@ -1,5 +1,10 @@
 'use strict';
-import { I18nDfinitionProvider } from './language/ui5/Ui5DefinitionProviders';
+import { I18nDiagnosticProvider } from './language/xml/XmlDiagnostics';
+import {
+    I18nDfinitionProvider,
+    ViewControllerDefinitionProvider,
+    ViewFragmentDefinitionProvider
+} from './language/ui5/Ui5DefinitionProviders';
 import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from './commands';
 import {
     commands,
@@ -13,7 +18,6 @@ import {
     window,
     workspace
 } from 'vscode';
-import { Position } from 'vscode-languageserver-types/lib/main';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as file from './helpers/filehandler';
@@ -24,10 +28,8 @@ import * as defprov from './language/ui5/Ui5DefinitionProviders';
 import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind } from 'vscode-languageclient';
 import * as path from 'path';
 import { ManifestDiagnostics } from './language/ui5/Ui5ManifestDiagnostics'
-import { Ui5i18nCompletionItemProvider } from './language/ui5/Ui5CompletionProviders'
+import { I18NCompletionItemProvider } from './language/ui5/Ui5CompletionProviders'
 import { ManifestCompletionItemProvider } from './language/ui5/Ui5ManifestCompletionProviders'
-import { XmlDiagnostics } from './language/xml/XmlDiagnostics'
-import { closeEmptyTag } from './language/xml/xmlCodeProviders'
 import { I18nCodeActionprovider } from './language/xml/XmlActionProviders'
 
 export interface IDiagnose {
@@ -44,10 +46,15 @@ export class Ui5Extension {
 }
 
 const ui5_jsonviews: DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.view.json" };
-const ui5_tscontrollers: DocumentFilter = { language: 'typescript', scheme: 'file', pattern: "*.controller.ts" };
-const ui5_jscontrollers: DocumentFilter = { language: 'javascript', scheme: 'file', pattern: "*.controller.js" };
-const ui5_jsonfragments: DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.fragment.json" };
+
+const ui5_tscontrollers: DocumentFilter = { language: 'typescript', scheme: 'file', pattern: "**/*.controller.ts" };
+const ui5_jscontrollers: DocumentFilter = { language: 'javascript', scheme: 'file', pattern: "**/*.controller.js" };
+const ui5_jsonfragments: DocumentFilter = { language: 'json', scheme: 'file', pattern: "**/*.fragment.json" };
+
 const ui5_xml: DocumentFilter = { language: "xml", scheme: 'file', pattern: "**/*.{fragment,view}.xml" };
+const ui5_view: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.view.xml" };
+const ui5_fragment: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.fragment.xml" };
+
 const ui5_manifest: DocumentFilter = { language: "json", scheme: 'file', pattern: "**/manifest.json" };
 
 export var core: Ui5Extension = new Ui5Extension();
@@ -76,20 +83,34 @@ export async function activate(c: ExtensionContext) {
     c.subscriptions.push(commands.registerCommand('ui5ts.AddSchemaToStorage', AddSchemaToStore.bind(context)));
     c.subscriptions.push(commands.registerCommand('ui5ts.CreateNewI18nLabel', AddI18nLabel.bind(context)));
     c.subscriptions.push(commands.registerCommand('ui5ts.ResetI18NStorage', ResetI18nStorage.bind(context)));
-    window.onDidChangeTextEditorSelection(closeEmptyTag);
 
     // Setup Language Providers
     console.log("Creating I18N Provider!");
     c.subscriptions.push(languages.registerCodeActionsProvider(ui5_xml, new I18nCodeActionprovider));
 
-    channel.appendLine("Starting Ui5i18nCompletionItemProvider");
     // c.subscriptions.push(languages.registerCompletionItemProvider([ui5_xmlviews, ui5_xmlfragments], new Ui5i18nCompletionItemProvider));
 
-    let diags: IDiagnose[] = [new ManifestDiagnostics(languages.createDiagnosticCollection('json')), new XmlDiagnostics(languages.createDiagnosticCollection('xml'), c)]
+    let diags: IDiagnose[] = [new ManifestDiagnostics(languages.createDiagnosticCollection('json')), new I18nDiagnosticProvider(languages.createDiagnosticCollection('i18n'))];
 
     createDiagnosticSubscriptions(c, diags);
 
+    workspace.onDidChangeTextDocument((dce) => {
+        if (!dce.document.fileName.endsWith(".properties"))
+            return;
+
+        ResetI18nStorage();
+        for (let otd of workspace.textDocuments)
+            for (let diag of diags)
+                diag.diagnose(otd);
+    });
+
+    // Completionitemproviders
     c.subscriptions.push(languages.registerCompletionItemProvider(ui5_manifest, new ManifestCompletionItemProvider));
+    c.subscriptions.push(languages.registerCompletionItemProvider(ui5_xml, new I18NCompletionItemProvider));
+
+    // Definitionproviders
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewFragmentDefinitionProvider));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewControllerDefinitionProvider));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new I18nDfinitionProvider));
 }
 
@@ -101,8 +122,8 @@ function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) 
         });
         workspace.onDidOpenTextDocument(diag.diagnose.bind(diag));
     }
-    for(let otd of workspace.textDocuments)
-        for(let diag of diags)
+    for (let otd of workspace.textDocuments)
+        for (let diag of diags)
             diag.diagnose(otd);
 }
 
@@ -144,9 +165,9 @@ function startXmlViewLanguageServer(context: ExtensionContext): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         // The server is implemented in node
         log.printInfo("Staring XML View language server");
-        let serverModule = (context.asAbsolutePath(path.join('server', 'server.js')));
+        let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
         // The debug options for the server
-        let debugOptions = { execArgv: ["--nolazy", "--debug=6009"] };
+        let debugOptions = { storagepath: context.asAbsolutePath("schemastore"), execArgv: ["--nolazy", "--debug=6009"] };
 
         // If the extension is launched in debug mode then the debug server options are used
         // Otherwise the run options are used
@@ -159,13 +180,14 @@ function startXmlViewLanguageServer(context: ExtensionContext): Promise<void> {
         let clientOptions: LanguageClientOptions = {
             // Register the server for xml decuments documents
             documentSelector: ['xml', 'xsd'],
+            diagnosticCollectionName: "xmlDiagnostics",
             synchronize: {
                 // Synchronize the setting section 'languageServerExample' to the server
                 configurationSection: 'ui5ts',
                 // Notify the server about file changes to '.clientrc files contain in the workspace
-                fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
+                fileEvents: workspace.createFileSystemWatcher("**/*.{xml,xsd}")
             },
-            initializationOptions: { schemastore: context.asAbsolutePath("schemastore") }
+            initializationOptions: { storagepath: context.asAbsolutePath("schemastore") } as XmlInitOptions
         }
 
         // Create the language client and start the client.
@@ -181,3 +203,17 @@ function startXmlViewLanguageServer(context: ExtensionContext): Promise<void> {
 
 }
 
+/**
+ * Initialization options for the xml language server
+ * 
+ * @interface XmlInitOptions
+ */
+interface XmlInitOptions {
+    /**
+     * asolute path to the folder of the xsd files
+     * 
+     * @type {string}
+     * @memberOf XmlInitOptions
+     */
+    storagepath: string;
+}

@@ -102,7 +102,6 @@ export async function AddSchemaToStore(): Promise<void> {
         }
         vscode.window.showInformationMessage("Successfully added schema to storage.");
     }
-    Storage.schemastore.initializeStorage();
     // TODO: Validation
 }
 

@@ -10,15 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const rrd = require('recursive-readdir');
 const fs = require('fs');
 const server_1 = require('./server');
-class FileHandler {
-}
-exports.FileHandler = FileHandler;
-class ReplaceInFiles {
-    constructor(dir) {
-        this._dir = dir;
-    }
-}
-exports.ReplaceInFiles = ReplaceInFiles;
 /**
  * File interface
  *
@@ -38,7 +29,7 @@ class File {
      */
     static findAsync(pattern, startdir) {
         return __awaiter(this, void 0, void 0, function* () {
-            startdir = startdir ? startdir : server_1.workspaceRoot;
+            startdir = startdir ? startdir : server_1.Global.workspaceRoot;
             let matcher = typeof pattern === "string" ? new RegExp(pattern) : pattern;
             return new Promise((resolve, reject) => {
                 rrd(startdir, (err, files) => {
@@ -65,7 +56,7 @@ class File {
      * @memberOf File
      */
     static find(pattern, startdir) {
-        startdir = startdir ? startdir : server_1.workspaceRoot;
+        startdir = startdir ? startdir : server_1.Global.workspaceRoot;
         let regex = typeof pattern === "string" ? new RegExp(pattern) : pattern;
         return findFilesSync(regex, startdir);
     }
