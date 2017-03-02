@@ -40,7 +40,7 @@ export class I18nLabelStorage {
         let content = fs.readFileSync(this.modelfile.fsPath, "utf-8").split("\n");
         this.linecount = 0;
         for (let line of content) {
-            let match = line.match("^(.*?)=(.*)");
+            let match = line.match(/^(.*?)\s*=\s*(.*)/);
             if (match)
                 this.labels[match[1]] = {
                     text: match[2],

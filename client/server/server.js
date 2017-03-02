@@ -31,7 +31,7 @@ let documents = new vscode_languageserver_1.TextDocuments();
 // for open, change and close text document events
 documents.listen(connection);
 connection.onInitialize((params) => {
-    connection.console.info("Initializing UI5 XML language server");
+    connection.console.info("Initializing XML language server");
     connection.console.log("params: " + JSON.stringify(params));
     Global.serverSettings = params.initializationOptions;
     Global.workspaceRoot = params.rootPath;
@@ -74,9 +74,12 @@ connection.onDidChangeTextDocument((changeparams) => __awaiter(this, void 0, voi
     if (!doc)
         return;
     let dp = new XmlDiagnosticProvider_1.XmlWellFormedDiagnosticProvider(connection, Global.settings.ui5ts.lang.xml.LogLevel);
-    let diagnostics = yield dp.diagnose(changeparams.textDocument.uri, doc.getText());
+    let diagnostics = yield dp.diagnose(doc);
     connection.sendDiagnostics(diagnostics);
 }));
+documents.onDidChangeContent((e) => {
+    let i = 0;
+});
 connection.onDidChangeWatchedFiles((params) => {
     params.changes[0].uri;
 });

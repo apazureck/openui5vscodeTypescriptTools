@@ -94,8 +94,8 @@ export async function activate(c: ExtensionContext) {
 
     createDiagnosticSubscriptions(c, diags);
 
-    workspace.onDidChangeTextDocument((dce) => {
-        if (!dce.document.fileName.endsWith(".properties"))
+    workspace.onDidSaveTextDocument((doc) => {
+        if (!doc.fileName.endsWith(".properties"))
             return;
 
         ResetI18nStorage();

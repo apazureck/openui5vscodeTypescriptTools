@@ -29,7 +29,7 @@ export class I18NCompletionItemProvider implements CompletionItemProvider {
 			if(token.isCancellationRequested) return curlist;
 			let item = Storage.i18n.labels[iname];
 			if (iname.startsWith(pos[1])) {
-				let labelpart = item.text.substring(pos[1].length, item.text.length);
+				let labelpart = iname.substring(pos[1].length, iname.length);
 				let citem = new CompletionItem(iname, CompletionItemKind.Value);
 				citem.detail = "i18n";
 				citem.documentation = item.text;

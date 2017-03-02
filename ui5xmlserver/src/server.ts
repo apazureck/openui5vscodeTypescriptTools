@@ -70,7 +70,7 @@ let documents: TextDocuments = new TextDocuments();
 documents.listen(connection);
 
 connection.onInitialize((params): InitializeResult => {
-	connection.console.info("Initializing UI5 XML language server");
+	connection.console.info("Initializing XML language server");
 	connection.console.log("params: " + JSON.stringify(params));
 
 	Global.serverSettings = params.initializationOptions
@@ -121,9 +121,13 @@ connection.onDidChangeTextDocument(async (changeparams) => {
 
 	let dp = new XmlWellFormedDiagnosticProvider(connection, Global.settings.ui5ts.lang.xml.LogLevel);
 
-	let diagnostics = await dp.diagnose(changeparams.textDocument.uri, doc.getText());
+	let diagnostics = await dp.diagnose(doc);
 	connection.sendDiagnostics(diagnostics);
 });
+
+documents.onDidChangeContent((e) => {
+	let i = 0;
+})
 
 connection.onDidChangeWatchedFiles((params) => {
 	params.changes[0].uri

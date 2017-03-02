@@ -1,46 +1,13 @@
 import { TextDocumentPositionParams, CompletionItem, TextDocuments, IConnection, CompletionItemKind } from 'vscode-languageserver'
-import { StorageSchema, XmlStorage, ComplexTypeEx, ElementEx } from '../xmltypes'
-import { Log, LogLevel } from '../Log';
-import * as fs from 'fs'
-import * as path from 'path'
-import * as xml from 'xml2js'
+import { ComplexTypeEx, ElementEx, FoundCursor, StorageSchema, XmlBase, XmlStorage } from '../xmltypes';
+import { LogLevel } from '../Log';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as xml from 'xml2js';
 
-interface FoundAttribute {
-	name: string,
-	value?: string
-	startpos: number,
-	endpos: number
-}
-
-export interface FoundCursor {
-	absoluteCursorPosition: number
-	relativeCursorPosition: number
-	isInElement: boolean
-	elementcontent: string
-	path: string[]
-	tagName: string
-	tagNamespace: string
-
-	fullName: string
-	isClosingTag: boolean
-	isSelfClosingTag: boolean
-	isInAttribute: boolean
-	/**
-	 * Name of the attribute, if cursor is in attribute
-	 * 
-	 * @type {string}
-	 * @memberOf FoundCursor
-	 */
-	attributeName?: FoundAttribute
-
-	attributes?: FoundAttribute[]
-}
-
-export class XmlCompletionHandler extends Log {
-	public schemastorage: { [targetNamespace:string]: StorageSchema }
-	private usedNamespaces: { [abbrevation: string]: string }
+export class XmlCompletionHandler extends XmlBase {
 	constructor(schemastorage: XmlStorage, private documents: TextDocuments, connection: IConnection, private schemastorePath: string, loglevel: LogLevel) {
-		super(connection, loglevel);
+		super(schemastorage, connection, loglevel);
 		this.schemastorage = schemastorage.schemas
 	}
 	async getCompletionSuggestions(handler: TextDocumentPositionParams): Promise<CompletionItem[]> {
@@ -50,7 +17,7 @@ export class XmlCompletionHandler extends Log {
 		let pos = doc.offsetAt(handler.position);
 
 		this.getUsedNamespaces(txt);
-		let foundCursor = this.getElementAtCursorPos(txt, pos);
+		let foundCursor = this.textGetElementAtCursorPos(txt, pos);
 
 		// todo: Maybe bind to this necessary
 		this.logDebug((() => {
@@ -75,18 +42,6 @@ export class XmlCompletionHandler extends Log {
 				resolve(this.processAllowedElements(foundCursor));
 			});
 		}
-	}
-
-	/**
-	 * Gets the schema from an element, which can come in form of '<namespace:name ... ' or '<name ...   '
-	 * 
-	 * @param {string} fullElementName 
-	 * @returns 
-	 * 
-	 * @memberOf XmlCompletionHandler
-	 */
-	getSchema(fullElementName: string) {
-		return this.schemastorage[this.usedNamespaces[fullElementName.match(/(\w*?):?\w+/)[1]]]
 	}
 
 	private processAllowedElements(cursor: FoundCursor): CompletionItem[] {
@@ -169,13 +124,13 @@ export class XmlCompletionHandler extends Log {
 	}
 
 	private getRightSubElements(element: ElementEx, downpath: string[]): Element[] {
-		let type= this.getTypeOfElement(element);
+		let type = this.getTypeOfElement(element);
 
 		// Distinguish between sequences and choices, etc. to display only elements that can be placed here.
 		let elements = this.getAllElementsInComplexType(type);
 		if (downpath.length > 0) {
 			let part: string;
-			if(part = downpath.pop()) {
+			if (part = downpath.pop()) {
 				let child = elements.find(x => {
 					try {
 						return x.$.name === part;
@@ -245,7 +200,7 @@ export class XmlCompletionHandler extends Log {
 		if (type.element)
 			elements = elements.concat(type.element);
 		if (type.sequence) {
-			if(type.sequence[0].element)
+			if (type.sequence[0].element)
 				elements = elements.concat(type.sequence[0].element);
 			if (type.sequence[0].choice && type.sequence[0].choice[0].element)
 				elements = elements.concat(type.sequence[0].choice[0].element);
@@ -359,106 +314,6 @@ export class XmlCompletionHandler extends Log {
 		return res;
 	}
 
-	private getElementAtCursorPos(txt: string, start: number): FoundCursor {
-		let regx = /(>(?!--|.*>)[\s\S]*?<)/g;
-		let p: string[] = [];
-		let comment = false;
-		let m: RegExpMatchArray;
-		let lm: RegExpMatchArray = regx.exec(txt);
-		while (m = regx.exec(txt)) {
-			if (m.index > start) {
-				break;
-			}
-			let part = txt.substring(lm.index, m.index);
-			let inner = txt.substring(lm.index + lm[0].length, m.index)
-			lm = m;
-			this.logDebug("Found potential element '" + inner + "'")
-			// 1: slash at start, if closing tag
-			// 2: namespace
-			// 3: name
-			// 4: space or stringend, if empty opening tag
-			// 5: arguments, if There
-			// 6: / at the end if self closing element
-			let tag = inner.match(/^(\/?)(\w*?):?(\w+?)(\s|.$)(.*?)(\/?)$/);
-			if (comment || !tag) {
-				if (inner.startsWith("!--")) {
-					comment = true;
-					this.logDebug("Found comment");
-				}
-				if (inner.endsWith("--")) {
-					comment = false;
-					this.logDebug("Comment ended");
-				}
-			}
-			// todo: Handle potential open and closing tags when in attribute values
-			// Case closing tag
-			else if (tag[1] === "/") {
-				p.pop();
-				this.logDebug(() => "Found closing tag. New Stack: " + p.join(" > "))
-			} else if (tag[6]) {
-				this.logDebug("Found self closing element '" + tag[2] + "'")
-			} else {
-				let fulltag = (tag[2].match(/\w+/) ? tag[2] + ":" : "") + tag[3];
-				if (tag[4].match(/\w/))
-					p.push(fulltag + tag[4]);
-				else
-					p.push(fulltag);
-				this.logDebug(() => "Found opening tag '" + tag[2] + "'. New Stack: " + p.join(" > "))
-			}
-		}
-
-		// If cursor is in element is inbetween elements the index of start is smaller than the found index of lm and the length of the part: tag'> .... stuff .... <'
-		// Otherwise the cursor is in the following element
-		let ec = txt.substring(lm.index + lm[0].length, m.index);
-		let tag = (ec + " ").match(/^\s*?(\/?)\s*?(\w*?):?(\w+?)(\s|\/)/);
-		let foundcursor: FoundCursor = {
-			absoluteCursorPosition: start,
-			relativeCursorPosition: start - lm.index - lm[0].length,
-			isInElement: start >= lm.index + lm[0].length,
-			elementcontent: ec,
-			isClosingTag: tag[1] !== '',
-			isSelfClosingTag: ec.endsWith("/"),
-			tagName: tag[3],
-			tagNamespace: tag[2],
-			fullName: tag[2] ? tag[2] + ":" + tag[3] : tag[2],
-			path: p,
-			isInAttribute: false
-		}
-
-		if (foundcursor.isInElement) {
-			let quote: string = undefined
-			let attributename = "";
-			let attributes: FoundAttribute[] = [];
-			let isinattributename: boolean = false;
-			let amatch: RegExpMatchArray
-
-			// 1: attributename
-			// 2: opening quote
-			let attributeregex = /\s*?(\w+?)\s*?=\s*?(["'])?/g;
-			attributeregex.lastIndex = foundcursor.fullName.length;
-
-			while (amatch = attributeregex.exec(ec)) {
-				for (let i = amatch.index + amatch[0].length; i < ec.length; i++) {
-					if (foundcursor.relativeCursorPosition === i)
-						foundcursor.isInAttribute = true;
-					if (ec[i] === amatch[2]) {
-						attributes.push({
-							startpos: amatch.index,
-							endpos: i,
-							name: amatch[1],
-							value: ec.substring(amatch.index + amatch[0].length, i)
-						});
-						attributeregex.lastIndex = i + 1;
-						break;
-					}
-				}
-			}
-			foundcursor.attributes = attributes;
-		}
-
-		return foundcursor;
-	}
-
 	private processInTag(cursor: FoundCursor): CompletionItem[] {
 		this.logDebug("Processing Tagstring: " + cursor.tagName);
 		let namespace = this.usedNamespaces[cursor.tagNamespace];
@@ -497,19 +352,6 @@ export class XmlCompletionHandler extends Log {
 
 		}
 		return ce;
-	}
-
-	private getAttributes(type: ComplexTypeEx, schema: StorageSchema): Attribute[] {
-		if (type.basetype) {
-			for (let att of type.complexContent[0].extension[0].attribute as Attribute[])
-				att.__owner = type;
-			return this.getAttributes(type.basetype, type.schema).concat(type.complexContent[0].extension[0].attribute);
-		}
-		else {
-			for (let att of type.attribute)
-				att.__owner = type;
-			return type.attribute;
-		}
 	}
 
 	private findTypeByName(typename: string, schema: StorageSchema): ComplexTypeEx {
@@ -566,20 +408,5 @@ export class XmlCompletionHandler extends Log {
 			(<ElementEx>element).ownerschema = schema;
 			return element;
 		}
-	}
-
-	/**
-	 * gets the used namespaces in the input string. The used namespaces are stored in the usedNamespaces property.
-	 * 
-	 * @param {string} input Input xml string to get the namespaces from
-	 * 
-	 * @memberOf XmlCompletionHandler
-	 */
-	private getUsedNamespaces(input: string): void {
-		let xmlnsregex = /xmlns:?(.*?)=['"](.*?)['"]/g
-		let match: RegExpMatchArray;
-		this.usedNamespaces = {};
-		while (match = xmlnsregex.exec(input))
-			this.usedNamespaces[match[1]] = match[2];
 	}
 }

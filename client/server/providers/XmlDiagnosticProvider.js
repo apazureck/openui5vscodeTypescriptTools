@@ -25,12 +25,29 @@ class DiagnosticCollection {
 }
 exports.DiagnosticCollection = DiagnosticCollection;
 class XmlWellFormedDiagnosticProvider extends Log_1.Log {
-    diagnose(uri, text) {
+    diagnose(doc) {
         return __awaiter(this, void 0, void 0, function* () {
-            let items = yield this.diagXml2Js(text);
-            items = items.concat(this.diagXmlChecker(text));
-            items = items.concat(yield this.getNamespaces(text));
-            return { uri: uri, diagnostics: items };
+            let text = doc.getText();
+            let items = [];
+            try {
+                items = items.concat(yield this.diagXml2Js(text));
+            }
+            catch (error) {
+                console.log(error.toString());
+            }
+            try {
+                items = items.concat(this.diagXmlChecker(text));
+            }
+            catch (error) {
+                console.log(error.toString());
+            }
+            try {
+                items = items.concat(yield this.getNamespaces(text));
+            }
+            catch (error) {
+                console.log(error.toString());
+            }
+            return { uri: doc.uri, diagnostics: items };
         });
     }
     diagXmlChecker(text) {
@@ -111,7 +128,7 @@ class XmlWellFormedDiagnosticProvider extends Log_1.Log {
 }
 exports.XmlWellFormedDiagnosticProvider = XmlWellFormedDiagnosticProvider;
 class XmlAttributeChecks extends Log_1.Log {
-    diagnose(uri, text) {
+    diagnose(doc) {
         return __awaiter(this, void 0, void 0, function* () {
             // let text = fs.readfile
         });

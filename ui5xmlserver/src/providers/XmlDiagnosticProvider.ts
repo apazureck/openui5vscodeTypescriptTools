@@ -1,11 +1,15 @@
 import { Log, LogLevel } from '../Log';
-import { Diagnostic, Range, DiagnosticSeverity, PublishDiagnosticsParams, IConnection } from 'vscode-languageserver'
+import { Diagnostic, Range, DiagnosticSeverity, PublishDiagnosticsParams, IConnection, TextDocument } from 'vscode-languageserver'
 import * as xmlChecker from 'xmlchecker';
 import { XmlCheckerError } from '../xmltypes'
 import * as xml2js from 'xml2js';
 import { getLine, Global, getPositionFromIndex, getRange, getLineCount } from '../server'
 import * as fs from 'fs';
 import * as path from 'path';
+
+interface IDiagnostic {
+    diagnose(doc: TextDocument)
+}
 
 export class DiagnosticCollection {
 
@@ -24,12 +28,26 @@ export class DiagnosticCollection {
     }
 }
 
-export class XmlWellFormedDiagnosticProvider extends Log {
-    async diagnose(uri: string, text: string): Promise<PublishDiagnosticsParams> {
-        let items = await this.diagXml2Js(text);
-        items = items.concat(this.diagXmlChecker(text));
-        items = items.concat(await this.getNamespaces(text));
-        return { uri: uri, diagnostics: items };
+export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic {
+    async diagnose(doc: TextDocument): Promise<PublishDiagnosticsParams> {
+        let text = doc.getText();
+        let items: Diagnostic[] = []
+        try {
+            items = items.concat(await this.diagXml2Js(text));
+        } catch (error) {
+            console.log(error.toString())
+        }
+        try {
+            items = items.concat(this.diagXmlChecker(text));
+        } catch(error) {
+            console.log(error.toString())
+        }
+        try {
+            items = items.concat(await this.getNamespaces(text));
+        } catch(error) {
+            console.log(error.toString())
+        }
+        return { uri: doc.uri, diagnostics: items };
     }
 
     diagXmlChecker(text: string): Diagnostic[] {
@@ -111,13 +129,9 @@ export class XmlWellFormedDiagnosticProvider extends Log {
     }
 }
 
-export class XmlAttributeChecks extends Log {
-    async diagnose(uri: string, text: string) {
+export class XmlAttributeChecks extends Log implements IDiagnostic {
+    async diagnose(doc: TextDocument) {
         // let text = fs.readfile
     }
     
-}
-interface XmlSchema {
-    targetNamespace: string
-    file: string
 }
