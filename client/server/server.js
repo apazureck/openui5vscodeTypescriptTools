@@ -27,15 +27,16 @@ let connection = vscode_languageserver_1.createConnection(new vscode_languageser
 // Create a simple text document manager. The text document manager
 // supports full document sync only
 let documents = new vscode_languageserver_1.TextDocuments();
-// Make the text document manager listen on the connection
-// for open, change and close text document events
-documents.listen(connection);
 connection.onInitialize((params) => {
     connection.console.info("Initializing XML language server");
     connection.console.log("params: " + JSON.stringify(params));
     Global.serverSettings = params.initializationOptions;
     Global.workspaceRoot = params.rootPath;
     Global.schemastore = new xmltypes_1.XmlStorage(Global.serverSettings.storagepath, connection, Log_1.LogLevel.None);
+    connection.console.info("Starting Listener");
+    // Make the text document manager listen on the connection
+    // for open, change and close text document events
+    documents.listen(connection);
     return {
         capabilities: {
             // Tell the client that the server works in FULL text document sync mode

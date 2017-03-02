@@ -1,36 +1,34 @@
 {
-  "name": "ui5xml-language-server",
-  "description": "A language server for extending xml views and fragments in ui5",
-  "version": "0.0.1",
-  "author": "Andreas Pazureck",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/apazureck/openui5vscodeTypescriptTools.git"
-  },
-  "engines": {
-    "node": "*"
-  },
-  "dependencies": {
-    "fs": "^0.0.1-security",
-    "linq-es6": "^0.2.1",
-    "path": "^0.12.7",
-    "recursive-readdir": "^2.1.1",
-    "vscode": "^1.0.3",
-    "vscode-languageserver": "^3.0.5",
-    "xml-js-converter": "^1.0.0",
-    "xml2js": "^0.4.17",
-    "xmlchecker": "^0.1.0"
-  },
-  "devDependencies": {
-    "@types/node": "^7.0.5",
-    "fs": "0.0.1-security",
-    "recursive-readdir": "2.1.0",
-    "typescript": "2.0.10",
-    "vscode": "1.0.3"
-  },
-  "scripts": {
-    "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
-    "watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."
-  }
+    "name": "ui5xml-language-server",
+    "description": "A language server for extending xml views and fragments in ui5",
+    "version": "0.0.1",
+    "author": "Andreas Pazureck",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/apazureck/openui5vscodeTypescriptTools.git"
+    },
+    "engines": {
+        "node": "*"
+    },
+    "dependencies": {
+        "linq-es6": "^0.2.1",
+        "recursive-readdir": "^2.1.1",
+        "vscode": "^1.0.3",
+        "vscode-languageserver": "^3.0.5",
+        "xml-js-converter": "^1.0.0",
+        "xml2js": "^0.4.17",
+        "xmlchecker": "^0.1.0"
+    },
+    "devDependencies": {
+        "@types/node": "^7.0.5",
+        "fs": "0.0.1-security",
+        "recursive-readdir": "^2.1.1",
+        "typescript": "2.0.10",
+        "vscode-languageserver": "^3.0.5"
+    },
+    "scripts": {
+        "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
+        "watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."
+    }
 }

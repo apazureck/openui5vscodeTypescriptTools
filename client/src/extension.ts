@@ -185,7 +185,7 @@ function startXmlViewLanguageServer(context: ExtensionContext): Promise<void> {
                 // Synchronize the setting section 'languageServerExample' to the server
                 configurationSection: 'ui5ts',
                 // Notify the server about file changes to '.clientrc files contain in the workspace
-                fileEvents: workspace.createFileSystemWatcher("**/*.{xml,xsd}")
+                fileEvents: workspace.createFileSystemWatcher("**/*.{xml,xsd}", false, false, false)
             },
             initializationOptions: { storagepath: context.asAbsolutePath("schemastore") } as XmlInitOptions
         }

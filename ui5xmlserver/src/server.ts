@@ -37,7 +37,7 @@ interface XmlInitOptions {
      * @type {string}
      * @memberOf XmlInitOptions
      */
-    storagepath: string;
+	storagepath: string;
 }
 
 export namespace Global {
@@ -65,9 +65,6 @@ let connection: IConnection = createConnection(new IPCMessageReader(process), ne
 // Create a simple text document manager. The text document manager
 // supports full document sync only
 let documents: TextDocuments = new TextDocuments();
-// Make the text document manager listen on the connection
-// for open, change and close text document events
-documents.listen(connection);
 
 connection.onInitialize((params): InitializeResult => {
 	connection.console.info("Initializing XML language server");
@@ -76,6 +73,11 @@ connection.onInitialize((params): InitializeResult => {
 	Global.serverSettings = params.initializationOptions
 	Global.workspaceRoot = params.rootPath;
 	Global.schemastore = new XmlStorage(Global.serverSettings.storagepath, connection, LogLevel.None);
+
+	connection.console.info("Starting Listener")
+	// Make the text document manager listen on the connection
+	// for open, change and close text document events
+	documents.listen(connection);
 
 	return {
 		capabilities: {
@@ -104,7 +106,7 @@ connection.onCompletion(async (params, token): Promise<CompletionList> => {
 	let line = getLine(doc.getText(), params.position.line);
 
 	try {
-		let ch = new XmlCompletionHandler(Global.schemastore, documents, connection, "./schemastore" , Global.settings.ui5ts.lang.xml.LogLevel);
+		let ch = new XmlCompletionHandler(Global.schemastore, documents, connection, "./schemastore", Global.settings.ui5ts.lang.xml.LogLevel);
 		cl.items = cl.items.concat(await ch.getCompletionSuggestions(params));
 		cl.isIncomplete = false;
 	} catch (error) {
@@ -116,7 +118,7 @@ connection.onCompletion(async (params, token): Promise<CompletionList> => {
 connection.onDidChangeTextDocument(async (changeparams) => {
 
 	let doc = documents.get(changeparams.textDocument.uri);
-	if(!doc)
+	if (!doc)
 		return;
 
 	let dp = new XmlWellFormedDiagnosticProvider(connection, Global.settings.ui5ts.lang.xml.LogLevel);
