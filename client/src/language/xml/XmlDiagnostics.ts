@@ -26,7 +26,10 @@ export interface I18nLabel {
 }
 export class I18nLabelStorage {
     constructor() {
-        this.create();
+        try {
+            this.create();
+        } catch (error) {
+        }
     }
 
     labels: { [label: string]: I18nLabel }

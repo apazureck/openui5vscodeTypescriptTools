@@ -191,11 +191,7 @@ function startXmlViewLanguageServer(context: ExtensionContext): Promise<void> {
         }
 
         // Create the language client and start the client.
-        let disposable = new LanguageClient('UI5 XML Language Client', serverOptions, clientOptions);
-        disposable.onDidChangeState((e => {
-            console.log(e.oldState + " -> " + e.newState);
-            resolve();
-        }));
+        let disposable = new LanguageClient('XmlLangServer', serverOptions, clientOptions);
         // Push the disposable to the context's subscriptions so that the 
         // client can be deactivated on extension deactivation
         context.subscriptions.push(disposable.start());
