@@ -1,0 +1,907 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="sap.ui.table" xmlns:n1="sap.ui.unified" xmlns:n0="sap.ui.core" xmlns:n2="sap.ui.table">
+<xsd:import namespace="sap.ui.unified"/>
+<xsd:import namespace="sap.ui.core"/>
+<xsd:element name="AnalyticalColumn" type="n2:_AnalyticalColumnType" substitutionGroup="n2:Column">
+<xsd:annotation>
+<xsd:documentation>This column adds additional properties to the table column which are needed for the analytical binding and table</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="AnalyticalColumnMenu" type="n2:_AnalyticalColumnMenuType" substitutionGroup="n2:ColumnMenu">
+<xsd:annotation>
+<xsd:documentation>A column menu which is used by the analytical column</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="AnalyticalTable" type="n2:_AnalyticalTableType" substitutionGroup="n2:Table">
+<xsd:annotation>
+<xsd:documentation>Table which handles analytical OData backends. The AnalyticalTable only works with an AnalyticalBinding and
+correctly annotated OData services. Please check on the SAP Annotations for OData Version 2.0 documentation for further details.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Column" type="n2:_ColumnType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>The column allows you to define column specific properties that will be applied when rendering the table.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ColumnMenu" type="n2:_ColumnMenuType" substitutionGroup="n1:Menu">
+<xsd:annotation>
+<xsd:documentation>The column menu provides all common actions that can be performed on a column.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Row" type="n2:_RowType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>The row.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Table" type="n2:_TableType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>&lt;p&gt;
+    Provides a comprehensive set of features for displaying and dealing with vast amounts of data. The Table control supports
+    desktop PCs and tablet devices. On tablets, special consideration should be given to the number of visible columns
+    and rows due to the limited performance of some devices.
+&lt;/p&gt;
+&lt;p&gt;
+    In order to keep the document DOM as lean as possible, the Table control reuses its DOM elements of the rows.
+    When the user scrolls, only the row contexts are changed but the rendered controls remain the same. This allows
+    the Table control to handle huge amounts of data. Nevertheless, restrictions apply regarding the number of displayed
+    columns. Keep the number as low as possible to improve performance. Due to the nature of tables, the used
+    control for column templates also has a big influence on the performance.
+&lt;/p&gt;
+&lt;p&gt;
+    The Table control relies completely on data binding, and its supported feature set is tightly coupled to
+    the data model and binding being used.
+&lt;/p&gt;</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="TreeTable" type="n2:_TreeTableType" substitutionGroup="n2:Table">
+<xsd:annotation>
+<xsd:documentation>The TreeTable control provides a comprehensive set of features to display hierarchical data.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<!--type definition for UIElement 'sap.ui.table.AnalyticalColumn'-->
+<xsd:complexType name="_AnalyticalColumnType">
+<xsd:complexContent>
+<xsd:extension base="n2:_ColumnType">
+<xsd:attribute name="leadingProperty" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Defines the primary model property which is used inside the Column. In case of the analytical extension this means the property which is grouped by for dimensions or the property which is summed for measures.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="summed" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If defined a sum for this column is calculated</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="inResult" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies that the dimension referred to by the column shall be included in the granularity of the data result. It allows a finer distinction between a visible/grouped/(included)inResult column.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showIfGrouped" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies whether the column is displayed within the table even if it is grouped or not. A grouped column has the same value for every rows within the group.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="groupHeaderFormatter" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>If the column is grouped, this formatter is used to format the value in the group header</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.table.AnalyticalColumnMenu'-->
+<xsd:complexType name="_AnalyticalColumnMenuType">
+<xsd:complexContent>
+<xsd:extension base="n2:_ColumnMenuType"/>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.table.AnalyticalTable'-->
+<xsd:complexType name="_AnalyticalTableType">
+<xsd:complexContent>
+<xsd:extension base="n2:_TableType">
+<xsd:attribute name="sumOnTop" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies if the total values should be displayed in the group headers or on bottom of the row. Does not affact the total sum.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="numberOfExpandedLevels" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Number of levels, which should be opened initially (on first load of data).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="autoExpandMode" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The kind of auto expansion algorithm, e.g. optimised filter conditions, per level requests, ...
+sap.ui.table.TreeAutoExpandMode</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="columnVisibilityMenuSorter" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Functions which is used to sort the column visibility menu entries e.g.: function(ColumnA, ColumnB) { return 0 = equals, &lt;0 lower, &gt;0 greater }; Other values than functions will be ignored.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="collapseRecursive" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Setting collapseRecursive to true means, that when collapsing a node all subsequent child nodes will also be collapsed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="dirty" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If dirty the content of the Table will be overlayed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.table.Column'-->
+<xsd:complexType name="_ColumnType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:sequence>
+<!--default aggregation 'label'-->
+<xsd:choice minOccurs="0">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="label" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Label of the column which is displayed in the column header. This aggregation is for the standard behavior,
+where you only want to display one single row header. If a string is supplied, a default label control will be
+created. Which control this is depends on the loaded libraries.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="multiLabels" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Labels of the column which are displayed in the column header. Define a control for
+each header row in the table. Use this aggregation if you want to use multiple headers per column.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="template" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Template (cell renderer) of this column. A template is decoupled from the column, which means after
+changing the templates' properties or aggregations an explicit invalidation of the column or table is
+required. The default depends on the loaded libraries.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="menu" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The menu used by the column. By default the {@link sap.ui.table.ColumnMenu} is used.
+
+&lt;b&gt;Note:&lt;/b&gt; Applications must not use or change the default &lt;code&gt;sap.ui.table.ColumnMenu&lt;/code&gt; of
+a column in any way or create own instances of &lt;code&gt;sap.ui.table.ColumnMenu&lt;/code&gt;.
+To add a custom menu to a column, use the aggregation &lt;code&gt;menu&lt;/code&gt; with a new instance of
+&lt;code&gt;sap.ui.unified.Menu&lt;/code&gt;.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n1:Menu"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="width" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Width of the column. Works only with px/em/rem values. Em are handled like rem values.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="flexible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If the table is wider than the sum of widths of the visible columns, the columns will be
+resized proportionally to their widths that were set originally. If set to false, the column will be displayed in the
+original width. If all columns are set to not be flexible, an extra "dummy" column will be
+created at the end of the table.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="resizable" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If set to true, the column can be resized either using the resize-handle (by mouse) or using
+the keyboard (SHIFT + Left/Right Arrow keys)</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="hAlign" type="n0:_HorizontalAlignType">
+<xsd:annotation>
+<xsd:documentation>Horizontal alignment of the column content. Controls with a text align do not inherit
+the horizontal alignment. You have to set the text align directly on the template.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="sorted" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates if the column is sorted. This property only controls if a sort indicator is displayed in the
+column header - it does not trigger the sort function. The column has to be sorted by calling &lt;code&gt;Column.sort()&lt;/code&gt;</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="sortOrder" type="n2:_SortOrderType">
+<xsd:annotation>
+<xsd:documentation>This property indicates the sort direction (Ascending or Descending). The corresponding icon will be
+rendered if the property &lt;code&gt;sorted&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="sortProperty" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Specifies the binding property on which the column will sort.
+Since the column template may have composite bindings, it's not possible to figure out on which binding
+property the sort shall be applied. Therefore the binding property for sorting must be specified.
+For example, if the first name and last name are displayed in the same column, only one of the two can be defined as
+&lt;code&gt;sortProperty&lt;/code&gt;.
+
+A column menu entry for sorting can only be generated if the &lt;code&gt;sortProperty&lt;/code&gt; is set.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="filtered" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates if the column is filtered. This property only controls if a filter indicator is displayed in the
+column header - it does not trigger the filter function. The column has to be filtered by calling &lt;code&gt;Column.sort()&lt;/code&gt;</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="filterProperty" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Specifies the binding property on which the column shall be filtered.
+Since the column template may have composite bindings, it's not possible to figure out on which binding
+property the filter shall be applied. Therefore the binding property for filtering must be specified.
+For example, if the first name and last name are displayed in the same column, only one of the two can be defined as
+&lt;code&gt;filterProperty&lt;/code&gt;.
+
+A column menu entry for filtering can only be generated if the &lt;code&gt;filterProperty&lt;/code&gt; is set. The
+default menu entry is a text input field.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="filterValue" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Specifies the value of the filter as string (will be converted into the proper data type). It is possible
+to provide a filterOperator as string, as shown here:
+&lt;pre&gt;
+&amp;gt; 50
+&amp;lt; 100
+&amp;gt;= 150
+&amp;lt;= 200
+= 250
+!= 300
+*something    ends with
+something*    starts with
+*something*   contains
+some..thing   between
+50..100       between
+&lt;/pre&gt;</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="filterOperator" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Filter operator to use when filtering this column.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="defaultFilterOperator" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>If this property is set, the default filter operator of the column is overridden.
+By default &lt;code&gt;Contains&lt;/code&gt; is used for string and &lt;code&gt;EQ&lt;/code&gt; for other types. A valid &lt;code&gt;sap.ui.model.FilterOperator&lt;/code&gt; needs to be passed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="filterType" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Type of Filter. This is used to transform the search term to the specified type,
+to make sure that the right columns are displayed. This should be the same as defined
+in binding for this column. As an alternative you can pass a function which does the conversion.
+The function receives the entered filter value as parameter and returns the proper
+value for the filter expression. Another option is to pass the class name of the type,
+e.g.: &lt;code&gt;sap.ui.model.type.Date&lt;/code&gt; or an expression similar to the binding syntax,
+e.g.: &lt;code&gt;"\{type: 'sap.ui.model.type.Date', formatOptions: \{UTC: true\}, constraints: {} \}"&lt;/code&gt;.
+Here the escaping is mandatory to avoid handling by the binding parser.
+By default the filter type is &lt;code&gt;sap.ui.model.type.String&lt;/code&gt;.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="grouped" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates if the column is grouped.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="visible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Invisible controls are not rendered.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="name" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The name of the column which is used in the column visibility menu item as text.
+If not set as a fallback the column menu tries to get the text from the nested Label.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showFilterMenuEntry" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Defines if the filter menu entry is displayed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showSortMenuEntry" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Defines if the sort menu entries are displayed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="headerSpan" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>If this property is set, a span is applied for the header. When moving columns, all columns
+which are part of the header will be moved. The &lt;code&gt;headerSpan&lt;/code&gt; can be either an integer or an array of
+integers (if you use the multi header feature of the table). If you only specify an integer, this span is
+applied for all header rows, with multiple integers you can specify a separate span for each header row.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="autoResizable" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Enables auto-resizing of the column on double-clicking the resizer. The width is determined on the widest
+currently displayed content. It does not consider rows which are currently not scrolled into view.
+Currently only implemented to work with the following controls:
+&lt;code&gt;sap.m.Text, sap.m.Label, sap.m.Link, sap.m.Input,
+sap.ui.commons.TextView, sap.ui.commons.Label, sap.ui.commons.Link and sap.ui.commons.TextField,
+sap.ui.commons.Checkbox, sap.m.Checkbox&lt;/code&gt;</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="columnMenuOpen" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fires before the column menu is opened.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.table.ColumnMenu'-->
+<xsd:complexType name="_ColumnMenuType">
+<xsd:complexContent>
+<xsd:extension base="n1:_MenuType"/>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.table.Row'-->
+<xsd:complexType name="_RowType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:sequence>
+<!--default aggregation 'cells'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="cells" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The controls for the cells.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.table.Table'-->
+<xsd:complexType name="_TableType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'columns'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n2:Column"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="title" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Control or text of title section of the Table (if not set it will be hidden)</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="footer" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Control or text of footer section of the Table (if not set it will be hidden)</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="toolbar" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Toolbar of the Table (if not set it will be hidden)</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="extension" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Extension section of the Table (if not set it will be hidden)</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="columns" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Columns of the Table</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n2:Column"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="rows" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Rows of the Table</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n2:Row"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="noData" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The value for the noData aggregation can be either a string value or a control instance.
+The control is shown, in case there is no data for the Table available. In case of a string
+value this will simply replace the no data text.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="width" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Width of the Table.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="rowHeight" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Height of a row of the Table in pixel.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="columnHeaderHeight" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Height of the column header of the Table in pixel.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="columnHeaderVisible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag whether the column header is visible or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="visibleRowCount" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Number of visible rows of the table.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="firstVisibleRow" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>First visible row.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectionMode" type="n2:_SelectionModeType">
+<xsd:annotation>
+<xsd:documentation>Selection mode of the Table. This property controls whether single or multiple rows can be selected and
+how the selection can be extended. It may also influence the visual appearance.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectionBehavior" type="n2:_SelectionBehaviorType">
+<xsd:annotation>
+<xsd:documentation>Selection behavior of the Table. This property defines whether the row selector is displayed and whether the row, the row selector or both
+can be clicked to select a row.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedIndex" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Zero-based index of selected item. Index value for no selection is -1.
+When multi-selection is enabled and multiple items are selected, the method returns
+the lead selected item. Sets the zero-based index of the currently selected item. This method
+removes any previous selections. When the given index is invalid, the call is ignored.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="editable" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag whether the controls of the Table are editable or not (currently this only controls the background color in certain themes!)</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="navigationMode" type="n2:_NavigationModeType">
+<xsd:annotation>
+<xsd:documentation>Determines whether a scrollbar or a paginator is used for navigation inside the table.
+If the paginator mode is used, it requires the &lt;code&gt;sap.ui.commons&lt;/code&gt; library.
+
+This renders a scrollbar as a navigation element. Data fetched from an OData service is still
+loaded page-wise no matter which visual representation is used for navigation inside the table.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="threshold" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>The &lt;code&gt;threshold&lt;/code&gt; defines how many additional (not yet visible records) shall be pre-fetched to enable smooth
+scrolling. The threshold is always added to the &lt;code&gt;visibleRowCount&lt;/code&gt;. If the &lt;code&gt;visibleRowCount&lt;/code&gt; is 10 and the
+&lt;code&gt;threshold&lt;/code&gt; is 100, there will be 110 records fetched with the initial load.
+If the &lt;code&gt;threshold&lt;/code&gt; is lower than the &lt;code&gt;visibleRowCount&lt;/code&gt;, the &lt;code&gt;visibleRowCount&lt;/code&gt; will be used as
+the &lt;code&gt;threshold&lt;/code&gt;. If the value is 0 then the thresholding is disabled.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableColumnReordering" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag to enable or disable column reordering</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableGrouping" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag to enable or disable column grouping. (experimental!)</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showColumnVisibilityMenu" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag to show or hide the column visibility menu. This menu will get displayed in each
+generated column header menu. It allows to show or hide columns</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showNoData" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag whether to show the no data overlay or not once the table is empty. If set to false
+the table will just show a grid of empty cells</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="visibleRowCountMode" type="n2:_VisibleRowCountModeType">
+<xsd:annotation>
+<xsd:documentation>This defines how the table handles the visible rows in the table. The default behavior is,
+that a fixed row count is defined. If you change it to auto the visibleRowCount property is
+changed by the table automatically. It will then adjust its maximum row count to the space it is
+allowed to cover (limited by the surrounding container) and its minimum row count to the value of
+the property minAutoRowCount (default value : 5) In manual mode the user can change
+the visibleRowCount interactively.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="minAutoRowCount" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>This property is used to set the minimum count of visible rows when the property visibleRowCountMode is set to Auto or Interactive.
+For any other visibleRowCountMode, it is ignored.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="fixedColumnCount" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Number of columns that are fix on the left. When you use a horizontal scroll bar, only
+the columns which are not fixed, will scroll. Fixed columns need a defined width for the feature to work.
+Please note that the aggregated width of all fixed columns must not exceed the table width since there
+will be no scrollbar for fixed columns.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="fixedRowCount" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Number of rows that are fix on the top. When you use a vertical scroll bar, only the rows which are not fixed, will scroll.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="fixedBottomRowCount" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Number of rows that are fix on the bottom. When you use a vertical scroll bar, only the rows which are not fixed, will scroll.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableColumnFreeze" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag whether to show or hide the column menu item to freeze or unfreeze a column.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableCellFilter" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag whether to enable or disable the context menu on cells to trigger a filtering with the cell value.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showOverlay" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Setting this property to true will show an overlay on top of the Table content and users cannot click anymore on the Table content.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableSelectAll" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies if a select all button should be displayed in the top left corner. This button is only displayed
+if the row selector is visible and the selection mode is set to any kind of multi selection.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableCustomFilter" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Set this parameter to true to implement your own filter behaviour. Instead of the filter input box a button
+will be rendered for which' press event (customFilter) you can register an event handler.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableBusyIndicator" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Set this parameter to true to make the table handle the busy indicator by its own.
+The table will switch to busy as soon as it scrolls into an unpaged area. This feature can only
+be used when the navigation mode is set to scrolling.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="groupBy" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Group By Column (experimental!)</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="ariaLabelledBy" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="rowSelectionChange" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when the row selection of the table has been changed (the event parameters can be used to determine
+selection changes - to find out the selected rows you should better use the table selection API)</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="columnSelect" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when a column of the table has been selected</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="columnResize" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when a table column is resized.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="columnMove" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when a table column is moved.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="sort" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when the table is sorted.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="filter" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when the table is filtered.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="group" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when the table is grouped (experimental!).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="columnVisibility" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when the visibility of a table column is changed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="cellClick" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when the user clicks a cell of the table (experimental!).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="cellContextmenu" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when the user clicks a cell of the table.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="columnFreeze" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when a column of the table should be freezed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="customFilter" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>This event is triggered when the custom filter item of the column menu is pressed. The column on which the event was triggered is passed as parameter.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="firstVisibleRowChanged" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>This event gets fired when the first visible row is changed. It should only be used by composite controls.
+The event even is fired when setFirstVisibleRow is called programmatically.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="busyStateChanged" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>This event gets fired when the busy state of the table changes. It should only be used by composite controls.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.table.TreeTable'-->
+<xsd:complexType name="_TreeTableType">
+<xsd:complexContent>
+<xsd:extension base="n2:_TableType">
+<xsd:attribute name="expandFirstLevel" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag to enable or disable expanding of first level.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="useGroupMode" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If group mode is enable nodes with subitems are rendered as if they were group headers.
+This can be used to do the grouping for an OData service on the backend and visualize this in a table.
+This mode only makes sense if the tree has a depth of exacly 1 (group headers and entries)</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="groupHeaderProperty" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The property name of the rows data which will be displayed as a group header if the group mode is enabled</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="collapseRecursive" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Setting collapseRecursive to true means, that when collapsing a node all subsequent child nodes will also be collapsed.
+This property is only supported with sap.ui.model.odata.v2.ODataModel</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="rootLevel" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>The root level is the level of the topmost tree nodes, which will be used as an entry point for OData services.
+This property is only supported when the TreeTable uses an underlying odata services with hierarchy annotations.
+This property is only supported with sap.ui.model.odata.v2.ODataModel
+The hierarchy annotations may also be provided locally as a parameter for the ODataTreeBinding.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="toggleOpenState" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>fired when a node has been expanded or collapsed (only available in hierachical mode)</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<xsd:simpleType name="_NavigationModeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Scrollbar">
+<xsd:annotation>
+<xsd:documentation>Uses the scrollbar control.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Paginator">
+<xsd:annotation>
+<xsd:documentation>Uses the paginator control.
+This option must no longer be used. Using a scrollbar is the only navigation mode which is supported by
+the &lt;code&gt;sap.ui.table&lt;/code&gt; library. The &lt;code&gt;navigationMode&lt;/code&gt; property has always been a visual representation. No matter which navigation mode
+is used, data fetched from an OData service is loaded page-wise.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_SelectionBehaviorType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Row">
+<xsd:annotation>
+<xsd:documentation>Rows can be selected on the complete row.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="RowSelector">
+<xsd:annotation>
+<xsd:documentation>Rows can only be selected on the row selector.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="RowOnly">
+<xsd:annotation>
+<xsd:documentation>Rows can only be selected on the row (and the selector is hidden).</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_SelectionModeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="MultiToggle">
+<xsd:annotation>
+<xsd:documentation>Select multiple rows at a time (toggle behavior).</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Multi">
+<xsd:annotation>
+<xsd:documentation>Select multiple rows at a time.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Single">
+<xsd:annotation>
+<xsd:documentation>Select one row at a time.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="None">
+<xsd:annotation>
+<xsd:documentation>No rows can be selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_SortOrderType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Ascending">
+<xsd:annotation>
+<xsd:documentation>Sort Order: ascending.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Descending">
+<xsd:annotation>
+<xsd:documentation>Sort Order: descending.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_VisibleRowCountModeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Fixed">
+<xsd:annotation>
+<xsd:documentation>The table always has as many rows as defined in the visibleRowCount property.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Interactive">
+<xsd:annotation>
+<xsd:documentation>After rendering the table has as many rows as defined in visibleRowCount property. The user is able to change the visible rows by moving a grip with the mouse. The visibleRowCount property is changed accordingly.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Auto">
+<xsd:annotation>
+<xsd:documentation>The table automatically fills the height of the surrounding container.
+The visibleRowCount property is automatically changed accordingly.
+All rows need the same height, otherwise the auto mode doesn't always work as expected.
+The height of all siblings within the same layout container of the table will be subtracted from the available height.
+For performance reasons, it is recommended to add no siblings in the table's parent container.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+</xsd:schema>

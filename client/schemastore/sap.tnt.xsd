@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="sap.tnt" xmlns:n2="sap.tnt" xmlns:n0="sap.ui.core" xmlns:n1="sap.m">
+<xsd:import namespace="sap.ui.core"/>
+<xsd:import namespace="sap.m"/>
+<xsd:element name="NavigationList" type="n2:_NavigationListType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>The NavigationList control is an interactive control, which provides a choice of
+different items, ordered as a list.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="NavigationListItem" type="n2:_NavigationListItemType" substitutionGroup="n0:Item">
+<xsd:annotation>
+<xsd:documentation>The NavigationListItem control represents an action, which can be selected by the user.
+It can provide sub items.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="SideNavigation" type="n2:_SideNavigationType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>The SideNavigation control is a container, which consists of flexible and fixed parts on top of each other. The flexible part adapts its size to the fixed one.
+The flexible part has a scrollbar when the content is larger than the available space.
+Whenever the height of the whole control is less than 256 pixels, the scrollbar becomes joint for the two parts.
+
+&lt;b&gt;Note:&lt;/b&gt; In order for the SideNavigation to stretch properly, its parent layout control should only be the sap.tnt.ToolPage.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ToolHeader" type="n2:_ToolHeaderType" substitutionGroup="n1:OverflowToolbar">
+<xsd:annotation>
+<xsd:documentation>The ToolHeader control is a horizontal container that is most
+commonly used to display buttons, labels, selects and other various input controls.
+
+The ToolHeader control is based on sap.m.OverflowToolbar. In addition to the OverflowToolbar,
+the user can specify where the overflow button is placed.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ToolHeaderUtilitySeparator" type="n2:_ToolHeaderUtilitySeparatorType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>The ToolHeaderUtilitySeparator control is used in the sap.tnt.ToolHeader control
+to specify where the overflow button is placed.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ToolPage" type="n2:_ToolPageType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>The ToolPage is a layout control, used to put together the parts of a basic tools app - ToolHeader, SideNavigation and contents area.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<!--type definition for UIElement 'sap.tnt.NavigationList'-->
+<xsd:complexType name="_NavigationListType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'items'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n2:NavigationListItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="items" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The items displayed in the list.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n2:NavigationListItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="width" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Specifies the width of the control.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="expanded" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies if the control is in expanded or collapsed mode.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="ariaDescribedBy" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Association to controls / IDs, which describe this control (see WAI-ARIA attribute aria-describedby).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="ariaLabelledBy" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Association to controls / IDs, which label this control (see WAI-ARIA attribute aria-labelledby).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="itemSelect" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when an item is selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.tnt.NavigationListItem'-->
+<xsd:complexType name="_NavigationListItemType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ItemType">
+<xsd:sequence>
+<!--default aggregation 'items'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n2:NavigationListItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="items" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The sub items.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n2:NavigationListItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="icon" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>Specifies the icon for the item.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="expanded" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies if the item is expanded.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="hasExpander" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies if the item has an expander.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="select" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when this item is selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.tnt.SideNavigation'-->
+<xsd:complexType name="_SideNavigationType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'item'-->
+<xsd:choice minOccurs="0">
+<xsd:element ref="n2:NavigationList"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="item" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Defines the content inside the flexible part.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n2:NavigationList"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="fixedItem" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Defines the content inside the fixed part.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n2:NavigationList"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="footer" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Defines the content inside the footer.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n2:NavigationList"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="expanded" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies if the control is expanded.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="itemSelect" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when an item is selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.tnt.ToolHeader'-->
+<xsd:complexType name="_ToolHeaderType">
+<xsd:complexContent>
+<xsd:extension base="n1:_OverflowToolbarType"/>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.tnt.ToolHeaderUtilitySeparator'-->
+<xsd:complexType name="_ToolHeaderUtilitySeparatorType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType"/>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.tnt.ToolPage'-->
+<xsd:complexType name="_ToolPageType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="header" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The control to appear in the header area.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n2:ToolHeader"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="sideContent" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The side menu of the layout.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n2:SideNavigation"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="mainContents" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The content section.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="sideExpanded" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates if the side area is expanded. Overrides the expanded property of the sideContent aggregation.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+</xsd:schema>

@@ -1,0 +1,1395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="sap.ui.layout" 
+    xmlns:n1="sap.ui.layout" 
+    xmlns:n0="sap.ui.core">
+    <xsd:import namespace="sap.ui.core"/>
+    <xsd:element name="BlockLayout" type="n1:_BlockLayoutType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>The BlockLayout is used to display several objects in a section-based manner. It features horizontal and vertical subdivisions, and full-width banners seen frequently in contemporary web design. Background colors are attached directly to these “blocks” of the layout. Special full-width sections of the BlockLayout allow horizontal scrolling through a set of blocks.Example use cases are SAP HANA Cloud Integration and the SAPUI5 Demo Kit. In SAP HANA Cloud Integration the BlockLayout serves as a banner-like presentation of illustrative icons with associated text. By placing pictorial and textual elements side by side in different blocks, a relation of content is established. In the SAPUI5 Demo Kit the BlockLayout serves as a flexible container for diverging content, such as headings, explanatory texts, code snippets, remarks, and examples.The BlockLayout comes in three types: Layout only (default), Bright, and Mixed background colors.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="BlockLayoutCell" type="n1:_BlockLayoutCellType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>The BlockLayoutCell is used as an aggregation of the BlockLayoutRow. It contains Controls.The BlockLayoutCell should be used only as aggregation of the BlockLayoutRow.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="BlockLayoutRow" type="n1:_BlockLayoutRowType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>The BlockLayoutRow is used as an aggregation to the BlockLayout. It aggregates Block Layout  cells.The BlockLayoutRow has 2 rendering modes - scrollable and non scrollable.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="FixFlex" type="n1:_FixFlexType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>The FixFlex control builds the container for a layout with a fixed and a flexible part. The flexible container adapts its size to the fix container. The fix container can hold any number of controls, while the flexible container can hold only one.In order for the FixFlex to stretch properly, the parent element, in which the control is placed, needs to have a specified height or needs to have an absolute position.Warning: Avoid nesting FixFlex in other flexbox based layout controls (FixFlex, FlexBox, Hbox, Vbox). Otherwise contents may be not accessible or multiple scrollbars can appear.Note: If the child control of the flex or the fix container has width/height bigger than the container itself, the child control will be cropped in the view. If minFlexSize is set, then a scrollbar is shown in the flexible part, depending on the vertical property.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="Grid" type="n1:_GridType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>The Grid control is a layout which positions its child controls in a 12 column flow layout. Its children can be specified to take on a variable amount of columns depending on available screen size. With this control it is possible to achieve flexible layouts and line-breaks for extra large-, large-, medium- and small-sized screens, such as large desktop, desktop, tablet, and mobile. The Grid control's width can be percentage- or pixel-based and the spacing between its columns can be set to various pre-defined values.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="GridData" type="n1:_GridDataType" substitutionGroup="n0:LayoutData">
+        <xsd:annotation>
+            <xsd:documentation>Grid layout data</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="HorizontalLayout" type="n1:_HorizontalLayoutType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>A layout that provides support for horizontal alignment of controls</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="ResponsiveFlowLayout" type="n1:_ResponsiveFlowLayoutType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>This is a layout where several controls can be added. These controls are blown up to fit in an entire row. If the window resizes, the controls are moved between the rows and resized again.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="ResponsiveFlowLayoutData" type="n1:_ResponsiveFlowLayoutDataType" substitutionGroup="n0:LayoutData">
+        <xsd:annotation>
+            <xsd:documentation>This is a LayoutData element that can be added to a control if this control is used within a ResponsiveFlowLayout.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="Splitter" type="n1:_SplitterType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>A layout that contains several content areas. The content that is added to the splitter should contain LayoutData of the type SplitterLayoutData that defines its size and size contraints.By adding or changing SplitterLayoutData to the controls that make up the content areas, the size can be changed programatically. Additionally the contents can be made non-resizable individually and a minimal size (in px) can be set.The orientation of the splitter can be set to horizontal (default) or vertical. All content areas of the splitter will be arranged in that way. In order to split vertically and horizontally at the same time, Splitters need to be nested.The splitter bars can be focused to enable resizing of the content areas via keyboard. The contents size can be manipulated when the splitter bar is focused and Shift-Left/Down/Right/Up are pressed. When Shift-Home/End are pressed, the contents are set their minimum or maximum size (keep in mind though, that resizing an auto-size content-area next to another auto-size one might lead to the effect that the former does not take its maximum size but only the maximum size before recalculating auto sizes).The splitter bars used for resizing the contents by the user can be set to different widths (or heights in vertical mode) and the splitter will automatically resize the other contents accordingly. In case the splitter bar is resized after the splitter has rendered, a manual resize has to be triggered by invoking triggerResize() on the Splitter.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="SplitterLayoutData" type="n1:_SplitterLayoutDataType" substitutionGroup="n0:LayoutData">
+        <xsd:annotation>
+            <xsd:documentation>Holds layout data for the splitter contents.Allowed size values are numeric values ending in "px" and "%" and thespecial case "auto".(The CSS value "auto" is used internally to recalculate the size of the contentdynamically and is not directly set as style property.)</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="VerticalLayout" type="n1:_VerticalLayoutType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>In this layout the content controls are rendered one below the other.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="Form" type="n1:_FormType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>Form control.A &lt;code&gt;Form&lt;/code&gt; is structured into &lt;code&gt;FormContainers&lt;/code&gt;. Each &lt;code&gt;FormContainer&lt;/code&gt; consists of &lt;code&gt;FormElements&lt;/code&gt;.The &lt;code&gt;FormElements&lt;/code&gt; consists of a label and the form fields.A &lt;code&gt;Form&lt;/code&gt; doesn't render its content by itself. The rendering is done by the assigned &lt;code&gt;FormLayout&lt;/code&gt;.This is so that the rendering can be adopted to new UI requirements without changing the Form itself.For the content of a &lt;code&gt;Form&lt;/code&gt;, &lt;code&gt;VariantLayoutData&lt;/code&gt; are supported to allow simple switching of the &lt;code&gt;FormLayout&lt;/code&gt;.&lt;code&gt;LayoutData&lt;/code&gt; on the content can be used to overwrite the default layout of the code&gt;Form&lt;/code&gt;.&lt;b&gt;Note:&lt;/b&gt; Do not put any layout controls into the &lt;code&gt;FormElements&lt;/code&gt;. This could destroy the visual layout,keyboard support and screen-reader support.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="FormContainer" type="n1:_FormContainerType" substitutionGroup="n0:Element">
+        <xsd:annotation>
+            <xsd:documentation>A &lt;code&gt;FormContainer&lt;/code&gt; represents a group inside a &lt;code&gt;Form&lt;/code&gt;. It consists of &lt;code&gt;FormElements&lt;/code&gt;.The rendering of the &lt;code&gt;FormContainer&lt;/code&gt; is done by the &lt;code&gt;FormLayout&lt;/code&gt; assigned to the &lt;code&gt;Form&lt;/code&gt;.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="FormElement" type="n1:_FormElementType" substitutionGroup="n0:Element">
+        <xsd:annotation>
+            <xsd:documentation>A &lt;code&gt;FormElement&lt;/code&gt; represents a row in a &lt;code&gt;FormContainer&lt;/code&gt;.A &lt;code&gt;FormElement&lt;/code&gt; is a combination of one label and different controls associated to this label.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="FormLayout" type="n1:_FormLayoutType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>Base layout to render a &lt;code&gt;Form&lt;/code&gt;.Other layouts to render a &lt;code&gt;Form&lt;/code&gt; must inherit from this one.&lt;b&gt;Note:&lt;/b&gt; This control must not be used to render a &lt;code&gt;Form&lt;/code&gt; in productive applications as it does not fulfill anydesign guidelines and usability standards.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="GridContainerData" type="n1:_GridContainerDataType" substitutionGroup="n0:LayoutData">
+        <xsd:annotation>
+            <xsd:documentation>&lt;code&gt;GridLayout&lt;/code&gt;-specific properties for &lt;code&gt;FormContainers&lt;/code&gt;.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="GridElementData" type="n1:_GridElementDataType" substitutionGroup="n0:LayoutData">
+        <xsd:annotation>
+            <xsd:documentation>The &lt;code&gt;GridLayout&lt;/code&gt;-specific layout data for &lt;code&gt;FormElement&lt;/code&gt; fields.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="GridLayout" type="n1:_GridLayoutType" substitutionGroup="n1:FormLayout">
+        <xsd:annotation>
+            <xsd:documentation>This &lt;code&gt;FormLayout&lt;/code&gt; renders a &lt;code&gt;Form&lt;/code&gt; using a HTML-table based grid.This can be a 16 column grid or an 8 column grid. The grid is stable, so the alignment of the fields is the same for all screen sizes or widths of the &lt;code&gt;Form&lt;/code&gt;.Only the width of the single grid columns depends on the available width.To adjust the appearance inside the &lt;code&gt;GridLayout&lt;/code&gt;, you can use &lt;code&gt;GridContainerData&lt;/code&gt; for &lt;code&gt;FormContainers&lt;/code&gt;and &lt;code&gt;GridElementData&lt;/code&gt; for content fields.&lt;b&gt;Note:&lt;/b&gt; If content fields have a &lt;code&gt;width&lt;/code&gt; property this will be ignored, as the width of the controls is set by the grid cells.This control cannot be used stand alone, it only renders a &lt;code&gt;Form&lt;/code&gt;, so it must be assigned to a &lt;code&gt;Form&lt;/code&gt;.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="ResponsiveGridLayout" type="n1:_ResponsiveGridLayoutType" substitutionGroup="n1:FormLayout">
+        <xsd:annotation>
+            <xsd:documentation>Renders a &lt;code&gt;Form&lt;/code&gt; using a responsive grid. Internally the &lt;code&gt;Grid&lt;/code&gt; control is used for rendering.Using this layout, the &lt;code&gt;Form&lt;/code&gt; is rendered in a responsive way.Depending on the available space, the &lt;code&gt;FormContainers&lt;/code&gt; are rendered in one or different columns and the labels are rendered in the same row as the fields or above the fields.This behavior can be influenced by the properties of this layout control.On the &lt;code&gt;FormContainers&lt;/code&gt;, labels and content fields, &lt;code&gt;GridData&lt;/code&gt; can be used to change the default rendering.&lt;code&gt;GridData&lt;/code&gt; is not supported for &lt;code&gt;FormElements&lt;/code&gt;.&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;GridData&lt;/code&gt; is used, this may result in a much more complex layout than the default one.This means that in some cases, the calculation for the other content may not bring the expected result.In such cases, &lt;code&gt;GridData&lt;/code&gt; should be used for all content controls to disable the default behavior.This control cannot be used standalone, it only renders a &lt;code&gt;Form&lt;/code&gt;, so it must be assigned to a &lt;code&gt;Form&lt;/code&gt;.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="ResponsiveLayout" type="n1:_ResponsiveLayoutType" substitutionGroup="n1:FormLayout">
+        <xsd:annotation>
+            <xsd:documentation>Renders a &lt;code&gt;Form&lt;/code&gt; with a responsive layout. Internally the &lt;code&gt;ResponsiveFlowLayout&lt;/code&gt; is used.The responsiveness of this layout tries to best use the available space. This means that the order of the &lt;code&gt;FormContainers&lt;/code&gt;, labels and fields depends on the available space.On the &lt;code&gt;FormContainers&lt;/code&gt;, &lt;code&gt;FormElements&lt;/code&gt;, labels and content fields, &lt;code&gt;ResponsiveFlowLayoutData&lt;/code&gt; can be used to change the default rendering.We suggest using the &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; instead of this layout because this is easier to consume and brings more stable responsive output.&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;ResponsiveFlowLayoutData&lt;/code&gt; are used this may result in a much more complex layout than the default one. This means that in some cases, the calculation for the other content may not bring the expected result.In such cases, &lt;code&gt;ResponsiveFlowLayoutData&lt;/code&gt; should be used for all content controls to disable the default behavior.This control cannot be used stand alone, it only renders a &lt;code&gt;Form&lt;/code&gt;, so it must be assigned to a &lt;code&gt;Form&lt;/code&gt;.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="SimpleForm" type="n1:_SimpleFormType" substitutionGroup="n0:Control">
+        <xsd:annotation>
+            <xsd:documentation>The &lt;code&gt;SimpleForm&lt;/code&gt; provides an easy-to-use API to create simple forms.Inside a &lt;code&gt;SimpleForm&lt;/code&gt;, a &lt;code&gt;Form&lt;/code&gt; control is created along with its &lt;code&gt;FormContainers&lt;/code&gt; and &lt;code&gt;FormElements&lt;/code&gt;, but the complexity in the API is removed.&lt;ul&gt;&lt;li&gt;A new title starts a new group (&lt;code&gt;FormContainer&lt;/code&gt;) in the form.&lt;/li&gt;&lt;li&gt;A new label starts a new row (&lt;code&gt;FormElement&lt;/code&gt;) in the form.&lt;/li&gt;&lt;li&gt;All other controls will be assigned to the row (&lt;code&gt;FormElement&lt;/code&gt;) started with the last label.&lt;/li&gt;&lt;/ul&gt;Use &lt;code&gt;LayoutData&lt;/code&gt; to influence the layout for special cases in the Input/Display controls.&lt;b&gt;Note:&lt;/b&gt; If a more complex form is needed, use &lt;code&gt;Form&lt;/code&gt; instead.</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <!--type definition for UIElement 'sap.ui.layout.BlockLayout'-->
+    <xsd:complexType name="_BlockLayoutType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <!--default aggregation 'content'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n1:BlockLayoutRow"/>
+                        <xsd:element ref="n0:Fragment"/>
+                    </xsd:choice>
+                    <xsd:element name="content" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>The Rows to be included in the content of the control</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n1:BlockLayoutRow"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="background" type="n1:_BlockBackgroundTypeType">
+                    <xsd:annotation>
+                        <xsd:documentation>Determines the background used for the Layout</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.BlockLayoutCell'-->
+    <xsd:complexType name="_BlockLayoutCellType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <!--default aggregation 'content'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n0:Control"/>
+                        <xsd:element ref="n0:Fragment"/>
+                        <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                    </xsd:choice>
+                    <xsd:element name="content" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>The content to be included inside the cell</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="title" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines the title of the cell</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="titleAlignment" type="n0:_HorizontalAlignType">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines the alignment of the cell title</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="titleLevel" type="n0:_TitleLevelType">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines the aria level of the titleThis information is e.g. used by assistive technologies like screenreaders to create a hierarchical site map for faster navigation.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="width" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines the width of the cell. Depending on the context of the cell - whether it's in scrollable,or non scrollable row, this property is interpreted in two different ways.If the cell is placed inside a scrollable row - this property defines the width of the cell inpercentages. If no value is provided - the default is 40%.If the cell is placed inside a non scrollable row - this property defines the grow factor of the cellcompared to the whole row.&lt;b&gt;For example:&lt;/b&gt; If you have 2 cells, each with width of 1, this means that they should be of equal size,and they need to fill the whole row. This results in 50% width for each cell. If you have 2 cells,one with width of 1, the other with width of 3, this means that the whole row width is 4, so the firstcell will have a width of 25%, the second - 75%.According to the visual guidelines, it is suggested that you only use 25%, 50%, 75% or 100% cells inyou applications. For example, 12,5% width is not desirable (1 cell with width 1, and another with width 7)</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.BlockLayoutRow'-->
+    <xsd:complexType name="_BlockLayoutRowType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <!--default aggregation 'content'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n1:BlockLayoutCell"/>
+                        <xsd:element ref="n0:Fragment"/>
+                    </xsd:choice>
+                    <xsd:element name="content" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>The content cells to be included in the row.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n1:BlockLayoutCell"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="scrollable" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Sets the rendering mode of the BlockLayoutRow to scrollable. In scrollable mode, the cells getaligned side by side, with horizontal scroll bar for the row.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.FixFlex'-->
+    <xsd:complexType name="_FixFlexType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <xsd:element name="fixContent" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Controls in the fixed part of the layout.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="flexContent" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Control in the stretching part of the layout.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="vertical" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Determines the direction of the layout of child elements. True for vertical and false for horizontal layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="fixFirst" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Determines whether the fixed-size area should be on the beginning/top ( if the value is "true") or beginning/bottom ( if the value is "false").</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="fixContentSize" type="n0:_CSSSizeType">
+                    <xsd:annotation>
+                        <xsd:documentation>Determines the height (if the vertical property is "true") or the width (if the vertical property is "false") of the fixed area. If left at the default value "auto", the fixed-size area will be as large as its content. In this case the content cannot use percentage sizes.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="minFlexSize" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Enables scrolling inside the flexible part. The given size is calculated in "px". If the child control in the flexible part is larger then the available flexible size on the screen and if the available size for the flexible part is smaller or equal to the minFlexSize value, the scroll will be for the entire FixFlex control.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.Grid'-->
+    <xsd:complexType name="_GridType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <!--default aggregation 'content'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n0:Control"/>
+                        <xsd:element ref="n0:Fragment"/>
+                        <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                    </xsd:choice>
+                    <xsd:element name="content" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Controls that are placed into Grid layout.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="width" type="n0:_CSSSizeType">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Width of the Grid. If not specified, then 100%.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="vSpacing" type="xsd:float">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Vertical spacing between the rows in the Grid. In rem, allowed values are 0, 0.5, 1 and 2.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="hSpacing" type="xsd:float">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Horizontal spacing between the content in the Grid. In rem, allowed values are 0, 0.5 , 1 or 2.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="position" type="n1:_GridPositionType">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Position of the Grid in the window or surrounding container. Possible values are "Center", "Left" and "Right".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="defaultSpan" type="n1:_GridSpanType">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. A string type that represents Grid's default span values for large, medium and small screens for the whole Grid. Allowed values are separated by space Letters L, M or S followed by number of columns from 1 to 12 that the container has to take, for example: "L2 M4 S6", "M12", "s10" or "l4 m4". Note that the parameters has to be provided in the order large medium small.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="defaultIndent" type="n1:_GridIndentType">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Defines default for the whole Grid numbers of empty columns before the current span begins. It can be defined for large, medium and small screens. Allowed values are separated by space Letters L, M or S followed by number of columns from 0 to 11 that the container has to take, for example: "L2 M4 S6", "M11", "s10" or "l4 m4". Note that the parameters has to be provided in the order large medium small.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="containerQuery" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If true then not the media Query ( device screen size), but the size of the container surrounding the grid defines the current range (large, medium or small).</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.GridData'-->
+    <xsd:complexType name="_GridDataType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_LayoutDataType">
+                <xsd:attribute name="span" type="n1:_GridSpanType">
+                    <xsd:annotation>
+                        <xsd:documentation>A string type that represents Grid's span values for large, medium and small screens. Allowed values are separated by space Letters L, M or S followed by number of columns from 1 to 12 that the container has to take, for example: "L2 M4 S6", "M12", "s10" or "l4 m4". Note that the parameters has to be provided in the order large medium small.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="spanXL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Defines a span value for extra large screens. This value overwrites the value for extra large screens defined in the parameter "span".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="spanL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Defines a span value for large screens. This value overwrites the value for large screens defined in the parameter "span".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="spanM" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Defines a span value for medium size screens. This value overwrites the value for medium screens defined in the parameter "span".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="spanS" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Defines a span value for small screens. This value overwrites the value for small screens defined in the parameter "span".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="indent" type="n1:_GridIndentType">
+                    <xsd:annotation>
+                        <xsd:documentation>A string type that represents Grid's span values for large, medium and small screens. Allowed values are separated by space Letters L, M or S followed by number of columns from 1 to 12 that the container has to take, for example: "L2 M4 S6", "M12", "s10" or "l4 m4". Note that the parameters has to be provided in the order large medium small.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="indentXL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Defines a span value for extra large screens. This value overwrites the value for extra large screens defined in the parameter "indent".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="indentL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Defines a span value for large screens. This value overwrites the value for large screens defined in the parameter "indent".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="indentM" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Defines a span value for medium size screens. This value overwrites the value for medium screens defined in the parameter "indent".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="indentS" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Defines a span value for small screens. This value overwrites the value for small screens defined in the parameter "indent".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="visibleXL" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines if this Control is visible on XL - extra Large screens.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="visibleL" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines if this Control is visible on Large screens.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="visibleM" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines if this Control is visible on Medium size screens.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="visibleS" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines if this Control is visible on small screens.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="moveBackwards" type="n1:_GridIndentType">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Moves a cell backwards so many columns as specified.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="moveForward" type="n1:_GridIndentType">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. Moves a cell forwards so many columns as specified.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="linebreak" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. If this property is set to true, the control on all-size screens causes a line break within the Grid and becomes the first within the next line.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="linebreakXL" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. If this property is set to true, the control on extra large screens causes a line break within the Grid and becomes the first within the next line.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="linebreakL" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. If this property is set to true, the control on large screens causes a line break within the Grid and becomes the first within the next line.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="linebreakM" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. If this property is set to true, the control on medium sized screens causes a line break within the Grid and becomes the first within the next line.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="linebreakS" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Optional. If this property is set to true, the control on small screens causes a line break within the Grid and becomes the first within the next line.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="spanLarge" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Deprecated. Defines a span value for large screens. This value overwrites the value for large screens defined in the parameter "span".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="spanMedium" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Deprecated. Defines a span value for medium size screens. This value overwrites the value for medium screens defined in the parameter "span".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="spanSmall" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Deprecated. Defines a span value for small screens. This value overwrites the value for small screens defined in the parameter "span".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="indentLarge" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Deprecated. Defines a span value for large screens. This value overwrites the value for large screens defined in the parameter "indent".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="indentMedium" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Deprecated. Defines a span value for medium size screens. This value overwrites the value for medium screens defined in the parameter "indent".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="indentSmall" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Deprecated. Defines a span value for small screens. This value overwrites the value for small screens defined in the parameter "indent".</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="visibleOnLarge" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Deprecated. Defines if this Control is visible on Large screens.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="visibleOnMedium" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Deprecated. Defines if this Control is visible on Medium size screens.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="visibleOnSmall" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Deprecated. Defines if this Control is visible on small screens.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.HorizontalLayout'-->
+    <xsd:complexType name="_HorizontalLayoutType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <!--default aggregation 'content'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n0:Control"/>
+                        <xsd:element ref="n0:Fragment"/>
+                        <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                    </xsd:choice>
+                    <xsd:element name="content" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>The controls inside this layout</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="allowWrapping" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Specifies whether the content inside the Layout shall be line-wrapped in the case that there is less horizontal space available than required.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.ResponsiveFlowLayout'-->
+    <xsd:complexType name="_ResponsiveFlowLayoutType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <!--default aggregation 'content'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n0:Control"/>
+                        <xsd:element ref="n0:Fragment"/>
+                        <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                    </xsd:choice>
+                    <xsd:element name="content" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Added content that should be positioned. Every content item should have a ResponsiveFlowLayoutData attached, or otherwise, the default values are used.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="responsive" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If set to false, all added controls will keep their width, or otherwise, the controls will be stretched to the possible width of a row.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.ResponsiveFlowLayoutData'-->
+    <xsd:complexType name="_ResponsiveFlowLayoutDataType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_LayoutDataType">
+                <xsd:attribute name="minWidth" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines the minimal size in px of an ResponsiveFlowLayout element. The element will be shrunk down to this value.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="weight" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines the weight of the element, that influences the resulting width. If there are several elements within a row of the ResponsiveFlowLayout, each element could have another weight. The bigger the weight of a single element, the wider it will be stretched, i.e. a bigger weight results in a larger width.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="linebreak" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If this property is set, the control in which the LayoutData is added, will always cause a line break within the ResponsiveFlowLayout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="margin" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Prevents any margin of the element if set to false.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="linebreakable" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Shows if an element can be wrapped into a new row. If this value is set to false, the min-width will be set to 0 and the wrapping is up to the previous element.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.Splitter'-->
+    <xsd:complexType name="_SplitterType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <!--default aggregation 'contentAreas'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n0:Control"/>
+                        <xsd:element ref="n0:Fragment"/>
+                        <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                    </xsd:choice>
+                    <xsd:element name="contentAreas" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>The content areas to be split. The control will show n-1 splitter bars between n controls in this aggregation.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="orientation" type="n0:_OrientationType">
+                    <xsd:annotation>
+                        <xsd:documentation>Whether to split the contents horizontally (default) or vertically.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="width" type="n0:_CSSSizeType">
+                    <xsd:annotation>
+                        <xsd:documentation>The width of the control</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="height" type="n0:_CSSSizeType">
+                    <xsd:annotation>
+                        <xsd:documentation>The height of the control</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="resize" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>Event is fired when contents are resized.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.SplitterLayoutData'-->
+    <xsd:complexType name="_SplitterLayoutDataType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_LayoutDataType">
+                <xsd:attribute name="resizable" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Determines whether the control in the splitter can be resized or not.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="size" type="n0:_CSSSizeType">
+                    <xsd:annotation>
+                        <xsd:documentation>Sets the size of the splitter content.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="minSize" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Sets the minimum size of the splitter content in px.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.VerticalLayout'-->
+    <xsd:complexType name="_VerticalLayoutType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <!--default aggregation 'content'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n0:Control"/>
+                        <xsd:element ref="n0:Fragment"/>
+                        <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                    </xsd:choice>
+                    <xsd:element name="content" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Content controls within the layout.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="width" type="n0:_CSSSizeType">
+                    <xsd:annotation>
+                        <xsd:documentation>Width of the &lt;code&gt;VerticalLayout&lt;/code&gt;. If no width is set, the width of the content is used.If the content of the layout has a larger width than the layout, it is cut off.There is no scrolling inside the layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="enabled" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If not enabled, all controls inside are not enabled automatically.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.form.Form'-->
+    <xsd:complexType name="_FormType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <!--default aggregation 'formContainers'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n1:FormContainer"/>
+                        <xsd:element ref="n0:Fragment"/>
+                    </xsd:choice>
+                    <xsd:element name="formContainers" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Containers with the content of the form. A &lt;code&gt;FormContainer&lt;/code&gt; represents a group inside the &lt;code&gt;Form&lt;/code&gt;.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n1:FormContainer"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="title" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Title of the &lt;code&gt;Form&lt;/code&gt;. Can either be a &lt;code&gt;Title&lt;/code&gt; object, or a string.If a &lt;code&gt;Title&lt;/code&gt; object it used, the style of the title can be set.&lt;b&gt;Note:&lt;/b&gt; If a &lt;code&gt;Toolbar&lt;/code&gt; is used, the &lt;code&gt;Title&lt;/code&gt; is ignored.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0">
+                                    <xsd:element ref="n0:Title"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="toolbar" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Toolbar of the &lt;code&gt;Form&lt;/code&gt;.&lt;b&gt;Note:&lt;/b&gt; If a &lt;code&gt;Toolbar&lt;/code&gt; is used, the &lt;code&gt;Title&lt;/code&gt; is ignored.If a title is needed inside the &lt;code&gt;Toolbar&lt;/code&gt; it must be added at content to the &lt;code&gt;Toolbar&lt;/code&gt;.In this case add the &lt;code&gt;Title&lt;/code&gt; to the &lt;code&gt;ariaLabelledBy&lt;/code&gt; association.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="layout" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Layout of the &lt;code&gt;Form&lt;/code&gt;. The assigned &lt;code&gt;Layout&lt;/code&gt; renders the &lt;code&gt;Form&lt;/code&gt;.We suggest using the &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; for rendering a &lt;code&gt;Form&lt;/code&gt;, as its responsiveness allows the available space to be used in the best way possible.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0">
+                                    <xsd:element ref="n1:FormLayout"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="width" type="n0:_CSSSizeType">
+                    <xsd:annotation>
+                        <xsd:documentation>Width of the &lt;code&gt;Form&lt;/code&gt;.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="editable" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Applies a device and theme specific line-height to the form rows if the form has editable content.If set, all (not only the editable) rows of the form will get the line height of editable fields.The accessibility aria-readonly attribute is set according to this property.&lt;b&gt;Note:&lt;/b&gt; The setting of the property has no influence on the editable functionality of the form's content.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="ariaLabelledBy" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>Association to controls / IDs that label this control (see WAI-ARIA attribute aria-labelledby).</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.form.FormContainer'-->
+    <xsd:complexType name="_FormContainerType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ElementType">
+                <xsd:sequence>
+                    <!--default aggregation 'formElements'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n1:FormElement"/>
+                        <xsd:element ref="n0:Fragment"/>
+                    </xsd:choice>
+                    <xsd:element name="formElements" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>The &lt;code&gt;FormElements&lt;/code&gt; contain the content (labels and fields) of the &lt;code&gt;FormContainers&lt;/code&gt;.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n1:FormElement"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="title" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Title of the &lt;code&gt;FormContainer&lt;/code&gt;. Can either be a &lt;code&gt;Title&lt;/code&gt; object, or a string.If a &lt;code&gt;Title&lt;/code&gt; object is used, the style of the title can be set.&lt;b&gt;Note:&lt;/b&gt; If a &lt;code&gt;Toolbar&lt;/code&gt; is used, the &lt;code&gt;Title&lt;/code&gt; is ignored.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0">
+                                    <xsd:element ref="n0:Title"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="toolbar" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Toolbar of the &lt;code&gt;FormContainer&lt;/code&gt;.&lt;b&gt;Note:&lt;/b&gt; If a &lt;code&gt;Toolbar&lt;/code&gt; is used, the &lt;code&gt;Title&lt;/code&gt; is ignored.If a title is needed inside the &lt;code&gt;Toolbar&lt;/code&gt; it must be added at content to the &lt;code&gt;Toolbar&lt;/code&gt;.In this case add the &lt;code&gt;Title&lt;/code&gt; to the &lt;code&gt;ariaLabelledBy&lt;/code&gt; association.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="expanded" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Container is expanded.&lt;b&gt;Note:&lt;/b&gt; This property only works if &lt;code&gt;expandable&lt;/code&gt; is set to &lt;code&gt;true&lt;/code&gt;.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="expandable" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Defines if the &lt;code&gt;FormContainer&lt;/code&gt; is expandable.&lt;b&gt;Note:&lt;/b&gt; The expander icon will only be shown if a &lt;code&gt;title&lt;/code&gt; is set for the &lt;code&gt;FormContainer&lt;/code&gt;.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="visible" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If set to &lt;code&gt;false&lt;/code&gt;, the &lt;code&gt;FormContainer&lt;/code&gt; is not rendered.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="ariaLabelledBy" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>Association to controls / IDs that label this control (see WAI-ARIA attribute aria-labelledby).&lt;b&gt;Note:&lt;/b&gt; This attribute is only rendered if the &lt;code&gt;FormContainer&lt;/code&gt; has it's ownDOM representation in the used &lt;code&gt;FormLayout&lt;/code&gt;.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.form.FormElement'-->
+    <xsd:complexType name="_FormElementType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ElementType">
+                <xsd:sequence>
+                    <!--default aggregation 'fields'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n0:Control"/>
+                        <xsd:element ref="n0:Fragment"/>
+                        <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                    </xsd:choice>
+                    <xsd:element name="label" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Label of the fields. Can either be a &lt;code&gt;Label&lt;/code&gt; object, or a string.If a &lt;code&gt;Label&lt;/code&gt; object is used, the properties of the &lt;code&gt;Label&lt;/code&gt; can be set.If no assignment between &lt;code&gt;Label&lt;/code&gt; and the fields is set, it will be done automatically by the&lt;code&gt;FormElement&lt;/code&gt;. In this case the &lt;code&gt;Label&lt;/code&gt; is assigned to the fields of the &lt;code&gt;FormElement&lt;/code&gt;.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="fields" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Formular controls that belong together to be displayed in one row of a &lt;code&gt;Form&lt;/code&gt;.&lt;b&gt;Note:&lt;/b&gt; Do not put any layout controls in here. This could destroy the visual layout,keyboard support and screen-reader support.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="visible" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If set to &lt;code&gt;false&lt;/code&gt;, the &lt;code&gt;FormElement&lt;/code&gt; is not rendered.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.form.FormLayout'-->
+    <xsd:complexType name="_FormLayoutType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:attribute name="backgroundDesign" type="n1:_BackgroundDesignType">
+                    <xsd:annotation>
+                        <xsd:documentation>Specifies the background color of the &lt;code&gt;Form&lt;/code&gt; content.The visualization of the different options depends on the used theme.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.form.GridContainerData'-->
+    <xsd:complexType name="_GridContainerDataType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_LayoutDataType">
+                <xsd:attribute name="halfGrid" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If set, the container takes half the width of the &lt;code&gt;Form&lt;/code&gt; (8 cells), if not it takes the full width (16 cells).If the &lt;code&gt;GridLayout&lt;/code&gt; is set to &lt;code&gt;singleColumn&lt;/code&gt;, the full width of the grid is only 8 cells. So containers are rendered only once per row.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.form.GridElementData'-->
+    <xsd:complexType name="_GridElementDataType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_LayoutDataType">
+                <xsd:attribute name="hCells" type="n1:_GridElementCellsType">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of cells in horizontal direction.If set to "auto" the size is determined by the number of fields and the available cells. For labels the auto size is 3 cells.If set to "full" only one field is allowed within the &lt;code&gt;FormElement&lt;/code&gt;. It gets the full width of the row and the label is displayed above. &lt;b&gt;Note:&lt;/b&gt; For labels full size has no effect.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="vCells" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of cells in vertical direction.&lt;b&gt;Note:&lt;/b&gt; This property has no effect for labels.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.form.GridLayout'-->
+    <xsd:complexType name="_GridLayoutType">
+        <xsd:complexContent>
+            <xsd:extension base="n1:_FormLayoutType">
+                <xsd:attribute name="singleColumn" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If set, the grid renders only one &lt;code&gt;FormContainer&lt;/code&gt; per column. That means one &lt;code&gt;FormContainer&lt;/code&gt; is below the other. The whole grid has 8 cells per row.If not set, &lt;code&gt;FormContainer&lt;/code&gt; can use the full width of the grid or two &lt;code&gt;FormContainers&lt;/code&gt; can be placed beside each other. In this case the whole grid has 16 cells per row.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.form.ResponsiveGridLayout'-->
+    <xsd:complexType name="_ResponsiveGridLayoutType">
+        <xsd:complexContent>
+            <xsd:extension base="n1:_FormLayoutType">
+                <xsd:attribute name="labelSpanXL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Default span for labels in extra large size.&lt;b&gt;Note:&lt;/b&gt; If the default value -1 is not overwritten with the meaningful one then the &lt;code&gt;labelSpanL&lt;/code&gt; value is used.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="labelSpanL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Default span for labels in large size.&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;adjustLabelSpanThis&lt;/code&gt; is set, this property is only used if more than 1 &lt;code&gt;FormContainer&lt;/code&gt; is in one line. If only 1 &lt;code&gt;FormContainer&lt;/code&gt; is in the line, then the &lt;code&gt;labelSpanM&lt;/code&gt; value is used.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="labelSpanM" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Default span for labels in medium size.&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;adjustLabelSpanThis&lt;/code&gt; is set this property is used for full-size &lt;code&gt;FormContainers&lt;/code&gt;. If more than one &lt;code&gt;FormContainer&lt;/code&gt; is in one line, &lt;code&gt;labelSpanL&lt;/code&gt; is used.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="labelSpanS" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Default span for labels in small size.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="adjustLabelSpan" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If set, the usage of &lt;code&gt;labelSpanL&lt;/code&gt; and &lt;code&gt;labelSpanM&lt;/code&gt; are dependent on the number of &lt;code&gt;FormContainers&lt;/code&gt; in one row.If only one &lt;code&gt;FormContainer&lt;/code&gt; is displayed in one row, &lt;code&gt;labelSpanM&lt;/code&gt; is used to define the size of the label.This is the same for medium and large &lt;code&gt;Forms&lt;/code&gt;.This is done to align the labels on forms where full-size &lt;code&gt;FormContainers&lt;/code&gt; and multiple-column rows are used in the same &lt;code&gt;Form&lt;/code&gt;(because every &lt;code&gt;FormContainer&lt;/code&gt; has its own grid inside).If not set, the usage of &lt;code&gt;labelSpanL&lt;/code&gt; and &lt;code&gt;labelSpanM&lt;/code&gt; are dependent on the &lt;code&gt;Form&lt;/code&gt; size.The number of &lt;code&gt;FormContainers&lt;/code&gt; doesn't matter in this case.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="emptySpanXL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of grid cells that are empty at the end of each line on extra large size.&lt;b&gt;Note:&lt;/b&gt; If the default value -1 is not overwritten with the meaningful one then the &lt;code&gt;emptySpanL&lt;/code&gt; value is used.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="emptySpanL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of grid cells that are empty at the end of each line on large size.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="emptySpanM" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of grid cells that are empty at the end of each line on medium size.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="emptySpanS" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of grid cells that are empty at the end of each line on small size.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="columnsXL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of columns for extra large size.The number of columns for extra large size must not be smaller than the number of columns for large size.&lt;b&gt;Note:&lt;/b&gt; If the default value -1 is not overwritten with the meaningful one then the &lt;code&gt;columnsL&lt;/code&gt; value is used (from the backward compatibility reasons).</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="columnsL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of columns for large size.The number of columns for large size must not be smaller than the number of columns for medium size.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="columnsM" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of columns for medium size.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="singleContainerFullSize" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If the &lt;code&gt;Form&lt;/code&gt; contains only one single &lt;code&gt;FormContainer&lt;/code&gt; and this property is set,the &lt;code&gt;FormContainer&lt;/code&gt; is displayed using the full size of the &lt;code&gt;Form&lt;/code&gt;.In this case the properties &lt;code&gt;columnsXL&lt;/code&gt;, &lt;code&gt;columnsL&lt;/code&gt; and &lt;code&gt;columnsM&lt;/code&gt; are ignored.In all other cases the &lt;code&gt;FormContainer&lt;/code&gt; is displayed in the size of one column.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="breakpointXL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Breakpoint (in pixel) between large size and extra large (XL) size.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="breakpointL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Breakpoint (in pixel) between Medium size and Large size.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="breakpointM" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Breakpoint (in pixel) between Small size and Medium size.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.form.ResponsiveLayout'-->
+    <xsd:complexType name="_ResponsiveLayoutType">
+        <xsd:complexContent>
+            <xsd:extension base="n1:_FormLayoutType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!--type definition for UIElement 'sap.ui.layout.form.SimpleForm'-->
+    <xsd:complexType name="_SimpleFormType">
+        <xsd:complexContent>
+            <xsd:extension base="n0:_ControlType">
+                <xsd:sequence>
+                    <!--default aggregation 'content'-->
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element ref="n0:Element"/>
+                        <xsd:element ref="n0:Fragment"/>
+                    </xsd:choice>
+                    <xsd:element name="content" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>The content of the form is structured in the following way:&lt;ul&gt;&lt;li&gt;Add a &lt;code&gt;Title&lt;/code&gt; or &lt;code&gt;Toolbar&lt;/code&gt; control to start a new group (&lt;code&gt;FormContainer&lt;/code&gt;).&lt;/li&gt;&lt;li&gt;Add a &lt;code&gt;Label&lt;/code&gt; control to start a new row (&lt;code&gt;FormElement&lt;/code&gt;).&lt;/li&gt;&lt;li&gt;Add controls as input fields, text fields or other as needed.&lt;/li&gt;&lt;li&gt;Use &lt;code&gt;LayoutData&lt;/code&gt; to influence the layout for special cases in the single controls.For example, if a &lt;code&gt;ResponsiveLayout&lt;/code&gt; is used as a layout, the form content is weighted using weight 3 for the labels and weight 5 for the fields part. By default the label column is 192 pixels wide.If your input controls should influence their width, you can add &lt;code&gt;sap.ui.layout.ResponsiveFlowLayoutData&lt;/code&gt; to them via &lt;code&gt;setLayoutData&lt;/code&gt; method.Ensure that the sum of the weights in the &lt;code&gt;ResponsiveFlowLayoutData&lt;/code&gt; is not more than 5, as this is the total width of the input control part of each form row.&lt;/li&gt;&lt;/ul&gt;Example for a row where the &lt;code&gt;TextField&lt;/code&gt; takes 4 and the &lt;code&gt;TextView&lt;/code&gt; takes 1 weight (using &lt;code&gt;ResponsiveLayout&lt;/code&gt;):&lt;pre&gt;new sap.ui.commons.Label({text:"Label"});new sap.ui.commons.TextField({value:"Weight 4",layoutData:new sap.ui.layout.ResponsiveFlowLayoutData({weight:4})}),new sap.ui.commons.TextView({text:"Weight 1",layoutData: new sap.ui.layout.ResponsiveFlowLayoutData({weight:1})}),&lt;/pre&gt;&lt;b&gt;Note:&lt;/b&gt; Do not put any layout controls in here. This could destroy the visual layout,keyboard support and screen-reader support.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:element ref="n0:Element"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="title" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Title element of the &lt;code&gt;SimpleForm&lt;/code&gt;. Can either be a &lt;code&gt;Title&lt;/code&gt; control, or a string.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0">
+                                    <xsd:element ref="n0:Title"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="toolbar" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>Toolbar of the &lt;code&gt;SimpleForm&lt;/code&gt;.&lt;b&gt;Note:&lt;/b&gt; If a &lt;code&gt;Toolbar&lt;/code&gt; is used, the &lt;code&gt;Title&lt;/code&gt; is ignored.If a title is needed inside the &lt;code&gt;Toolbar&lt;/code&gt; it must be added at content to the &lt;code&gt;Toolbar&lt;/code&gt;.In this case add the &lt;code&gt;Title&lt;/code&gt; to the &lt;code&gt;ariaLabelledBy&lt;/code&gt; association.</xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:choice minOccurs="0">
+                                    <xsd:element ref="n0:Control"/>
+                                    <xsd:element ref="n0:Fragment"/>
+                                    <xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+                                </xsd:choice>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="maxContainerCols" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>The maximum amount of groups (&lt;code&gt;FormContainers&lt;/code&gt;) per row that is used before a new row is started.&lt;b&gt;Note:&lt;/b&gt; If a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout, this property is not used. Please use the properties &lt;code&gt;ColumnsL&lt;/code&gt; and &lt;code&gt;ColumnsM&lt;/code&gt; in this case.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="minWidth" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>The overall minimum width in pixels that is used for the &lt;code&gt;SimpleForm&lt;/code&gt;. If the available width is below the given minWidth the SimpleForm will create a new row for the next group (&lt;code&gt;FormContainer&lt;/code&gt;).The default value is -1, meaning that inner groups (&lt;code&gt;FormContainers&lt;/code&gt;) will be stacked until maxCols is reached, irrespective of whether a maxWidth is reached or the available parents width is reached.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="width" type="n0:_CSSSizeType">
+                    <xsd:annotation>
+                        <xsd:documentation>Width of the form.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="editable" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>Applies a device-specific and theme-specific line-height to the form rows if the form has editable content.If set, all (not only the editable) rows of the form will get the line height of editable fields.The accessibility aria-readonly attribute is set according to this property.&lt;b&gt;Note:&lt;/b&gt; The setting of the property has no influence on the editable functionality of the form's content.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="labelMinWidth" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Specifies the min-width in pixels of the label in all form containers.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="layout" type="n1:_SimpleFormLayoutType">
+                    <xsd:annotation>
+                        <xsd:documentation>The &lt;code&gt;FormLayout&lt;/code&gt; that is used to render the &lt;code&gt;SimpleForm&lt;/code&gt;.We suggest using the &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; for rendering a &lt;code&gt;SimpleForm&lt;/code&gt;, as its responsiveness uses the space available in the best way possible.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="labelSpanXL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Default span for labels in extra large size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout. If the default value -1 is not overwritten with the meaningful one then the &lt;code&gt;labelSpanL&lt;/code&gt; value is used (from the backward compatibility reasons).</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="labelSpanL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Default span for labels in large size.&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;adjustLabelSpanThis&lt;/code&gt; is set, this property is only used if more than 1 &lt;code&gt;FormContainer&lt;/code&gt; is in one line. If only 1 &lt;code&gt;FormContainer&lt;/code&gt; is in the line, then the &lt;code&gt;labelSpanM&lt;/code&gt; value is used.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="labelSpanM" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Default span for labels in medium size.&lt;b&gt;Note:&lt;/b&gt; If &lt;code&gt;adjustLabelSpanThis&lt;/code&gt; is set, this property is used for full-size &lt;code&gt;FormContainers&lt;/code&gt;. If more than one &lt;code&gt;FormContainer&lt;/code&gt; is in one line, &lt;code&gt;labelSpanL&lt;/code&gt; is used.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="labelSpanS" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Default span for labels in small size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="adjustLabelSpan" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If set, the usage of &lt;code&gt;labelSpanL&lt;/code&gt; and &lt;code&gt;labelSpanM&lt;/code&gt; are dependent on the number of &lt;code&gt;FormContainers&lt;/code&gt; in one row.If only one &lt;code&gt;FormContainer&lt;/code&gt; is displayed in one row, &lt;code&gt;labelSpanM&lt;/code&gt; is used to define the size of the label.This is the same for medium and large &lt;code&gt;Forms&lt;/code&gt;.This is done to align the labels on forms where full-size &lt;code&gt;FormContainers&lt;/code&gt; and multiple-column rows are used in the same &lt;code&gt;Form&lt;/code&gt;(because every &lt;code&gt;FormContainer&lt;/code&gt; has its own grid inside).If not set, the usage of &lt;code&gt;labelSpanL&lt;/code&gt; and &lt;code&gt;labelSpanM&lt;/code&gt; are dependent on the &lt;code&gt;Form&lt;/code&gt; size.The number of &lt;code&gt;FormContainers&lt;/code&gt; doesn't matter in this case.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="emptySpanXL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of grid cells that are empty at the end of each line on extra large size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout. If the default value -1 is not overwritten with the meaningful one then the &lt;code&gt;emptySpanL&lt;/code&gt; value is used (from the backward compatibility reasons).</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="emptySpanL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of grid cells that are empty at the end of each line on large size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="emptySpanM" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of grid cells that are empty at the end of each line on medium size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="emptySpanS" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Number of grid cells that are empty at the end of each line on small size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="columnsXL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Form columns for extra large size.The number of columns for extra large size must not be smaller than the number of columns for large size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.If the default value -1 is not overwritten with the meaningful one then the &lt;code&gt;columnsL&lt;/code&gt; value is used (from the backward compatibility reasons).</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="columnsL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Form columns for large size.The number of columns for large size must not be smaller than the number of columns for medium size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="columnsM" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Form columns for medium size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="singleContainerFullSize" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:documentation>If the &lt;code&gt;Form&lt;/code&gt; contains only one single &lt;code&gt;FormContainer&lt;/code&gt; and this property is set,the &lt;code&gt;FormContainer&lt;/code&gt; is displayed using the full size of the &lt;code&gt;Form&lt;/code&gt;.In this case the properties &lt;code&gt;columnsL&lt;/code&gt; and &lt;code&gt;columnsM&lt;/code&gt; are ignored.In all other cases the &lt;code&gt;FormContainer&lt;/code&gt; is displayed in the size of one column.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="breakpointXL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Breakpoint between Medium size and Large size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="breakpointL" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Breakpoint between Medium size and Large size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="breakpointM" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:documentation>Breakpoint between Small size and Medium size.&lt;b&gt;Note:&lt;/b&gt; This property is only used if a &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; is used as a layout.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="backgroundDesign" type="n1:_BackgroundDesignType">
+                    <xsd:annotation>
+                        <xsd:documentation>Specifies the background color of the &lt;code&gt;SimpleForm&lt;/code&gt; content.The visualization of the different options depends on the used theme.</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="ariaLabelledBy" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>Association to controls / IDs which label this control (see WAI-ARIA attribute aria-labelledby).</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:simpleType name="_BackgroundDesignType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="Solid">
+                <xsd:annotation>
+                    <xsd:documentation>A solid background color dependent on the theme.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="Transparent">
+                <xsd:annotation>
+                    <xsd:documentation>Transparent background.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="Translucent">
+                <xsd:annotation>
+                    <xsd:documentation>A translucent background depending on the opacity value of the theme.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="_BlockBackgroundTypeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="Default">
+                <xsd:annotation>
+                    <xsd:documentation>Background is transparent</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="Light">
+                <xsd:annotation>
+                    <xsd:documentation>Background is with predefined light colors</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="_GridIndentType">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="([Xx][Ll](?:[0-9]|1[0-1]))? ?([Ll](?:[0-9]|1[0-1]))? ?([Mm](?:[0-9]|1[0-1]))? ?([Ss](?:[0-9]|1[0-1]))?"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="_GridPositionType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="Left">
+                <xsd:annotation>
+                    <xsd:documentation>Grid is aligned left.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="Right">
+                <xsd:annotation>
+                    <xsd:documentation>Grid is aligned to the right.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="Center">
+                <xsd:annotation>
+                    <xsd:documentation>Grid is centered on the screen.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="_GridSpanType">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="([Xx][Ll](?:[1-9]|1[0-2]))? ?([Ll](?:[1-9]|1[0-2]))? ?([Mm](?:[1-9]|1[0-2]))? ?([Ss](?:[1-9]|1[0-2]))?"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="_SideContentFallDownType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="BelowXL">
+                <xsd:annotation>
+                    <xsd:documentation>Side content falls down on breakpoints below XL</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="BelowL">
+                <xsd:annotation>
+                    <xsd:documentation>Side content falls down on breakpoints below L</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="BelowM">
+                <xsd:annotation>
+                    <xsd:documentation>Side content falls down on breakpoints below M</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="OnMinimumWidth">
+                <xsd:annotation>
+                    <xsd:documentation>Side content falls down on breakpoint M and the minimum width for the side content</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="_SideContentPositionType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="End">
+                <xsd:annotation>
+                    <xsd:documentation>The side content is on the right side of the main container in left-to-right mode and on the left side in right-to-left mode.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="Begin">
+                <xsd:annotation>
+                    <xsd:documentation>The side content is on the left side of the main container in left-to-right mode and on the right side in right-to-left mode.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="_SideContentVisibilityType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="AlwaysShow">
+                <xsd:annotation>
+                    <xsd:documentation>Show the side content on any breakpoint</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="ShowAboveL">
+                <xsd:annotation>
+                    <xsd:documentation>Show the side content on XL breakpoint</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="ShowAboveM">
+                <xsd:annotation>
+                    <xsd:documentation>Show the side content on L and XL breakpoints</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="ShowAboveS">
+                <xsd:annotation>
+                    <xsd:documentation>Show the side content on M, L and XL breakpoints</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="NeverShow">
+                <xsd:annotation>
+                    <xsd:documentation>Don't show the side content on any breakpoints</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="_GridElementCellsType">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="auto|full|([1-9]|1[0-6])"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="_SimpleFormLayoutType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="ResponsiveLayout">
+                <xsd:annotation>
+                    <xsd:documentation>Uses the &lt;code&gt;ResponsiveLayout&lt;/code&gt; to render the &lt;code&gt;SimpleForm&lt;/code&gt;</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="GridLayout">
+                <xsd:annotation>
+                    <xsd:documentation>Uses the &lt;code&gt;GridLayout&lt;/code&gt; to render the &lt;code&gt;SimpleForm&lt;/code&gt;</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="ResponsiveGridLayout">
+                <xsd:annotation>
+                    <xsd:documentation>Uses the &lt;code&gt;ResponsiveGridLayout&lt;/code&gt; to render the &lt;code&gt;SimpleForm&lt;/code&gt;</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>

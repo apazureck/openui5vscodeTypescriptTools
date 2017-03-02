@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="sap.ui.demokit" xmlns:n3="sap.ui.commons" xmlns:n4="sap.ui.demokit" xmlns:n1="sap.ui.layout" xmlns:n2="sap.ui.unified" xmlns:n0="sap.ui.core">
+<xsd:import namespace="sap.ui.commons"/>
+<xsd:import namespace="sap.ui.layout"/>
+<xsd:import namespace="sap.ui.unified"/>
+<xsd:import namespace="sap.ui.core"/>
+<xsd:element name="CodeSampleContainer" type="n4:_CodeSampleContainerType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>A container for both the source and the runtime results of a CodeSample. By default, only the runtime results are shown. There are additional controls that allow the user to display the source, modify and run it.
+
+The container provides a sub container that can be used in calls to sap.ui.setRoot() as if it would be a normal UIArea. So the sample code doesn't have to know that it runs in a CodeSample container.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="CodeViewer" type="n4:_CodeViewerType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>Shows a piece of (Javascript) code and allows to edit it</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="FileUploadIntrospector" type="n4:_FileUploadIntrospectorType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>Control that allows to monitor uploaded files in a demo scenario. This is not a general purpose monitor but only works with the demo fileupload service.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="HexagonButton" type="n4:_HexagonButtonType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>A custom button with a 'hexagon' shape</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="HexagonButtonGroup" type="n4:_HexagonButtonGroupType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>A group of HexagonButtons, aligned in a packed grid</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="IndexLayout" type="n4:_IndexLayoutType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>Layout which renders content items with equal width and height. The items are arranged in rows.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Tag" type="n4:_TagType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>A Tag in a TagCloud</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="TagCloud" type="n4:_TagCloudType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>A simple TagCloud representing a set of weighted tags</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="UI5EntityCueCard" type="n4:_UI5EntityCueCardType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>Displays documentation for a UI5 entity (control or type).
+
+The documentation will be read from a UI5 metamodel file that by default is loaded from the same resource location
+where the control or type would be loaded from (using the UI5 resource loading). This control displays all properties,
+aggregations, associations, events and methods that are described in the metamodel. For each part, it lists the name,
+type (where applicable) and documentation. If the navigable property is set to true, all types are shown as links
+and when pressed, the navigate event is fired. This allows consumers to react on a user click on such a type
+(and to e.g. navigate to the underlying type of a property or aggregation)</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="UIAreaSubstitute" type="n4:_UIAreaSubstituteType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>A substitute for an UIArea that can be embedded in the control tree.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<!--type definition for UIElement 'sap.ui.demokit.CodeSampleContainer'-->
+<xsd:complexType name="_CodeSampleContainerType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence/>
+<xsd:attribute name="scriptElementId" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Id of the script element that contains the initial sample code for this code sample.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="uiAreaId" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Id of the container for the running code. This Id can be used in calls to sap.ui.setRoot as if it would be a normal UIArea. Internally, a container UIElement is created with that Id.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>A title to be displayed above the code.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="sourceVisible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the source code is visible or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="width" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Width of the CodeSample container.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="apply" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when the user decides to apply his/her changes to the sample code</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.demokit.CodeViewer'-->
+<xsd:complexType name="_CodeViewerType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:attribute name="source" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The source code to display.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="width" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>The CSS width property</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="height" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>The CSS height property</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="editable" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the code can be edited or not</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="lineNumbering" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the code to have line numbering or not</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="press" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Called when the mouse button is clicked over the non-editable(!) control</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="save" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Called when the editor is active and should be saved</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.demokit.FileUploadIntrospector'-->
+<xsd:complexType name="_FileUploadIntrospectorType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:attribute name="uploadUrl" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The URL to check the upload content with....</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="autoRefreshInterval" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Interval in milliseconds after which the content is checked again. values lower or equal to 0 mean 'no automatic refresh'.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="height" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>(CSS) Height of the control</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="width" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Width of the file list</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.demokit.HexagonButton'-->
+<xsd:complexType name="_HexagonButtonType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:attribute name="icon" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Icon to display</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="color" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The color of the hexagon</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="position" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The position. If set, the button is rendered with an absolute position.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the button is enabled or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="imagePosition" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The position of the contained image. If not set the image is rendered with a fixed relative position.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="press" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when the user clicks the hex button</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.demokit.HexagonButtonGroup'-->
+<xsd:complexType name="_HexagonButtonGroupType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="buttons" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The buttons to layout in a grid</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:HexagonButton"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="colspan" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>How many buttons might be placed in the same row of the grid</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.demokit.IndexLayout'-->
+<xsd:complexType name="_IndexLayoutType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'content'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The content items</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="itemWidth" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>The width of a content item. Only px values are allowed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="itemHeight" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>The height of a content item. Only px values are allowed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableScaling" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the given item width/height should be scaled according to the screen size.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.demokit.Tag'-->
+<xsd:complexType name="_TagType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:attribute name="text" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The text to be disaplyed for this tag.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="weight" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>The weight for this tag. Can be any integer value.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.demokit.TagCloud'-->
+<xsd:complexType name="_TagCloudType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'tags'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:Tag"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="tags" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The tags displayed in this tag cloud</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:Tag"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="maxFontSize" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Maximum font size that may be chosen for a tag in this cloud</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="minFontSize" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Minimum font size that must be used for a tag in this cloud</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="press" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when a Tag is clicked.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.demokit.UI5EntityCueCard'-->
+<xsd:complexType name="_UI5EntityCueCardType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:attribute name="collapsible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the cue card can be collapsed at all. When set to true, the value of property expanded determines the current collapsed/expanded state. When false, the control is always expanded.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="expanded" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the cue card is currently expanded.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="navigable" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether type information is navigable. Also see event 'navigate'.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="entityName" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Qualified name of the control or type to show the documentation for. The name can be specified in the metamodel notation ('sap.ui.core/Control' or in the UI5 resource notation (sap.ui.core.Control).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="style" type="n4:_UI5EntityCueCardStyleType">
+<xsd:annotation>
+<xsd:documentation>Style of the cue card.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="navigate" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when a link for a type is activated (clicked) by the user.
+
+When property "navigable" is set to true, type links are created for the types of properties, aggregations and associations, for the types of event or method parameters and for the return types of methods (if not void).
+
+The default behavior for this event is to set the entityName property to the clicked entityName. Applications can prevent the default by calling the corresponding method on the event object.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.demokit.UIAreaSubstitute'-->
+<xsd:complexType name="_UIAreaSubstituteType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:sequence>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Content Area used for the running sample code</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<xsd:simpleType name="_UI5EntityCueCardStyleType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Standard">
+<xsd:annotation>
+<xsd:documentation>default style (no special styling).</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Demokit">
+<xsd:annotation>
+<xsd:documentation>Demokit style</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+</xsd:schema>

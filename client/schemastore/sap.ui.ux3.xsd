@@ -1,0 +1,2639 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="sap.ui.ux3" xmlns:n3="sap.ui.commons" xmlns:n4="sap.ui.ux3" xmlns:n1="sap.ui.layout" xmlns:n2="sap.ui.unified" xmlns:n0="sap.ui.core">
+<xsd:import namespace="sap.ui.commons"/>
+<xsd:import namespace="sap.ui.layout"/>
+<xsd:import namespace="sap.ui.unified"/>
+<xsd:import namespace="sap.ui.core"/>
+<xsd:element name="ActionBar" type="n4:_ActionBarType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>A special toolbar with predefined social actions which can be shown as needed. These are: Create an update (Feed), Follow, Mark for Follow Up, Mark as Favorite and Open Thing.
+
+In addition business actions (ThingAction instances) can be added which are either displayed as MenuItems of the 'More' menu button or as individual tool bar buttons.
+
+When using this control, please be aware that it fulfills rather specific requirements: it has been designed for and is used within composite controls QuickView and ThingInspector.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Collection" type="n4:_CollectionType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>Collection</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="CollectionInspector" type="n4:_CollectionInspectorType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>CollectionInspector</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="DataSet" type="n4:_DataSetType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>DataSet</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="DataSetItem" type="n4:_DataSetItemType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>DataSet Item</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="DataSetSimpleView" type="n4:_DataSetSimpleViewType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>DataSetSimpleView provides a simple view example for DataSet usage.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Exact" type="n4:_ExactType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>A comprehensive UI design approach with graphical and functional elements for searching data, exploring data, and acting on the data
+("Explore and Act (Exact) Pattern").</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ExactArea" type="n4:_ExactAreaType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>Consists of two sections: A tool bar and a content area where arbitrary controls can be added.
+The ExactArea is intended to be used for the Exact design approach but alternatively also in a stand alone version.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ExactAttribute" type="n4:_ExactAttributeType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>An element for defining attributes and sub-attributes used within the Exact pattern.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ExactBrowser" type="n4:_ExactBrowserType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>Attribute browse area used within the Exact pattern. The main benefit of this control is the high flexibility when large data amounts shall be displayed
+in the form of structured data sets with a high or low interdependency level. From lists - which can be nested according to the defined attributes - the user can choose
+entries and thereby trigger the display of further information, depending on the chosen entry/entries (multiple selection supported).</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ExactList" type="n4:_ExactListType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>Internal sub-control of the ExactBrowser. The control is not intended to be used stand alone. For this purpose, the ExactBrowser control can be used.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="FacetFilter" type="n4:_FacetFilterType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>FacetFilter Control.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="FacetFilterList" type="n4:_FacetFilterListType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>List to be used with the FacetFilter control. The control is not intended to be used stand alone.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Feed" type="n4:_FeedType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>A container control representing a full feed page, including feeder and updates.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="FeedChunk" type="n4:_FeedChunkType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>The unit that is embedded - single-wise or in a multiple way - into a Feed control.
+The control provides a set of properties for text, sender information, time stamp,
+comments, and functions such as flagging the entry to be favorite, shared, or flagged.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Feeder" type="n4:_FeederType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>This feed control flavor represents a lean common feed, or a comment feed, with a text commit function.
+The control can be used stand alone or in a multiple way, and generally would be integrated directly into a UIArea.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="NavigationBar" type="n4:_NavigationBarType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>Provides enhanced navigation capabilities and is the parent control of NavigationItem. It is displayed in the form of a horizontal line
+with switching markers depending on the currently selected item. The size of an item which is currently chosen by the user is enlarged. In the case
+that a large number of items are defined for the bar, this is made transparent to the user by showing symbols for scrolling options (forwards and backwards)
+to see the next or previous items.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="NavigationItem" type="n4:_NavigationItemType" substitutionGroup="n0:Item">
+<xsd:annotation>
+<xsd:documentation>Is the item to be used within the NavigationBar</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="NotificationBar" type="n4:_NotificationBarType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>A NotificationBar is a "toolbar" that can be added to a page to show messages and notifications from the application.
+Its position, height and width is inherited from the element that the notification bar is added to.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Notifier" type="n4:_NotifierType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>This element can be docked to a notification bar to show notification items</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Overlay" type="n4:_OverlayType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>Overlay Control</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="OverlayContainer" type="n4:_OverlayContainerType" substitutionGroup="n4:Overlay">
+<xsd:annotation>
+<xsd:documentation>Is to be embedded into the Overlay control as content container</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="OverlayDialog" type="n4:_OverlayDialogType" substitutionGroup="n4:Overlay">
+<xsd:annotation>
+<xsd:documentation>Dialog implementation based on the Overlay. If used in a Shell it leaves the Tool-Palette, Pane-Bar and Header-Items accessible.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="QuickView" type="n4:_QuickViewType" substitutionGroup="n3:CalloutBase">
+<xsd:annotation>
+<xsd:documentation>QuickView is a small popup with a short overview of a Thing.
+QuickView is shown when a user holds the mouse pointer over a related screen element.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="Shell" type="n4:_ShellType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>The Ux3 GoldReflection Shell, which is an application frame with navigation capabilities.
+It is supposed to be added to a direct child of the BODY tag of a page and there should be no other parts of the page consuming space outside the Shell.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ThingAction" type="n4:_ThingActionType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>Thing Action for Swatch, QuickView, Thinginspector</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ThingGroup" type="n4:_ThingGroupType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>Thing Group Area</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ThingInspector" type="n4:_ThingInspectorType" substitutionGroup="n4:Overlay">
+<xsd:annotation>
+<xsd:documentation>Thing Inspector</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ThingViewer" type="n4:_ThingViewerType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>ThingViewer: Same as ThingInspector but decoupled from the Overlay and the ActionBar.
+The control can be added to a Parent container that has a defined width. The ThingViewer fill the whole container. If the parent container has no width defined the control will not work properly.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ToolPopup" type="n4:_ToolPopupType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>A popup which the user can open from the Shell's tool pane. Generally, the starting point would be an icon.
+For this pop up, buttons can be defined with any text; therefore, it has the same purpose
+and similar look like any common dialog box.
+A ToolPopup can have any content. Depending on the application type and design, the structure
+of the texts and input fields can be for example form-like.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<!--type definition for UIElement 'sap.ui.ux3.ActionBar'-->
+<xsd:complexType name="_ActionBarType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="businessActions" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Displayed on the actionBar's right hand-side, either as menu item under 'More' or as individual buttons</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ThingAction"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="followState" type="n4:_FollowActionStateType">
+<xsd:annotation>
+<xsd:documentation>Keeps track of the actionBars Follow/Unfollow button’s state. Its value is one of
+- FollowActionState.Default
+- FollowActionState.Follow
+- FollowActionState.Hold</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="flagState" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates whether “Mark for Follow Up” is active</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="favoriteState" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates whether “Favorite” is active</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="updateState" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates whether “Update” is active</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="thingIconURI" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>The thing icon uri. Icon will be displayed in Feeder</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="alwaysShowMoreMenu" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If true, business actions are rendered as menu items of the 'More' menu button. Otherwise, 'More' menu button is only displayed for overflow and business actions are rendered as inidividual buttons.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showUpdate" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates whether social action “Update” is shown, default is ‘true’</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showFollow" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates whether social action “Follow” is shown, default is ‘true’</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showFlag" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates whether social action “Mark for Follow Up” is shown, default is ‘true’</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showFavorite" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates whether social action “Favorite” is shown, default is ‘true’</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showOpen" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates whether social action “Open” is shown, default is ‘true’</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="dividerWidth" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>The minimum width of ActionBar's the social actions part: business action controls have to be rendered outside this area</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="actionSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when any of the social action’s toolbar buttons except ‘Update’ or any of the business action’s menu items resp. buttons is pressed. The selected action can be identified by its id and newState (the latter if applicable only)
+‘Follow’ button + menu: id: follow, newState: Follow/Hold/Default
+‘Mark for follow up’ button: id: flag, newState: true/false
+‘Favorite’ button: id: favorite, newState: true/false
+‘Open Thing Inspector’ button id: open
+Business Actions: id: the ThingAction id
+
+For ‘Update’, please refer to event ‘feedSubmit’</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="feedSubmit" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when a new feed entry is submitted.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.Collection'-->
+<xsd:complexType name="_CollectionType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:sequence>
+<xsd:element name="items" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Items in the collection</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Item"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Name for the collection</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="editable" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If a collection is editable an edit button will be displayed below the list of items</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="multiSelection" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Allow multi selection of items in collection</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedItems" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Contains all items that are currently selected</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectionChanged" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when ever the selected items changer</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="propertyChanged" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fires if a property has changed, and the collection inspector needs to do something after that</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.CollectionInspector'-->
+<xsd:complexType name="_CollectionInspectorType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="collections" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Collections which are displayed in the COllectionInspector</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:Collection"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>All controls that are currently displayed</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="sidebarVisible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Defines if the list of collection items is visible on the left</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="fitParent" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If set to true, control will fit parents content area</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedCollection" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Collection which is currently selected</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="collectionSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired if user selects a collection</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="itemSelectionChanged" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fires when an item in a collection is selected</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="editCollection" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fires when the edit button is clicked</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.DataSet'-->
+<xsd:complexType name="_DataSetType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="items" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Aggregation of DataSetItems</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:DataSetItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="views" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>views</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="filter" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Filter control (e.g. a FacetFilter) for the DataSet</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="showToolbar" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>show Toolbar</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showFilter" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>show filter</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showSearchField" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Show/hide SearchField in Toolbar</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="multiSelect" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Selection mode of the DataSet</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedView" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Selected view of the Dataset</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectionChanged" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>selection Changed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="search" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event which is fired when the user triggers a search</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.DataSetItem'-->
+<xsd:complexType name="_DataSetItemType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:sequence/>
+<xsd:attribute name="iconSrc" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>image</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>title</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="checkable" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>checkable</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="subtitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>subtitle</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event Fired when Datset item is selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.DataSetSimpleView'-->
+<xsd:complexType name="_DataSetSimpleViewType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="template" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>template</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="floating" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>When true the DatSet items are floating containers. When set to false The Items are rendered in a 1 column Layout.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="name" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Name of the View</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="icon" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>Icon source for this view</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="iconHovered" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>icon: hovered state</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="iconSelected" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>icon: selected state</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="responsive" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>When true and the property floating is true the DatSet items are floating containers filling the whole space of a row.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="itemMinWidth" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>When itemMinWidth&gt;0 and the property floating is true the given minimum width in pixels is set to DatSet items. A minimum width must be given when the property responsive is set.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="initialItemCount" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>If this value is greater zero only this amount of items is loaded in the first place. New items are loaded automatically when the user scrolls down. The number of items which are reloaded can be defined with the property "reloadItemCount"</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="reloadItemCount" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>This number defines the item count which is reloaded on scroll if initialItemCount is enabled.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="scrollArea" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>ID of the DOM Element or jQuery reference to the dom which holds the scrollbar for the dataset</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="height" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>If the pagination feature is used without specifying a scroll area, a height for the dataset must be defined.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.Exact'-->
+<xsd:complexType name="_ExactType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'attributes'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ExactAttribute"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="settingsMenu" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Defines the 'Settings' button in the browse section tool bar</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n3:Menu"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="attributes" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The attributes which shall be available to refine the search</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ExactAttribute"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="resultText" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>A title text which is displayed above the result section</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="search" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the search button is clicked</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="refineSearch" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event which is fired when an attribute is selected or unselected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.ExactArea'-->
+<xsd:complexType name="_ExactAreaType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'content'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Arbitrary child controls of the content area</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="toolbarItems" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Tool bar items which shall be shown in the tool bar.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="toolbarVisible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies whether the tool bar shall be visible</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.ExactAttribute'-->
+<xsd:complexType name="_ExactAttributeType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:sequence>
+<!--default aggregation 'attributes'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ExactAttribute"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="attributes" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Values (sub attributes) of this attribute</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ExactAttribute"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="text" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The attribute name</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selected" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies whether the attribute shall be selected</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="width" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Specifies the width of the corresponding list in pixels. The value must be between 70 and 500.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="listOrder" type="n4:_ExactOrderType">
+<xsd:annotation>
+<xsd:documentation>The order how the sublists of this attribute should be displayed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showSubAttributesIndicator" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies whether the attribute shall have sub values for visual purposes.
+The indicator which is a little arrow beside an attribute in the list is computed automatically
+(getShowSubAttributesIndicator_Computed() of sap.ui.ux3.ExactAttribute).
+In the case that a supply function is attached, and the supplyActive attribute has value 'true',
+then the Exact pattern needs a hint if sub attributes are available. The showSubAttributesIndicator attribute is
+considered then and has to be maintained. If the back-end does not support count-calls, for example,
+showSubAttributesIndicator should be set to true.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="additionalData" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>An example for additional data are database keys</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="supplyActive" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>The supplyAttributes event is only fired if supplyActive has value true which is the default. After firing the event, the attribute is automatically set to false.
+The idea is that a supply function is called only once when the data is requested. To enable the event again it is possible to manually set the attribute back to true.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="autoActivateSupply" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If you want the supply function to be called on every select, you can set the autoActivateSupply attribute to true. In this case, supplyActive is automatically
+set to true on every unselect.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="supplyAttributes" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>A supply function is a handler which is attached to the supplyAttributes event. The event is fired when the corresponding ExactAttribute is selected, it was already selected when a handler is attached or function getAttributes() is called.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.ExactBrowser'-->
+<xsd:complexType name="_ExactBrowserType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'attributes'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ExactAttribute"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="attributes" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The attributes which shall be available.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ExactAttribute"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="optionsMenu" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Menu with options. The menu can not used when the property showTopList is set to false.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n3:Menu"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Title text in the list area of the Exact Browser. The title is not shown when the property showTopList is set to false.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="headerTitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Title text in the header of the Exact Browser.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="topListOrder" type="n4:_ExactOrderType">
+<xsd:annotation>
+<xsd:documentation>The order how the sublists of the top level list should be displayed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableListClose" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Enables the close icons of the displayed lists.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="listHeight" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>The height of the list area in px.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showHeader" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the header area of the ExactBrowser should be shown.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showTopList" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the top list of the ExactBrowser should be shown. When the property is set to false the
+application must ensure to select top level attributes appropriately.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableReset" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the reset functionality should be available in the header area.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableSave" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the save button should be available in the header area.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="topListWidth" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Specifies the width of the top list in pixels. The value must be between 70 and 500.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="followUpControl" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The successor control of the Exact Browser. The id of this control is used in the ARIA description of the control.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="attributeSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when an attribute is selected or unselected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="save" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when an attribute is selected or unselected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.ExactList'-->
+<xsd:complexType name="_ExactListType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="subLists" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The sub-ExactLists of this list. This aggregation must not be maintained from outside.
+The control automatically takes care to fill this aggregation according to the given ExactAttribute.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ExactList"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="showClose" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Defines whether the close icon shall be displayed in the header.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="topTitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The title of this list is the top of the list hierarchy.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="topHeight" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>The height in px if this list is the top of the list hierarchy.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="data" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The associated ExactAttribute</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="attributeSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event which is fired when an attribute is selected/unselected</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.FacetFilter'-->
+<xsd:complexType name="_FacetFilterType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="lists" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Facet Filter list represents the list of the filter values and the title of this list.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:FacetFilterList"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="visibleItemCountMode" type="n4:_VisibleItemCountModeType">
+<xsd:annotation>
+<xsd:documentation>If the value is "Auto" - the Facet Filter takes the whole available height. If "Fixed" , then the default number of Facet Filter Items (5) is visible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.FacetFilterList'-->
+<xsd:complexType name="_FacetFilterListType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="items" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The filter values that are presented as a list.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:ListItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The title of this list.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="multiSelect" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies whether multiple or single selection is used.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="displaySecondaryValues" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies whether the text values from the additionalText property (see sap.ui.core.ListItems) shall be displayed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedKeys" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Array of type string containing the selected keys.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showCounter" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies whether the counter for all entries is shown.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="select" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>On Select event.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.Feed'-->
+<xsd:complexType name="_FeedType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="filterItems" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Items of the filter</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:ListItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="chunks" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The chunks</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:FeedChunk"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="toolsMenuItems" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>MenuItems to open when the tool button is clicked by the user</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n3:MenuItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="feederThumbnailSrc" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>The path to the thumbnail image used for the feeder</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="feederSender" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The sender of the feeder</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="live" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies whether the feed shall be in live mode</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Title text of the Feed. If no text is entered "FEED" is displayed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="filterChange" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the filter is changed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="search" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the search function on SearchField is triggered</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="chunkAdded" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when a new chunk is added</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="toolsItemSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when an item from the tools MenuButton was selected</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="toggleLive" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the live mode has changed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.FeedChunk'-->
+<xsd:complexType name="_FeedChunkType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="comments" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Comments on this chunk</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:FeedChunk"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="actionMenuItems" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>MenuItems to open when there is a click on the action menu button</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n3:MenuItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="thumbnailSrc" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>URL to the thumbnail image.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="text" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The FeedChunk text. @References are supported.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="sender" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Sender of the chunk</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="timestamp" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Format is ISO 8601 YYYY-MM-DDThh:mm:ss.sZ, Z meaning the time is in UTC time zone</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="deletionAllowed" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag if the deletion of the chunk shall be allowed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="commentChunk" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>This flag changes a FeedChunk into a CommentChunk. In this case, it can not have own comments,
+furthermore it must be assigned to a FeedChunk.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="feederThumbnailSrc" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>URL to the thumbnail image for the comment feeder.
+This property is optional if the chunk is a sub-control of a feed control. In this case the value of the feed control is used if it's not set. So it must be only set once on the feed control.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="feederSender" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Sender for the comment feeder
+This property is optional if the chunk is a sub-control of a feed control. In this case the value of the feed control is used if it's not set. So it must be only set once on the feed control.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="flagged" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Defines whether the entry is flagged. This property is not supported for comment chunks.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="favorite" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Defines whether the entry shall be displayed as favorite. This property is not supported for comment chunks.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="shared" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Defines whether the entry shall be shared. This property is not supported for comment chunks.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableFlag" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If true the flag action is enabled.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableShare" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If true the share action is enabled.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableComment" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If true the comment action is enabled.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableInspect" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If true the inspect action is enabled.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enableFavorite" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If true the favorite action is enabled.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="deleted" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the deletion button is pressed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="commentAdded" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is raised when a comment is added to the entry. This event is not supported for comment chunks.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="toggleFlagged" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is raised when the user clicks to flag the entry. This event is not supported for comment chunks.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="senderClicked" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the thumbnail or the name of the sender is clicked.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="referenceClicked" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Click on a @-reference</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="toggleFavorite" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is raised when the user clicks to set the entry as favorite. This event is not supported for comment chunks.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="inspect" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the inspect button was pressed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="toggleShared" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is raised when the user clicks to share the entry. This event is not supported for comment chunks.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="actionItemSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when an item from the action menu button was selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.Feeder'-->
+<xsd:complexType name="_FeederType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:attribute name="thumbnailSrc" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>URL to the thumb nail image
+This property is optional if the feeder is a sub-control of a feed or a feedChunk control. In this case the value of the feed or feddChunk control is used if it's not set. So it must be only set once on the feed or feedChunk control.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="text" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The text for the Feeder. @References are supported.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="type" type="n4:_FeederTypeType">
+<xsd:annotation>
+<xsd:documentation>Type and size of the Feeder</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="placeholderText" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>This property could be used for costum placeholder. If it is not set, the default text is used.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="submit" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the entered text is submitted</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.NavigationBar'-->
+<xsd:complexType name="_NavigationBarType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'items'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:NavigationItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="items" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>If the navigation items need to have a different parent than the NavigationBar, alternatively the associatedItems association can be used.
+The NavigationBar follows the approach to use the items aggregation. If this aggregation is empty, associatedItems is used.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:NavigationItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="toplevelVariant" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Defines whether the navigation bar shall have top-level appearance</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="overflowItemsToUpperCase" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Sets the appearance of the menu items in the overflow menu to uppercase</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedItem" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The selected NavigationItem.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="associatedItems" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>This association is ignored as long as the items aggregation is used; and supposed to be used alternatively when the items should be aggregated by other
+entities.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="select" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when an item is selected by the user</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.NavigationItem'-->
+<xsd:complexType name="_NavigationItemType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ItemType">
+<xsd:sequence>
+<!--default aggregation 'subItems'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:NavigationItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="subItems" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Any NavigationItems on the next hierarchy level connected to this NavigationItem</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:NavigationItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="visible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the NavigationItem is currently visible. When making NavigationItems invisible at runtime it is the application's responsibility to make sure it is not the currently selected one - or to select another one in this case.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="href" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>Defines the link target URL. This property is optional and should only be set when required!
+The use of the href property is to not only allow users to navigate in-place by left-clicking NavigationItems, but also to allow right-click and then "open in new tab" or "open in new window". As long as href is not set, an empty window will open and stay blank. But when href is set, the new window/tab will load this URL and it is the application's responsibility to display what the user expects (e.g. the Shell, with the respective NavigationItem being selected).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.NotificationBar'-->
+<xsd:complexType name="_NotificationBarType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="messageNotifier" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Notifier that shows messages</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n0:Element"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="notifiers" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Notifiers that monitor something within the application and display the corresponding notifications.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Element"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="visibleStatus" type="n4:_NotificationBarStatusType">
+<xsd:annotation>
+<xsd:documentation>This property displays the bar corresponding to given status</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="resizeEnabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>This property enables the bar to be resized by the user.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="alwaysShowToggler" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>This property defines if the toggler should be displayed the whole time when the NotificationBar is shown.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="display" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the bar wants to be displayed depending on given flag. This allows the application to decide what to do.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="resize" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>This event is thrown when the bar was resized (to the different valid states: Min, Max, Default, None). The event itself can be used from SAPUI5-version 1.12.2 since there was a bug in the previous versions firing this event.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.Notifier'-->
+<xsd:complexType name="_NotifierType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:sequence>
+<xsd:element name="messages" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Messages of this notifier.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Message"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="icon" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>Icon of the control that should be displayed within the corresponding bar</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Defines the title that should be displayed within the opening popup</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="messageSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when a message of the notifiers was selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.Overlay'-->
+<xsd:complexType name="_OverlayType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:attribute name="openButtonVisible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Defines whether the 'Open' button shall be visible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="closeButtonVisible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Defines whether the 'Close' button shall be visible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="close" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the Overlay starts closing.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="closed" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the Overlay is closed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="openNew" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the 'Open' button of the Overlay is clicked.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="open" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the Overlay is opened.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.OverlayContainer'-->
+<xsd:complexType name="_OverlayContainerType">
+<xsd:complexContent>
+<xsd:extension base="n4:_OverlayType">
+<xsd:sequence>
+<!--default aggregation 'content'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Aggregation for content</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.OverlayDialog'-->
+<xsd:complexType name="_OverlayDialogType">
+<xsd:complexContent>
+<xsd:extension base="n4:_OverlayType">
+<xsd:sequence>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Content for the OverlayDialog.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="width" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Determines the width of the Overlay Dialog. If the width is set to "auto" it is always 50% of the overlay width.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="height" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Determines the height of the Overlay Dialog. If the height is set to "auto" it is always 50% of the overlay height.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.QuickView'-->
+<xsd:complexType name="_QuickViewType">
+<xsd:complexContent>
+<xsd:extension base="n3:_CalloutBaseType">
+<xsd:sequence>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Body content of the QuickView</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Element"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="actions" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Actions of a Thing</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ThingAction"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="actionBar" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>ActionBar. If no actionBar is set a default ActionBar will be created.
+In any case, ActionBar is displayed only when the showActionBar property is set to true.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n4:ActionBar"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="type" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Thing type (mandatory) like Account, Material, Employee etc. is displayed in a header at the top part of the QuickView.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="firstTitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Thing name shown in the header of the QuickView</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="firstTitleHref" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>URI to Thing Inspector</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="secondTitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Optional short text shown under the firstTitle</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="icon" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>URI of the Thing icon image (mandatory). The image is scaled down to the maximal size of 32 pixel (vertical or horizontal).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="width" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Control width as common CSS-size (px or % as unit, for example).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showActionBar" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Show Action Bar</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="followState" type="n4:_FollowActionStateType">
+<xsd:annotation>
+<xsd:documentation>Follow State of a Thing</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="flagState" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>State of Flag Action</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="favoriteState" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>State Of favorite Action</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="favoriteActionEnabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Favorite action enabled/disabled. If disabled the action will be invisible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="updateActionEnabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Update action enabled/disabled. If disabled the action will be invisible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="followActionEnabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Follow action enabled/disabled. If disabled the action will be invisible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="flagActionEnabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag action enabled/disabled. If disabled the action will be invisible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="openActionEnabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Open Thing action enabled/disabled. If disabled the action will be invisible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="actionSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Action is selected in Action Bar</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="feedSubmit" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when a new feed entry is submitted.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="navigate" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when a user clicks on the firstTitle link. Call the preventDefault method of the event object to cancel browser navigation.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.Shell'-->
+<xsd:complexType name="_ShellType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'content'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="worksetItems" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The workset items.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:NavigationItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="paneBarItems" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The items to appear in the PaneBar.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Item"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="paneContent" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The content to appear in the pane area.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The content to appear in the main canvas. Each modification of this aggregation leads to a re-rendering of the content area - but not to a re-rendering of the complete Shell.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="toolPopups" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The items which appear in the ToolPalette and are opened as popup when clicked.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ToolPopup"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="headerItems" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Controls to appear in the header next to the logout button. It is recommended to only use controls of type Button, MenuButton and TextView.
+The respective UI guidelines need to be enforced on a higher level.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="notificationBar" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The NotificationBar which should be integrated into the Shell.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n4:NotificationBar"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="appTitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The application title to appear in the left part of the header, usually a company and/or product name. appIcon and appTitle are both optional and can both be set; in this case the icon appears first.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="appIcon" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>The URL of the image to appear in the left part of the header, usually a branding image containing a logo and/or product name. appIcon and appTitle are both optional and can both be set; in this case the icon appears first.
+If the appIcon is set, for accessibility reasons the appIconTooltip must also be set.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="appIconTooltip" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The tooltip of the application icon in the header</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showLogoutButton" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the Logoff button in the header should be displayed or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="logoutButtonTooltip" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The tooltip to be displayed for the Logout Button of the Shell. If not set, a text meaning "Logout" in the current language will be displayed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showSearchTool" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the "Global Search" tool should be displayed or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showInspectorTool" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the "Inspector" tool should be displayed or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showFeederTool" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the "Feeder" tool should be displayed or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showTools" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the tool area should be displayed at all or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showPane" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the pane bar should be displayed at all or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="headerType" type="n4:_ShellHeaderTypeType">
+<xsd:annotation>
+<xsd:documentation>Defines which header type to be used. Depending on the header type some other functionality might be obsolete.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="designType" type="n4:_ShellDesignTypeType">
+<xsd:annotation>
+<xsd:documentation>Defines which design type is to be used.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="paneWidth" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>The width of the right-hand side pane in pixels. The value must be a non-negative integer. The Shell reserves the right to define a minimum width (currently 50px).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="applyContentPadding" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the Shell content area should have a theme-dependent padding or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="fullHeightContent" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If set to true, the content area has a defined height. This means that any content put inside can use "100%" height in CSS and will then consume all available space.
+However, if content is larger, scrollbars will appear at the content area of the Shell and not on window level.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="allowOverlayHeaderAccess" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Whether the Shell header (Title Area + Header Items) can be accessed when an Overlay, OverlayContainer or ThingInspector is open.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedWorksetItem" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The ID of the Item that is currently selected.
+When setting, the NavigationItem itself can be given instead of its ID. There will not be a worksetItemSelected event, the application is responsible to show the proper content according to the newly selected WorksetItem. If the set WorksetItem does not exist in this Shell, the first item (and first sub-item) will be selected after the call.
+When getting, always the ID is returned, by which the NavigationItem instance can be retrieved.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="worksetItemSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when a workset item was selected by the user. The application may populate the sub-items of the given workset item in the event handler, but this must happen synchronously. If this is done, the application is responsible for displaying the correct content for the selected one of the newly created sub-items. The Shell will currently always mark the first sub-item as selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="paneBarItemSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>An item in the right-hand-side pane bar has been selected, the pane is now visible and can be filled with UI elements.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="logout" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when the user clicks the "Log-off" button</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="search" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when search has been triggered.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="feedSubmit" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when a new feed entry is submitted.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="paneClosed" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired after a side pane of the shell is closed. It is also fired, when an open pane is closed by calling setShowPane(false), if and only if the pane was opened before.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.ThingAction'-->
+<xsd:complexType name="_ThingActionType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:attribute name="text" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>text of action</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>action enabled (true/false)</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="select" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event will be fired when the action was triggered.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.ThingGroup'-->
+<xsd:complexType name="_ThingGroupType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:sequence>
+<!--default aggregation 'content'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Content of Group</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="actions" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Actions of the groups content</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ThingGroup"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Title of Group</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="colspan" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If Group is used in a column layout the groups spans the all columns if set to true.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.ThingInspector'-->
+<xsd:complexType name="_ThingInspectorType">
+<xsd:complexContent>
+<xsd:extension base="n4:_OverlayType">
+<xsd:sequence>
+<xsd:element name="actions" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Actions of a Thing</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ThingAction"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="headerContent" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>ThingGroups for the header content</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ThingGroup"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="facets" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Thing Inspector facets</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:NavigationItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="facetContent" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>ThingGroups for content of the selected facet</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ThingGroup"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="actionBar" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>ActionBar. If no actionBar is set a default ActionBar will be created.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n4:ActionBar"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="firstTitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>First Line of the Thing Inspector Title</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="type" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Thing type</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="icon" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>Thing Icon Url</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="secondTitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Second Line of the Thing Inspector Title</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="followState" type="n4:_FollowActionStateType">
+<xsd:annotation>
+<xsd:documentation>Follow State of a Thing</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="flagState" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>State of Flag Action</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="favoriteState" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>State Of favorite Action</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="favoriteActionEnabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Favorite action enabled/disabled. If disabled the action will be invisible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="updateActionEnabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Update action enabled/disabled. If disabled the action will be invisible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="followActionEnabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Follow action enabled/disabled. If disabled the action will be invisible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="flagActionEnabled" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Flag action enabled/disabled. If disabled the action will be invisible.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="headerType" type="n4:_ThingViewerHeaderTypeType">
+<xsd:annotation>
+<xsd:documentation>Defines which header type should be used.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedFacet" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The Facet that is currently selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="actionSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Further thing related Action selected</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="facetSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event for facet selection. The application is responsible for displaying the correct content for the selected one. The ThingInspector will currently always mark the first facet as selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="feedSubmit" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Fired when a new feed entry is submitted.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.ThingViewer'-->
+<xsd:complexType name="_ThingViewerType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="headerContent" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>ThingGroups for the header content</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ThingGroup"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="facets" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Thing Inspector facets</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:NavigationItem"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="facetContent" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>ThingGroups for content of the selected facet</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n4:ThingGroup"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="actionBar" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>An ActionBar can be given</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n4:ActionBar"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Title of the Thing Inspector</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="type" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Thing type</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="icon" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>Thing Icon Url</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="subtitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Subtitle of the Thing Inspector</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="width" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Width of the ThingViewer</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="height" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Height of the ThingViewer</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="headerType" type="n4:_ThingViewerHeaderTypeType">
+<xsd:annotation>
+<xsd:documentation>Defines which header type should be used.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedFacet" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The Facet that is currently selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="facetSelected" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event for facet selection. The application is responsible for displaying the correct content for the selected one. The ThingInspector will currently always mark the first facet as selected.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.ux3.ToolPopup'-->
+<xsd:complexType name="_ToolPopupType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'content'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="buttons" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Defines the buttons to appear in the popup</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Defines the content of the popup</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Determines the title displayed in the pop up window</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="icon" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>This property is relevant for Shell use:
+The URL to the icon displayed in the tool area which is used to open the ToolPopup.
+The recommended size is 32x32px, including some transparent border. Therefore,
+the content will cover about 20x20px.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="iconHover" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>This property is relevant for Shell use:
+The URL to the icon in hover state, displayed in the tool area which is used to open the popup.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="iconSelected" type="n0:_URIType">
+<xsd:annotation>
+<xsd:documentation>This property is relevant for Shell use:
+The URL to the icon in selected state displayed in the tool area which is used to open the popup.
+If no selected icon is given, the hover icon is used.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="modal" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies whether the popup is modal and blocks any user-interaction with controls in the background.
+Changing this property while the ToolPopup is open will not have any effect.
+Please don't use "modal" and "autoclose" at the same time. In this case a warning will
+be prompted to the console and "autoclose" won't be used.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="inverted" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Specifies whether the ToolPopup has a dark or bright background. If set to true
+the background and borders will be dark. If false they will be bright.
+This property only has an effect for the GoldReflection-theme.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="autoClose" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether the ToolPopup will auto close when it loses focus.
+If the user e.g. clicks outside of the ToolPopup it will be closed.
+Please don't use "modal" and "autoclose" at the same time.
+In this case a warning will be prompted to the console and "autoclose" won't be used.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="maxHeight" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Forces a maximum height of the ToolPopup in pixels. If the ToolPopup content
+is higher than the ToolPopup, the content will be scrollable.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="maxWidth" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>Forces a maximum width of the ToolPopup in pixels.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="openDuration" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Time in milliseconds for the open animation.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="closeDuration" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Time in milliseconds for the close animation.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="initialFocus" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Defines the control that will get the focus when the ToolPopup is opened.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="opener" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>This property is relevant for stand-alone use:
+This association needs to be set if the ToolPopup should not be opened by/with
+the Shell. This association contains the instance of the control that
+assigns the ToolPopup's position.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="defaultButton" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Defines one of the buttons that have been provided via button aggregation to be
+the default button. This default button is initially selected, if no control
+is set via the initialFocus association explicitly. The default button is activated
+when Enter is pressed in the context of the dialog and when the currently selected element
+does not handle the Enter event itself.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="open" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the popup opens</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="close" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the popup closes because the user pressed Escape or the ToolPopup
+Button in the Shell. This is called before the closing animation.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="enter" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired whenever the user clicks the Enter or the Enter key inside the pop up</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="iconChanged" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when one of the icon properties is modified (Note: The icon is not
+rendered by the ToolPopup).
+To be used by other controls which want to update the icon in their UI.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="closed" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>This event is fired after the ToolPopup has finished its closing animation.
+It is called for EVERY close, regardless of whether the user has triggered the
+close or whether the ToolPopup was closed via API call.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="opened" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is being fired after the ToolPopup has been opened.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<xsd:simpleType name="_ActionBarSocialActionsType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Update">
+<xsd:annotation>
+<xsd:documentation>Standard action 'Create an update' (Feed)</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Follow">
+<xsd:annotation>
+<xsd:documentation>Standard action 'Follow/Unfollow'</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Flag">
+<xsd:annotation>
+<xsd:documentation>Standard action 'Mark for Follow up'</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Favorite">
+<xsd:annotation>
+<xsd:documentation>Standards action 'Mark as Favorite'</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Open">
+<xsd:annotation>
+<xsd:documentation>Standard action 'Open Thing Inspector'</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_ExactOrderType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Select">
+<xsd:annotation>
+<xsd:documentation>The order of the sub lists is defined by the selection order of the user.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Fixed">
+<xsd:annotation>
+<xsd:documentation>The order of the sub lists is defined by order of the defined sub attributes.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_FeederTypeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Large">
+<xsd:annotation>
+<xsd:documentation>large Feeder</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Medium">
+<xsd:annotation>
+<xsd:documentation>medium feeder</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Comment">
+<xsd:annotation>
+<xsd:documentation>comment feeder (small)</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_FollowActionStateType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Follow">
+<xsd:annotation>
+<xsd:documentation>follow state</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Hold">
+<xsd:annotation>
+<xsd:documentation>hold state</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Default">
+<xsd:annotation>
+<xsd:documentation>default state</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_NotificationBarStatusType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Default">
+<xsd:annotation>
+<xsd:documentation>Default height for the bar</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Min">
+<xsd:annotation>
+<xsd:documentation>Bar should be minimized</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Max">
+<xsd:annotation>
+<xsd:documentation>Bar should be maximized</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="None">
+<xsd:annotation>
+<xsd:documentation>Bar should not be visible</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_ShellDesignTypeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Standard">
+<xsd:annotation>
+<xsd:documentation>The standard Shell design (dark).</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Light">
+<xsd:annotation>
+<xsd:documentation>A lighter design. Should be used in combination with the Standard header
+type.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Crystal">
+<xsd:annotation>
+<xsd:documentation>An even lighter design. It borrows most of its properties from the Light
+design and just changes a few details like the header colors in order to
+have a blue design within gold reflection.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_ShellHeaderTypeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Standard">
+<xsd:annotation>
+<xsd:documentation>The standard Shell header.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="BrandOnly">
+<xsd:annotation>
+<xsd:documentation>Only the branding area is visible. Top-level navigation bar, header items, title and icon are not shown.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="NoNavigation">
+<xsd:annotation>
+<xsd:documentation>Like the Standard Area but without top-level navigation bar.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="SlimNavigation">
+<xsd:annotation>
+<xsd:documentation>Like the Standard Area but with a leaner top-level navigation bar.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_ThingViewerHeaderTypeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Standard">
+<xsd:annotation>
+<xsd:documentation>The standard ThingViewer header.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Horizontal">
+<xsd:annotation>
+<xsd:documentation>The header content is displayed horizontally above the facet content</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_VisibleItemCountModeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Fixed">
+<xsd:annotation>
+<xsd:documentation>The FacetFilter always has as many items in the FacetFilterList as defined in the visibleItemCount property.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Auto">
+<xsd:annotation>
+<xsd:documentation>The FacetFilter automatically fills the height of the surrounding container. The visibleItemCount property is automatically changed accordingly.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+</xsd:schema>

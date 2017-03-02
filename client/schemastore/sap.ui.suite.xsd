@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="sap.ui.suite" xmlns:n1="sap.ui.suite" xmlns:n0="sap.ui.core">
+<xsd:import namespace="sap.ui.core"/>
+<xsd:element name="TaskCircle" type="n1:_TaskCircleType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>This control shows a circle which radius and color depends on the given parameters</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="VerticalProgressIndicator" type="n1:_VerticalProgressIndicatorType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>This control shows a vertical progress bar in dependency of the given percentage. Only values between 0 and 100 are valid.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<!--type definition for UIElement 'sap.ui.suite.TaskCircle'-->
+<xsd:complexType name="_TaskCircleType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:attribute name="value" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Current value of the task circle to be displayed. In dependency of the parameters maxValue and minValue it controls the size of the circle.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="maxValue" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Upper limit of the displayed values. Default is 100.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="minValue" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>Lower limit of the displayed values. Default is 0.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="color" type="n1:_TaskCircleColorType">
+<xsd:annotation>
+<xsd:documentation>Color of the circle. The default color is red.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="ariaLabelledBy" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="ariaDescribedBy" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="press" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the user clicks the control.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.ui.suite.VerticalProgressIndicator'-->
+<xsd:complexType name="_VerticalProgressIndicatorType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:attribute name="percentage" type="xsd:int">
+<xsd:annotation>
+<xsd:documentation>The numerical value between 0 and 100 which determines the height of the vertical bar. Values higher than 100 will be displayed as 100%, values lower than zero will be displayed as 0%.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="ariaLabelledBy" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Association to controls / ids which label this control (see WAI-ARIA attribute aria-labelledby).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="ariaDescribedBy" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Association to controls / ids which describe this control (see WAI-ARIA attribute aria-describedby).</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="press" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Event is fired when the user clicks the control.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<xsd:simpleType name="_TaskCircleColorType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Red">
+<xsd:annotation>
+<xsd:documentation>Red</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Yellow">
+<xsd:annotation>
+<xsd:documentation>Yellow</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Green">
+<xsd:annotation>
+<xsd:documentation>Green</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Gray">
+<xsd:annotation>
+<xsd:documentation>Default value</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+</xsd:schema>

@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="sap.uxap" xmlns:n2="sap.ui.layout" xmlns:n0="sap.ui.core" xmlns:n3="sap.uxap" xmlns:n1="sap.m">
+<xsd:import namespace="sap.ui.layout"/>
+<xsd:import namespace="sap.ui.core"/>
+<xsd:import namespace="sap.m"/>
+<xsd:element name="AnchorBar" type="n3:_AnchorBarType" substitutionGroup="n1:Toolbar">
+<xsd:annotation>
+<xsd:documentation>Anchor bar is the navigation bar of an Object page. Its purpose is to provide links to all Sections and Subsections. Takes the form of a Select on phone.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="BlockBase" type="n3:_BlockBaseType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>A block is the main element that will be displayed, mainly in an object page, but not necessarily
+only there.
+
+A block is a control that use a XML view for storing its internal control tree.
+A block is a control that has modes and a view associated to each modes.
+At rendering time, the view associated to the mode is rendered.
+
+&lt;b&gt;Note:&lt;/b&gt; The control supports only XML views.
+
+As any UI5 views, the XML view can have a controller which automatically comes a this.oParentBlock attribute (so that the controller can interacts with the block).
+If the controller implements the onParentBlockModeChange method, this method will get called with the sMode parameter when the view is used or re-used by the block.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="BreadCrumbs" type="n3:_BreadCrumbsType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>The BreadCrumbs control represents the navigation steps up to the current location in the application and allows
+the user to quickly navigate to a previous location on the path that got him to the current location.
+It has two main modes of operation. One is a trail of links followed by separators (when there's enough space
+for the control to fit on one line), and the other is a dropdown list with the links (when the trail of links
+wouldn't fit on one line).</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="HierarchicalSelect" type="n3:_HierarchicalSelectType" substitutionGroup="n1:Select">
+<xsd:annotation>
+<xsd:documentation>A select that display items on 2 level of hierarchy.
+If a provided item has a custom data named "secondLevel", then it will be displayed as a second level, otherwise it would be displayed as a first level.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ModelMapping" type="n3:_ModelMappingType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>Define the entity that will be passed to the ObjectPageLayout.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ObjectPageHeader" type="n3:_ObjectPageHeaderType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>ObjectPageHeader represents the static part of an Object page header.
+Typically used to display the basic information about a business object, such as title/description/picture, as well as a list of common actions.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ObjectPageHeaderActionButton" type="n3:_ObjectPageHeaderActionButtonType" substitutionGroup="n1:Button">
+<xsd:annotation>
+<xsd:documentation>Button that can be used in the ObjectPageHeader action aggregation.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ObjectPageHeaderContent" type="n3:_ObjectPageHeaderContentType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>ObjectPageHeaderContent represents the dynamic part of an Object page header. May contain any control.
+Unlike the Object page header title, the Object page header content is part of the scrolling area of the Object page.
+This enables it to hold any amount of information and still be usable on a mobile device.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ObjectPageHeaderLayoutData" type="n3:_ObjectPageHeaderLayoutDataType" substitutionGroup="n0:LayoutData">
+<xsd:annotation>
+<xsd:documentation>This is a LayoutData Element that can be added to a control if this control is used within an ObjectPage headerContent aggregation</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ObjectPageLazyLoader" type="n3:_ObjectPageLazyLoaderType" substitutionGroup="n0:Element">
+<xsd:annotation>
+<xsd:documentation>ObjectPageLazyLoader is a helper element that enables a "stashed"-based lazy loading approach for the content of
+the sap.uxap.ObjectPageSubSection control. ObjectPageLazyLoader is intended to be used in a declarative way only
+(e.g. in a view) with the "stashed" property set to "true", and is recommended to be used only once per
+subsection as its sole content.
+
+ObjectPageLazyLoader utilizes UI5's stashing mechanism and is a lightweight alternative to the native block-based
+Lazy Loading of the Object Page. Wrapping the content of a subsection in an ObjectPageLazyLoader with "stashed=true"
+will make the said content unstash automatically as the user scrolls.
+
+Note: Subsections are required to have an ID when used with ObjectPageLazyLoader.</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ObjectPageSection" type="n3:_ObjectPageSectionType" substitutionGroup="n3:ObjectPageSectionBase">
+<xsd:annotation>
+<xsd:documentation>An ObjectPageSection is the top-level information container of an Object page. Its purpose is to aggregate Subsections.
+Disclaimer: This control is intended to be used only as part of the Object page layout</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ObjectPageSectionBase" type="n3:_ObjectPageSectionBaseType" substitutionGroup="n0:Control">
+<xsd:annotation>
+<xsd:documentation>An abstract container for object page sections and subSections</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="ObjectPageSubSection" type="n3:_ObjectPageSubSectionType" substitutionGroup="n3:ObjectPageSectionBase">
+<xsd:annotation>
+<xsd:documentation>An ObjectPageSubSection is the second-level information container of an Object page and may only be used within an Object page section.
+Subsections may display primary information in the so called blocks aggregation (always visible)
+and not-so-important information in the moreBlocks aggregation, whose content is initially hidden, but may be accessed via a See more (...) button.
+Disclaimer: This control is intended to be used only as part of the Object page layout</xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<!--type definition for UIElement 'sap.uxap.AnchorBar'-->
+<xsd:complexType name="_AnchorBarType">
+<xsd:complexContent>
+<xsd:extension base="n1:_ToolbarType">
+<xsd:sequence/>
+<xsd:attribute name="showPopover" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether to show a Popover with Subsection links when clicking on Section links in the Anchor bar.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="upperCase" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether the Anchor bar items are displayed in upper case.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedButton" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The button that represents the Section being scrolled by the user.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.BlockBase'-->
+<xsd:complexType name="_BlockBaseType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'mappings'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n3:ModelMapping"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="mappings" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Map external UI5 model and internal Block model</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n3:ModelMapping"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="mode" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Determines the mode of the block.
+When block is used inside ObjectPage this mode is inherited my the SubSection.
+The mode of the block is changed when SubSection mode changes.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="columnLayout" type="n3:_BlockBaseColumnLayoutType">
+<xsd:annotation>
+<xsd:documentation>Determines on how columns the layout will be rendered.
+Allowed values are integers from 1 to 4 and "auto".</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="formAdjustment" type="n3:_BlockBaseFormAdjustmentType">
+<xsd:annotation>
+<xsd:documentation>Determines if the block should automatically adjust its inner forms.
+Allowed values are "BlockColumns" and "OneColumn" and "None".
+If the value is "BlockColumns", then the inner form will have as many columns as the colspan of its parent block.
+If the value is "OneColumn", the inner form will have exactly one column, regardless the colspan of its parent block.
+If the value is "None", no automatic adjustment of inner forms will be made and the form will keep its original column count.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showSubSectionMore" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether the show more button should be shown.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedView" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The view that is rendered now.
+Can be used as getter for the rendered view.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.BreadCrumbs'-->
+<xsd:complexType name="_BreadCrumbsType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'links'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n1:Link"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="links" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>A list of all the active link elements in the BreadCrumbs control.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n1:Link"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="currentLocation" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The current/last element in the BreadCrumbs path.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n1:Text"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="showCurrentLocation" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Sets the visibility of the current/last element in the BreadCrumbs path.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.HierarchicalSelect'-->
+<xsd:complexType name="_HierarchicalSelectType">
+<xsd:complexContent>
+<xsd:extension base="n1:_SelectType">
+<xsd:attribute name="upperCase" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether the HierarchicalSelect items are displayed in upper case.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.ModelMapping'-->
+<xsd:complexType name="_ModelMappingType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:attribute name="externalModelName" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Determines the the external model name.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="internalModelName" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Determines the the internal model name.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="externalPath" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Determines the the external path.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.ObjectPageHeader'-->
+<xsd:complexType name="_ObjectPageHeaderType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<!--default aggregation 'actions'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="breadCrumbsLinks" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>A list of all the active link elements in the BreadCrumbs control.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n1:Link"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="navigationBar" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>An instance of sap.m.Bar to be embedded in the header</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n1:Bar"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="actions" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>List of actions that will be displayed in the header.
+You can use ObjectPageHeaderActionButton controls to achieve a different visual representation of the action buttons in the action bar and the action sheet (overflow menu).
+You can use ObjectPageHeaderLayoutData to display a visual separator.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="sideContentButton" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>A button that is used for opening the side content of the page or some additional content.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n1:Button"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="objectImageURI" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The URL of the image, representing the business object</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="objectImageAlt" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The text to be used for the Alt and Tooltip attribute of the image, supplied via the objectImageURI property</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="objectImageDensityAware" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>The value of densityAware for the image, supplied via the objectImageURI property.
+See sap.m.Image for more details on densityAware.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="objectTitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The title of the object</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="objectSubtitle" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The description of the object</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="objectImageShape" type="n3:_ObjectPageHeaderPictureShapeType">
+<xsd:annotation>
+<xsd:documentation>Determines whether the picture should be displayed in a square or with a circle-shaped mask.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="isObjectIconAlwaysVisible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether the icon should always be visible or visible only when the header is snapped.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="isObjectTitleAlwaysVisible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether the title should always be visible or visible only when the header is snapped.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="isObjectSubtitleAlwaysVisible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether the subtitle should always be visible or visible only when the header is snapped.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="isActionAreaAlwaysVisible" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether the action buttons should always be visible or visible only when the header is snapped.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="headerDesign" type="n3:_ObjectPageHeaderDesignType">
+<xsd:annotation>
+<xsd:documentation>Determines the design of the header - Light or Dark.
+&lt;b&gt;Note: &lt;/b&gt;This property is deprecated. It will continue to work in the Blue Crystal theme,
+but it will not be taken into account for the Belize themes.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showTitleSelector" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>When set to true, the selector arrow icon/image is shown and can be pressed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="markFavorite" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Set the favorite state to true or false. The showMarkers property must be true for this property to take effect.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="markFlagged" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Set the flagged state to true or false. The showMarkers property must be true for this property to take effect.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showMarkers" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Indicates if object page header title supports showing markers such as flagged and favorite.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="markLocked" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Set the locked state of the objectPageHeader.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showPlaceholder" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Enables support of a placeholder image in case no image is specified or the URL of the provided image is invalid.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="markChanges" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Marks that there are unsaved changes in the objectPageHeader.
+The markChanges state cannot be used together with the markLocked state.
+If both are set to true, only the locked state will be displayed.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="titleSelectorPress" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The event is fired when the objectPage header title selector (down-arrow) is pressed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="markLockedPress" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The event is fired when the Locked button is pressed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="markChangesPress" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The event is fired when the unsaved changes button is pressed</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.ObjectPageHeaderActionButton'-->
+<xsd:complexType name="_ObjectPageHeaderActionButtonType">
+<xsd:complexContent>
+<xsd:extension base="n1:_ButtonType">
+<xsd:attribute name="hideText" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Hide the button text when rendered into the headerTitle part of the ObjectPageLayout.
+This is useful if you want to display icons only in the headerTitle part but still want to display text + icon in the actionSheet that appears when not enough space is available on the screen for displaying all actions.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="hideIcon" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Hide the button icon when rendered into the headerTitle part of the ObjectPageLayout.
+This is useful if you want to display texts only in the headerTitle part but still want to display text + icon in the actionSheet that appears when not enough space is available on the screen for displaying all actions.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="importance" type="n3:_ImportanceType">
+<xsd:annotation>
+<xsd:documentation>Determines the order in which the button overflows.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.ObjectPageHeaderContent'-->
+<xsd:complexType name="_ObjectPageHeaderContentType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The list of Objects of type sap.ui.core.Control.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="contentDesign" type="n3:_ObjectPageHeaderDesignType">
+<xsd:annotation>
+<xsd:documentation>Determines the design of the header - Light or Dark.
+&lt;b&gt;Note: &lt;/b&gt;This property is deprecated. It will continue to work in the Blue Crystal theme,
+but it will not be taken into account for the Belize themes.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.ObjectPageHeaderLayoutData'-->
+<xsd:complexType name="_ObjectPageHeaderLayoutDataType">
+<xsd:complexContent>
+<xsd:extension base="n0:_LayoutDataType">
+<xsd:attribute name="visibleS" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If this property is set the control will be visible (or not) in a small sized layout.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="visibleM" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If this property is set the control will be visible (or not) in a medium sized layout.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="visibleL" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If this property is set the control will be visible (or not) in a large sized layout.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showSeparatorBefore" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If this property is set the control will display a separator before it.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="showSeparatorAfter" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>If this property is set the control will display a separator after it.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="width" type="n0:_CSSSizeType">
+<xsd:annotation>
+<xsd:documentation>If this property is set the control will take the provided size.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.ObjectPageLazyLoader'-->
+<xsd:complexType name="_ObjectPageLazyLoaderType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ElementType">
+<xsd:sequence>
+<!--default aggregation 'content'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="content" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Controls to be displayed after this element is unstashed</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.ObjectPageSection'-->
+<xsd:complexType name="_ObjectPageSectionType">
+<xsd:complexContent>
+<xsd:extension base="n3:_ObjectPageSectionBaseType">
+<xsd:sequence>
+<!--default aggregation 'subSections'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n3:ObjectPageSubSection"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+<xsd:element name="subSections" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The list of Subsections.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n3:ObjectPageSubSection"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="showTitle" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether to display the Section title or not.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="titleUppercase" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether the Section title is displayed in upper case.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="selectedSubSection" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>The most recently selected Subsection by the user.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.ObjectPageSectionBase'-->
+<xsd:complexType name="_ObjectPageSectionBaseType">
+<xsd:complexContent>
+<xsd:extension base="n0:_ControlType">
+<xsd:sequence>
+<xsd:element name="customAnchorBarButton" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>The custom button that will provide a link to the section in the ObjectPageLayout anchor bar.
+This button will be used as a custom template to be into the ObjectPageLayout anchorBar area, therefore property changes happening on this button template after the first rendering won't affect the actual button copy used in the anchorBar.
+
+If you want to change some of the button properties, you would need to bind them to a model.</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0">
+<xsd:element ref="n1:Button"/>
+<xsd:element ref="n0:Fragment"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="title" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>Section Title</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="importance" type="n3:_ImportanceType">
+<xsd:annotation>
+<xsd:documentation>Determines whether the section will be hidden on low resolutions.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<!--type definition for UIElement 'sap.uxap.ObjectPageSubSection'-->
+<xsd:complexType name="_ObjectPageSubSectionType">
+<xsd:complexContent>
+<xsd:extension base="n3:_ObjectPageSectionBaseType">
+<xsd:sequence>
+<!--default aggregation 'blocks'-->
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+<xsd:element name="blocks" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Controls to be displayed in the subsection</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="moreBlocks" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Additional controls to display when the Show more / See all / (...) button is pressed</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="actions" minOccurs="0">
+<xsd:annotation>
+<xsd:documentation>Actions available for this Subsection</xsd:documentation>
+</xsd:annotation>
+<xsd:complexType>
+<xsd:sequence>
+<xsd:choice minOccurs="0" maxOccurs="unbounded">
+<xsd:element ref="n0:Control"/>
+<xsd:element ref="n0:Fragment"/>
+<xsd:any processContents="lax" namespace="http://www.w3.org/1999/xhtml"/>
+</xsd:choice>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+<xsd:attribute name="mode" type="n3:_ObjectPageSubSectionModeType">
+<xsd:annotation>
+<xsd:documentation>A mode property that will be passed to the controls in the blocks and moreBlocks aggregations. Only relevant if these aggregations use Object page blocks.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+<xsd:attribute name="titleUppercase" type="xsd:boolean">
+<xsd:annotation>
+<xsd:documentation>Determines whether the Subsection title is displayed in upper case.</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+<xsd:simpleType name="_BlockBaseColumnLayoutType">
+<xsd:restriction base="xsd:string">
+<xsd:pattern value="auto|[1-4]{1}"/>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_BlockBaseFormAdjustmentType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="BlockColumns">
+<xsd:annotation>
+<xsd:documentation>Any form within the block will be automatically adjusted to have as many columns as the colspan of its parent block.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="OneColumn">
+<xsd:annotation>
+<xsd:documentation>Any form within the block will be automatically adjusted to have only one column.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="None">
+<xsd:annotation>
+<xsd:documentation>No automatic adjustment of forms.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_ImportanceType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Low">
+<xsd:annotation>
+<xsd:documentation>Low importance of the content</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Medium">
+<xsd:annotation>
+<xsd:documentation>Medium importance of the content</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="High">
+<xsd:annotation>
+<xsd:documentation>High importance of the content</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_ObjectPageConfigurationModeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="JsonURL">
+<xsd:annotation>
+<xsd:documentation>Determines the JSON url</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="JsonModel">
+<xsd:annotation>
+<xsd:documentation>Determines the JSON model</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_ObjectPageHeaderDesignType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Light">
+<xsd:annotation>
+<xsd:documentation>Light theme for the ObjectPageHeader.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Dark">
+<xsd:annotation>
+<xsd:documentation>Dark theme for the ObjectPageHeader.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_ObjectPageHeaderPictureShapeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Circle">
+<xsd:annotation>
+<xsd:documentation>Circle shape for the images in the ObjectPageHeader.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Square">
+<xsd:annotation>
+<xsd:documentation>Square shape for the images in the ObjectPageHeader.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_ObjectPageSubSectionLayoutType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="TitleOnTop">
+<xsd:annotation>
+<xsd:documentation>TitleOnTop: title and actions on top of the block area.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="TitleOnLeft">
+<xsd:annotation>
+<xsd:documentation>TitleOnLeft: title and actions on the left, inside the block area.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="_ObjectPageSubSectionModeType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Collapsed">
+<xsd:annotation>
+<xsd:documentation>Collapsed mode of display of the ObjectPageLayout.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+<xsd:enumeration value="Expanded">
+<xsd:annotation>
+<xsd:documentation>Expanded mode of displaying the ObjectPageLayout.</xsd:documentation>
+</xsd:annotation>
+</xsd:enumeration>
+</xsd:restriction>
+</xsd:simpleType>
+</xsd:schema>
