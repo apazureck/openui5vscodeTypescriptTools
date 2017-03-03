@@ -10,8 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const Log_1 = require('../Log');
 const vscode_languageserver_1 = require('vscode-languageserver');
 const xmlChecker = require('xmlchecker');
+const xmltypes_1 = require('../xmltypes');
 const xml2js = require('xml2js');
 const server_1 = require('../server');
+var DiagnosticCodes;
+(function (DiagnosticCodes) {
+    DiagnosticCodes[DiagnosticCodes["DoubleAttribute"] = 0] = "DoubleAttribute";
+})(DiagnosticCodes || (DiagnosticCodes = {}));
 class DiagnosticCollection {
     delete(uri) {
         this.diagnostics = {};
@@ -47,7 +52,7 @@ class XmlWellFormedDiagnosticProvider extends Log_1.Log {
             catch (error) {
                 console.log(error.toString());
             }
-            return { uri: doc.uri, diagnostics: items };
+            return items;
         });
     }
     diagXmlChecker(text) {
@@ -127,12 +132,71 @@ class XmlWellFormedDiagnosticProvider extends Log_1.Log {
     }
 }
 exports.XmlWellFormedDiagnosticProvider = XmlWellFormedDiagnosticProvider;
-class XmlAttributeChecks extends Log_1.Log {
+class XmlAttributeDiagnosticProvider extends xmltypes_1.XmlBaseHandler {
+    constructor(schemastorage, connection, logLevel, diagnostics) {
+        super(schemastorage, connection, logLevel);
+        this.diagnostics = diagnostics;
+        if (!diagnostics)
+            diagnostics = [];
+    }
     diagnose(doc) {
         return __awaiter(this, void 0, void 0, function* () {
-            // let text = fs.readfile
+            return new Promise((resolve, reject) => {
+                try {
+                    this.text = doc.getText();
+                    let baselement = this.textGetElements(this.text);
+                    this.checkAllElementsForAttributes(baselement);
+                    resolve(this.diagnostics);
+                }
+                catch (error) {
+                    this.logError("Could not diagnose Attributes: " + error.toString());
+                    reject(error);
+                }
+            });
         });
     }
+    /**
+     * Checks if double attributes are in element header
+     *
+     * @param {FoundElementHeader} element
+     *
+     * @memberOf XmlAttributeChecks
+     */
+    checkDoubleAttributes(element) {
+        let doubles = {};
+        this.logDebug("Checking " + (element.attributes ? element.attributes.length : 0) + " attributes");
+        for (let attribute of element.attributes) {
+            if (doubles[attribute.name]) {
+                this.logDebug(() => "Found double attribute '" + attribute.name + "'");
+                this.diagnostics.push({
+                    code: DiagnosticCodes.DoubleAttribute,
+                    message: "Double attribute '" + attribute.name + "'",
+                    range: { start: server_1.getPositionFromIndex(this.text, attribute.startpos), end: server_1.getPositionFromIndex(this.text, attribute.endpos) },
+                    severity: vscode_languageserver_1.DiagnosticSeverity.Error,
+                    source: "xmllint"
+                });
+            }
+            else {
+                this.logDebug(() => "Added attribute '" + attribute.name + "' to the doubles dictionary");
+                doubles[attribute.name] = attribute;
+            }
+        }
+    }
+    /**
+     * Checks all elements for their attributes recursively using the children array
+     *
+     * @param {FoundElementHeader} baseelement
+     *
+     * @memberOf XmlAttributeChecks
+     */
+    checkAllElementsForAttributes(baseelement) {
+        this.checkDoubleAttributes(baseelement);
+        if (baseelement.children)
+            for (let el of baseelement.children) {
+                this.logDebug("Checking element '" + el.fullName + "'");
+                this.checkAllElementsForAttributes(el);
+            }
+    }
 }
-exports.XmlAttributeChecks = XmlAttributeChecks;
+exports.XmlAttributeDiagnosticProvider = XmlAttributeDiagnosticProvider;
 //# sourceMappingURL=XmlDiagnosticProvider.js.map

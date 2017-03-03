@@ -1,14 +1,18 @@
 import { Log, LogLevel } from '../Log';
 import { Diagnostic, Range, DiagnosticSeverity, PublishDiagnosticsParams, IConnection, TextDocument } from 'vscode-languageserver'
 import * as xmlChecker from 'xmlchecker';
-import { XmlCheckerError } from '../xmltypes'
+import { FoundAttribute, FoundElementHeader, XmlBaseHandler, XmlCheckerError, XmlStorage } from '../xmltypes';
 import * as xml2js from 'xml2js';
 import { getLine, Global, getPositionFromIndex, getRange, getLineCount } from '../server'
 import * as fs from 'fs';
 import * as path from 'path';
 
+enum DiagnosticCodes {
+    DoubleAttribute
+}
+
 interface IDiagnostic {
-    diagnose(doc: TextDocument)
+    diagnose(doc: TextDocument): Promise<Diagnostic[]>
 }
 
 export class DiagnosticCollection {
@@ -29,7 +33,7 @@ export class DiagnosticCollection {
 }
 
 export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic {
-    async diagnose(doc: TextDocument): Promise<PublishDiagnosticsParams> {
+    async diagnose(doc: TextDocument): Promise<Diagnostic[]> {
         let text = doc.getText();
         let items: Diagnostic[] = []
         try {
@@ -39,15 +43,15 @@ export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic 
         }
         try {
             items = items.concat(this.diagXmlChecker(text));
-        } catch(error) {
+        } catch (error) {
             console.log(error.toString())
         }
         try {
             items = items.concat(await this.getNamespaces(text));
-        } catch(error) {
+        } catch (error) {
             console.log(error.toString())
         }
-        return { uri: doc.uri, diagnostics: items };
+        return items;
     }
 
     diagXmlChecker(text: string): Diagnostic[] {
@@ -129,9 +133,67 @@ export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic 
     }
 }
 
-export class XmlAttributeChecks extends Log implements IDiagnostic {
-    async diagnose(doc: TextDocument) {
-        // let text = fs.readfile
+export class XmlAttributeDiagnosticProvider extends XmlBaseHandler implements IDiagnostic {
+    private text: string;
+    constructor(schemastorage: XmlStorage, connection: IConnection, logLevel: LogLevel, private diagnostics?: Diagnostic[]) {
+        super(schemastorage, connection, logLevel);
+        if(!diagnostics)
+            diagnostics = []
     }
-    
+    async diagnose(doc: TextDocument): Promise<Diagnostic[]> {
+        return new Promise<Diagnostic[]>((resolve, reject) => {
+            try {
+                this.text = doc.getText();
+                let baselement = this.textGetElements(this.text);
+                this.checkAllElementsForAttributes(baselement);
+                resolve(this.diagnostics);
+            } catch (error) {
+                this.logError("Could not diagnose Attributes: " + error.toString());
+                reject(error);
+            }
+        })
+    }
+
+    /**
+     * Checks if double attributes are in element header
+     * 
+     * @param {FoundElementHeader} element 
+     * 
+     * @memberOf XmlAttributeChecks
+     */
+    checkDoubleAttributes(element: FoundElementHeader): void {
+        let doubles: { [name: string]: FoundAttribute } = {}
+        this.logDebug("Checking " + (element.attributes ? element.attributes.length : 0) + " attributes")
+        for (let attribute of element.attributes) {
+            if (doubles[attribute.name]) {
+                this.logDebug(() => "Found double attribute '" + attribute.name + "'")
+                this.diagnostics.push({
+                    code: DiagnosticCodes.DoubleAttribute,
+                    message: "Double attribute '" + attribute.name + "'",
+                    range: { start: getPositionFromIndex(this.text, attribute.startpos), end: getPositionFromIndex(this.text, attribute.endpos) },
+                    severity: DiagnosticSeverity.Error,
+                    source: "xmllint"
+                });
+            } else {
+                this.logDebug(() => "Added attribute '" + attribute.name + "' to the doubles dictionary");
+                doubles[attribute.name] = attribute;
+            }
+        }
+    }
+
+    /**
+     * Checks all elements for their attributes recursively using the children array
+     * 
+     * @param {FoundElementHeader} baseelement 
+     * 
+     * @memberOf XmlAttributeChecks
+     */
+    checkAllElementsForAttributes(baseelement: FoundElementHeader): void {
+        this.checkDoubleAttributes(baseelement);
+        if (baseelement.children)
+            for (let el of baseelement.children) {
+                this.logDebug("Checking element '" + el.fullName + "'");
+                this.checkAllElementsForAttributes(el);
+            }
+    }
 }

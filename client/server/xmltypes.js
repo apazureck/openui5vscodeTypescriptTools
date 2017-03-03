@@ -73,7 +73,7 @@ function getNamespaces(xmlobject) {
     return retns;
 }
 exports.getNamespaces = getNamespaces;
-class XmlBase extends Log_1.Log {
+class XmlBaseHandler extends Log_1.Log {
     constructor(schemastorage, connection, loglevel) {
         super(connection, loglevel);
         this.schemastorage = schemastorage.schemas;
@@ -103,20 +103,21 @@ class XmlBase extends Log_1.Log {
         while (match = xmlnsregex.exec(input))
             this.usedNamespaces[match[1]] = match[2];
     }
-    textGetElements(txt, parent) {
+    textGetElements(txt) {
         // Regex to find the text between a closing and opening bracket "> ... found text <"
-        let between = /(>(?!--|.*>)[\s\S]*?<)/g;
+        let relbody = /(>(?!--|.*>)[\s\S]*?<)/g;
         let p = [];
         let comment = false;
         let bmatch;
         // execute once to get the first match
-        let lm = between.exec(txt);
+        let lastmatch = relbody.exec(txt);
         // Get first element
+        let parent = undefined;
         // Get rest of the elements
-        while (bmatch = between.exec(txt)) {
-            let part = txt.substring(lm.index, bmatch.index);
-            let inner = txt.substring(lm.index + lm[0].length, bmatch.index);
-            lm = bmatch;
+        while (bmatch = relbody.exec(txt)) {
+            let part = txt.substring(lastmatch.index, bmatch.index);
+            let inner = txt.substring(lastmatch.index + lastmatch[0].length, bmatch.index);
+            lastmatch = bmatch;
             this.logDebug("Found potential element '" + inner + "'");
             // 1: slash at start, if closing tag
             // 2: namespace
@@ -125,6 +126,8 @@ class XmlBase extends Log_1.Log {
             // 5: arguments, if There
             // 6: / at the end if self closing element
             let tag = inner.match(/^(\/?)(\w*?):?(\w+?)(\s|.$)(.*?)(\/?)$/);
+            let elcontent = txt.substring(lastmatch.index + lastmatch[0].length, bmatch.index);
+            let eltag = (elcontent + " ").match(/^\s*?(\/?)\s*?(\w*?):?(\w+?)(\s|\/)/);
             if (comment || !tag) {
                 if (inner.startsWith("!--")) {
                     comment = true;
@@ -138,19 +141,46 @@ class XmlBase extends Log_1.Log {
             else if (tag[1] === "/") {
                 p.pop();
                 this.logDebug(() => "Found closing tag. New Stack: " + p.join(" > "));
+                if (parent.parent !== undefined)
+                    parent = parent.parent;
             }
             else if (tag[6]) {
                 this.logDebug("Found self closing element '" + tag[2] + "'");
+                if (parent)
+                    parent.children.push({
+                        elementcontent: elcontent,
+                        isClosingTag: tag[1] !== '',
+                        isSelfClosingTag: elcontent.endsWith("/"),
+                        tagName: tag[3],
+                        tagNamespace: tag[2],
+                        fullName: tag[2] ? tag[2] + ":" + tag[3] : tag[2],
+                        path: p,
+                    });
             }
             else {
+                this.logDebug(() => "Found opening element '" + tag[2] + "'. New Stack: " + p.join(" > "));
                 let fulltag = (tag[2].match(/\w+/) ? tag[2] + ":" : "") + tag[3];
                 if (tag[4].match(/\w/))
                     p.push(fulltag + tag[4]);
                 else
                     p.push(fulltag);
-                this.logDebug(() => "Found opening tag '" + tag[2] + "'. New Stack: " + p.join(" > "));
+                let nelement = {
+                    elementcontent: elcontent,
+                    isClosingTag: tag[1] !== '',
+                    isSelfClosingTag: elcontent.endsWith("/"),
+                    tagName: tag[3],
+                    tagNamespace: tag[2],
+                    fullName: tag[2] ? tag[2] + ":" + tag[3] : tag[2],
+                    path: p,
+                    parent: parent,
+                    children: []
+                };
+                if (parent)
+                    parent.children.push(nelement);
+                parent = nelement;
             }
         }
+        return parent;
     }
     textGetElementAtCursorPos(txt, start) {
         // Regex will find all stuff between two xml elements. so it will find sth. like this: <element1> ... "This is found" ... <element2>
@@ -287,7 +317,7 @@ class XmlBase extends Log_1.Log {
         }
     }
 }
-exports.XmlBase = XmlBase;
+exports.XmlBaseHandler = XmlBaseHandler;
 /**
  * Replaces the key. Return old key if key should not be renamed.
  *

@@ -6,10 +6,30 @@ export enum LogLevel {
 
 export type LogMessage = string | (() => string)
 
+/**
+ * A base class to send log messages to the client
+ * 
+ * @export
+ * @class Log
+ */
 export class Log {
+    /**
+     * Creates an instance of Log.
+     * @param {IConnection} connection The connection to the client
+     * @param {LogLevel} loglevel The loglevel of this instance
+     * 
+     * @memberOf Log
+     */
     constructor(public readonly connection: IConnection, public readonly loglevel: LogLevel) {
     }
 
+    /**
+     * Sends a debug message to the client output.
+     * 
+     * @param {LogMessage} message 
+     * 
+     * @memberOf Log
+     */
     logDebug(message: LogMessage) {
         try {
             if (this.loglevel <= LogLevel.Debug) {
@@ -50,6 +70,13 @@ export class Log {
         }
     }
 
+    /**
+     * Sends an info message to the client output
+     * 
+     * @param {LogMessage} message 
+     * 
+     * @memberOf Log
+     */
     logInfo(message: LogMessage) {
         try {
             if (this.loglevel <= LogLevel.Debug) {
@@ -63,6 +90,13 @@ export class Log {
         }
     }
 
+    /**
+     * Sends a warning message to the client output
+     * 
+     * @param {LogMessage} message 
+     * 
+     * @memberOf Log
+     */
     logWarn(message: LogMessage) {
         try {
             if (this.loglevel <= LogLevel.Warning) {
@@ -76,6 +110,13 @@ export class Log {
         }
     }
 
+    /**
+     * Sends an error message to the client output
+     * 
+     * @param {LogMessage} message 
+     * 
+     * @memberOf Log
+     */
     logError(message: LogMessage) {
         try {
             if (this.loglevel <= LogLevel.Error) {
@@ -89,6 +130,13 @@ export class Log {
         }
     }
 
+    /**
+     * Sends a fatal error to the client output. Fatal errors are displayed regardless of the loglevel.
+     * 
+     * @param {LogMessage} message 
+     * 
+     * @memberOf Log
+     */
     logFatalError(message: LogMessage) {
         try {
             if (typeof message === "string")

@@ -29,7 +29,7 @@ let connection = vscode_languageserver_1.createConnection(new vscode_languageser
 let documents = new vscode_languageserver_1.TextDocuments();
 connection.onInitialize((params) => {
     connection.console.info("Initializing XML language server");
-    connection.console.log("params: " + JSON.stringify(params));
+    // connection.console.log("params: " + JSON.stringify(params));
     Global.serverSettings = params.initializationOptions;
     Global.workspaceRoot = params.rootPath;
     Global.schemastore = new xmltypes_1.XmlStorage(Global.serverSettings.storagepath, connection, Log_1.LogLevel.None);
@@ -70,20 +70,25 @@ connection.onCompletion((params, token) => __awaiter(this, void 0, void 0, funct
     }
     return cl;
 }));
-connection.onDidChangeTextDocument((changeparams) => __awaiter(this, void 0, void 0, function* () {
-    let doc = documents.get(changeparams.textDocument.uri);
+documents.onDidChangeContent((params) => __awaiter(this, void 0, void 0, function* () {
+    let doc = documents.get(params.document.uri);
     if (!doc)
         return;
-    let dp = new XmlDiagnosticProvider_1.XmlWellFormedDiagnosticProvider(connection, Global.settings.ui5ts.lang.xml.LogLevel);
-    let diagnostics = yield dp.diagnose(doc);
+    let diagnostics = { uri: doc.uri, diagnostics: [] };
+    try {
+        let wfd = new XmlDiagnosticProvider_1.XmlWellFormedDiagnosticProvider(connection, Global.settings.ui5ts.lang.xml.LogLevel);
+        diagnostics.diagnostics = diagnostics.diagnostics.concat(yield wfd.diagnose(doc));
+    }
+    catch (error) {
+    }
+    try {
+        let ad = new XmlDiagnosticProvider_1.XmlAttributeDiagnosticProvider(Global.schemastore, connection, Global.settings.ui5ts.lang.xml.LogLevel);
+        diagnostics.diagnostics = diagnostics.diagnostics.concat(yield ad.diagnose(doc));
+    }
+    catch (error) {
+    }
     connection.sendDiagnostics(diagnostics);
 }));
-documents.onDidChangeContent((e) => {
-    let i = 0;
-});
-connection.onDidChangeWatchedFiles((params) => {
-    params.changes[0].uri;
-});
 connection.onDidChangeConfiguration((change) => {
     connection.console.info("Changed settings: " + JSON.stringify(change));
     Global.settings = change.settings;

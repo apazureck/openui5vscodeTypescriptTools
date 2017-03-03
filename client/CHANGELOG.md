@@ -4,7 +4,7 @@
 
 * **FEATURE** I18n diagnostic will automatically updated when i18n.properties file is changed
 * **FEATURE** XML Diagnostic attribute check (double attributes)
-* **FEATURE** XML Diagnostics for Simpleform and views
+* **FEATURE** XML CodeCompletion for SimpleForm (`sap.ui.layout.form`) and Views (`sap.ui.core.mvc`)
 * **BUGFIX** XML Attribute search improved
 * Completely split basic XML features from UI5 specific features
 

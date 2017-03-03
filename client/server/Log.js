@@ -7,11 +7,31 @@
     LogLevel[LogLevel["None"] = 4] = "None";
 })(exports.LogLevel || (exports.LogLevel = {}));
 var LogLevel = exports.LogLevel;
+/**
+ * A base class to send log messages to the client
+ *
+ * @export
+ * @class Log
+ */
 class Log {
+    /**
+     * Creates an instance of Log.
+     * @param {IConnection} connection The connection to the client
+     * @param {LogLevel} loglevel The loglevel of this instance
+     *
+     * @memberOf Log
+     */
     constructor(connection, loglevel) {
         this.connection = connection;
         this.loglevel = loglevel;
     }
+    /**
+     * Sends a debug message to the client output.
+     *
+     * @param {LogMessage} message
+     *
+     * @memberOf Log
+     */
     logDebug(message) {
         try {
             if (this.loglevel <= LogLevel.Debug) {
@@ -50,6 +70,13 @@ class Log {
         catch (error) {
         }
     }
+    /**
+     * Sends an info message to the client output
+     *
+     * @param {LogMessage} message
+     *
+     * @memberOf Log
+     */
     logInfo(message) {
         try {
             if (this.loglevel <= LogLevel.Debug) {
@@ -62,6 +89,13 @@ class Log {
         catch (error) {
         }
     }
+    /**
+     * Sends a warning message to the client output
+     *
+     * @param {LogMessage} message
+     *
+     * @memberOf Log
+     */
     logWarn(message) {
         try {
             if (this.loglevel <= LogLevel.Warning) {
@@ -74,6 +108,13 @@ class Log {
         catch (error) {
         }
     }
+    /**
+     * Sends an error message to the client output
+     *
+     * @param {LogMessage} message
+     *
+     * @memberOf Log
+     */
     logError(message) {
         try {
             if (this.loglevel <= LogLevel.Error) {
@@ -86,6 +127,13 @@ class Log {
         catch (error) {
         }
     }
+    /**
+     * Sends a fatal error to the client output. Fatal errors are displayed regardless of the loglevel.
+     *
+     * @param {LogMessage} message
+     *
+     * @memberOf Log
+     */
     logFatalError(message) {
         try {
             if (typeof message === "string")

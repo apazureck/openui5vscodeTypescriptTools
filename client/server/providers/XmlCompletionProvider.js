@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const vscode_languageserver_1 = require('vscode-languageserver');
 const xmltypes_1 = require('../xmltypes');
-class XmlCompletionHandler extends xmltypes_1.XmlBase {
+class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
     constructor(schemastorage, documents, connection, schemastorePath, loglevel) {
         super(schemastorage, connection, loglevel);
         this.documents = documents;

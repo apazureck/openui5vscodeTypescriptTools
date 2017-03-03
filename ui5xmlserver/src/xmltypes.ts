@@ -144,17 +144,24 @@ export interface FoundElementHeader {
 	fullName: string
 	isClosingTag: boolean
 	isSelfClosingTag: boolean
-	/**
-	 * Name of the attribute, if cursor is in attribute
-	 * 
-	 * @type {string}
-	 * @memberOf FoundCursor
-	 */
-
 	attributes?: FoundAttribute[]
+	/**
+	 * Parent of this element
+	 * 
+	 * @type {FoundElementHeader}
+	 * @memberOf FoundElementHeader
+	 */
+	parent?: FoundElementHeader
+	/**
+	 * Children of this element. Empty array, if element is without any children: <Tag></Tag> and undefined if self closing <Tag/>
+	 * 
+	 * @type {FoundElementHeader[]}
+	 * @memberOf FoundElementHeader
+	 */
+	children?: FoundElementHeader[];
 }
 
-export class XmlBase extends Log {
+export class XmlBaseHandler extends Log {
 	public schemastorage: { [targetNamespace: string]: StorageSchema }
 	public usedNamespaces: { [abbrevation: string]: string }
 	constructor(schemastorage: XmlStorage, connection: IConnection, loglevel: LogLevel) {
@@ -189,23 +196,23 @@ export class XmlBase extends Log {
 			this.usedNamespaces[match[1]] = match[2];
 	}
 
-	textGetElements(txt: string, parent?: FoundElementHeader) {
+	textGetElements(txt: string): FoundElementHeader {
 		// Regex to find the text between a closing and opening bracket "> ... found text <"
-		let between = /(>(?!--|.*>)[\s\S]*?<)/g;
+		let relbody = /(>(?!--|.*>)[\s\S]*?<)/g;
 		let p: string[] = [];
 		let comment = false;
 		let bmatch: RegExpMatchArray;
 		// execute once to get the first match
-		let lm: RegExpMatchArray = between.exec(txt);
+		let lastmatch: RegExpMatchArray = relbody.exec(txt);
 
 		// Get first element
-		
+		let parent: FoundElementHeader = undefined;
 
 		// Get rest of the elements
-		while (bmatch = between.exec(txt)) {
-			let part = txt.substring(lm.index, bmatch.index);
-			let inner = txt.substring(lm.index + lm[0].length, bmatch.index)
-			lm = bmatch;
+		while (bmatch = relbody.exec(txt)) {
+			let part = txt.substring(lastmatch.index, bmatch.index);
+			let inner = txt.substring(lastmatch.index + lastmatch[0].length, bmatch.index)
+			lastmatch = bmatch;
 			this.logDebug("Found potential element '" + inner + "'")
 			// 1: slash at start, if closing tag
 			// 2: namespace
@@ -214,6 +221,10 @@ export class XmlBase extends Log {
 			// 5: arguments, if There
 			// 6: / at the end if self closing element
 			let tag = inner.match(/^(\/?)(\w*?):?(\w+?)(\s|.$)(.*?)(\/?)$/);
+
+			let elcontent = txt.substring(lastmatch.index + lastmatch[0].length, bmatch.index);
+			let eltag = (elcontent + " ").match(/^\s*?(\/?)\s*?(\w*?):?(\w+?)(\s|\/)/);
+
 			if (comment || !tag) {
 				if (inner.startsWith("!--")) {
 					comment = true;
@@ -224,22 +235,49 @@ export class XmlBase extends Log {
 					this.logDebug("Comment ended");
 				}
 			}
-			// todo: Handle potential open and closing tags when in attribute values
-			// Case closing tag
 			else if (tag[1] === "/") {
 				p.pop();
 				this.logDebug(() => "Found closing tag. New Stack: " + p.join(" > "))
+				if(parent.parent !== undefined)
+					parent = parent.parent;
 			} else if (tag[6]) {
 				this.logDebug("Found self closing element '" + tag[2] + "'")
+				if(parent)
+					parent.children.push({
+					elementcontent: elcontent,
+					isClosingTag: tag[1] !== '',
+					isSelfClosingTag: elcontent.endsWith("/"),
+					tagName: tag[3],
+					tagNamespace: tag[2],
+					fullName: tag[2] ? tag[2] + ":" + tag[3] : tag[2],
+					path: p,
+				});
 			} else {
+				this.logDebug(() => "Found opening element '" + tag[2] + "'. New Stack: " + p.join(" > "))
 				let fulltag = (tag[2].match(/\w+/) ? tag[2] + ":" : "") + tag[3];
 				if (tag[4].match(/\w/))
 					p.push(fulltag + tag[4]);
 				else
 					p.push(fulltag);
-				this.logDebug(() => "Found opening tag '" + tag[2] + "'. New Stack: " + p.join(" > "))
+
+				let nelement: FoundElementHeader = {
+					elementcontent: elcontent,
+					isClosingTag: tag[1] !== '',
+					isSelfClosingTag: elcontent.endsWith("/"),
+					tagName: tag[3],
+					tagNamespace: tag[2],
+					fullName: tag[2] ? tag[2] + ":" + tag[3] : tag[2],
+					path: p,
+					parent: parent,
+					children: []
+				}
+				if(parent)
+					parent.children.push(nelement);
+				parent = nelement;
 			}
 		}
+
+		return parent;
 	}
 
 	textGetElementAtCursorPos(txt: string, start: number): FoundCursor {
@@ -294,8 +332,8 @@ export class XmlBase extends Log {
 				this.logDebug(() => "Found opening tag '" + tag[2] + "'. New Stack: " + p.join(" > "))
 			}
 
-			
-			
+
+
 		}
 
 		// If cursor is in element is inbetween elements the index of start is smaller than the found index of lm and the length of the part: tag'> .... stuff .... <'
@@ -384,7 +422,7 @@ export class XmlBase extends Log {
 		}
 		else {
 			let attributes = type.complexContent ? type.complexContent[0].attribute : type.attribute;
-			if(!attributes)
+			if (!attributes)
 				attributes = [];
 			for (let attribute of attributes)
 				attribute.__owner = type;

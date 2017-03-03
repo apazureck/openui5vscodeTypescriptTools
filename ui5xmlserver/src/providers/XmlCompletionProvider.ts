@@ -1,11 +1,11 @@
 import { TextDocumentPositionParams, CompletionItem, TextDocuments, IConnection, CompletionItemKind } from 'vscode-languageserver'
-import { ComplexTypeEx, ElementEx, FoundCursor, StorageSchema, XmlBase, XmlStorage } from '../xmltypes';
+import { ComplexTypeEx, ElementEx, FoundCursor, StorageSchema, XmlBaseHandler, XmlStorage } from '../xmltypes';
 import { LogLevel } from '../Log';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as xml from 'xml2js';
 
-export class XmlCompletionHandler extends XmlBase {
+export class XmlCompletionHandler extends XmlBaseHandler {
 	constructor(schemastorage: XmlStorage, private documents: TextDocuments, connection: IConnection, private schemastorePath: string, loglevel: LogLevel) {
 		super(schemastorage, connection, loglevel);
 		this.schemastorage = schemastorage.schemas

@@ -10,7 +10,7 @@ import {
 	createConnection, IConnection, TextDocumentSyncKind,
 	TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
 	InitializeParams, InitializeResult, TextDocumentPositionParams,
-	CompletionItem, CompletionItemKind, Location, Range, DidChangeTextDocumentParams, CompletionList, Position
+	CompletionItem, CompletionItemKind, Location, Range, DidChangeTextDocumentParams, CompletionList, Position, PublishDiagnosticsParams
 } from 'vscode-languageserver';
 import { } from 'cancellation'
 import * as vscodels from 'vscode-languageserver';
@@ -21,7 +21,11 @@ import * as fs from 'fs';
 import { XmlStorage, StorageSchema } from './xmltypes'
 import { XmlCompletionHandler } from './providers/XmlCompletionProvider'
 import { LogLevel } from './Log'
-import { XmlWellFormedDiagnosticProvider, DiagnosticCollection } from './providers/XmlDiagnosticProvider'
+import {
+    DiagnosticCollection,
+    XmlAttributeDiagnosticProvider,
+    XmlWellFormedDiagnosticProvider
+} from './providers/XmlDiagnosticProvider';
 
 const controllerFileEx = "\\.controller\\.(js|ts)$";
 
@@ -68,7 +72,7 @@ let documents: TextDocuments = new TextDocuments();
 
 connection.onInitialize((params): InitializeResult => {
 	connection.console.info("Initializing XML language server");
-	connection.console.log("params: " + JSON.stringify(params));
+	// connection.console.log("params: " + JSON.stringify(params));
 
 	Global.serverSettings = params.initializationOptions
 	Global.workspaceRoot = params.rootPath;
@@ -115,25 +119,26 @@ connection.onCompletion(async (params, token): Promise<CompletionList> => {
 	return cl;
 });
 
-connection.onDidChangeTextDocument(async (changeparams) => {
-
-	let doc = documents.get(changeparams.textDocument.uri);
+documents.onDidChangeContent(async (params) => {
+	let doc = documents.get(params.document.uri);
 	if (!doc)
 		return;
 
-	let dp = new XmlWellFormedDiagnosticProvider(connection, Global.settings.ui5ts.lang.xml.LogLevel);
+	
+	let diagnostics: PublishDiagnosticsParams = { uri: doc.uri, diagnostics: [] }
 
-	let diagnostics = await dp.diagnose(doc);
+	try {
+		let wfd = new XmlWellFormedDiagnosticProvider(connection, Global.settings.ui5ts.lang.xml.LogLevel);
+		diagnostics.diagnostics = diagnostics.diagnostics.concat(await wfd.diagnose(doc));
+	} catch(error) {
+	}
+	try {
+		let ad = new XmlAttributeDiagnosticProvider(Global.schemastore, connection, Global.settings.ui5ts.lang.xml.LogLevel);
+		diagnostics.diagnostics = diagnostics.diagnostics.concat(await ad.diagnose(doc));
+	} catch(error) {
+	}
 	connection.sendDiagnostics(diagnostics);
 });
-
-documents.onDidChangeContent((e) => {
-	let i = 0;
-})
-
-connection.onDidChangeWatchedFiles((params) => {
-	params.changes[0].uri
-})
 
 connection.onDidChangeConfiguration((change) => {
 	connection.console.info("Changed settings: " + JSON.stringify(change));
