@@ -250,6 +250,9 @@ export class XmlBase extends Log {
 		let m: RegExpMatchArray;
 		let lm: RegExpMatchArray = regx.exec(txt);
 
+		// Move one left
+		start--;
+
 		while (m = regx.exec(txt)) {
 			if (m.index > start) {
 				break;
@@ -302,7 +305,7 @@ export class XmlBase extends Log {
 		let foundcursor: FoundCursor = {
 			absoluteCursorPosition: start,
 			relativeCursorPosition: start - lm.index - lm[0].length,
-			isInElement: start >= lm.index + lm[0].length,
+			isInElement: start >= lm.index + lm[0].length - 1, // + 1 to take the end tag '>' into account
 			elementcontent: ec,
 			isClosingTag: tag[1] !== '',
 			isSelfClosingTag: ec.endsWith("/"),
@@ -373,16 +376,19 @@ export class XmlBase extends Log {
 		return attributes;
 	}
 
-	getAttributes(type: ComplexTypeEx, schema: StorageSchema): Attribute[] {
+	getAttributes(type: ComplexTypeEx): Attribute[] {
 		if (type.basetype) {
 			for (let att of type.complexContent[0].extension[0].attribute as Attribute[])
 				att.__owner = type;
-			return this.getAttributes(type.basetype, type.schema).concat(type.complexContent[0].extension[0].attribute);
+			return this.getAttributes(type.basetype).concat(type.complexContent[0].extension[0].attribute);
 		}
 		else {
-			for (let att of type.attribute)
-				att.__owner = type;
-			return type.attribute;
+			let attributes = type.complexContent ? type.complexContent[0].attribute : type.attribute;
+			if(!attributes)
+				attributes = [];
+			for (let attribute of attributes)
+				attribute.__owner = type;
+			return attributes;
 		}
 	}
 }

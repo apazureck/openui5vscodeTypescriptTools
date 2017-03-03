@@ -322,9 +322,14 @@ export class XmlCompletionHandler extends XmlBase {
 		this.logDebug("Using Schema: " + schema.targetNamespace);
 		let element = this.findElement(cursor.tagName, schema);
 		this.logDebug(() => "Found element: " + element.$.name);
-		let elementType = this.findTypeByName(element.$.type, schema);
+		let elementType = this.getTypeOfElement(element);
 		this.logDebug(() => "Found Element type: " + elementType.$.name);
-		let attributes = this.getAttributes(elementType, schema);
+		let types = this.getBaseTypes(elementType, []);
+		if(types && types.length > 0)
+			elementType.basetype = types[0];
+			
+		let attributes = this.getAttributes(elementType);
+
 		this.logDebug(() => "Found " + attributes.length + " Attributes");
 		let ret: CompletionItem[] = [];
 		for (let attribute of attributes) {
@@ -401,8 +406,6 @@ export class XmlCompletionHandler extends XmlBase {
 			if (!element.$.name)
 				continue;
 			if (element.$.name !== name)
-				continue;
-			if (!element.$.type)
 				continue;
 
 			(<ElementEx>element).ownerschema = schema;

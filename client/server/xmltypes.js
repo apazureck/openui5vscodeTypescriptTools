@@ -159,6 +159,8 @@ class XmlBase extends Log_1.Log {
         let comment = false;
         let m;
         let lm = regx.exec(txt);
+        // Move one left
+        start--;
         while (m = regx.exec(txt)) {
             if (m.index > start) {
                 break;
@@ -207,7 +209,7 @@ class XmlBase extends Log_1.Log {
         let foundcursor = {
             absoluteCursorPosition: start,
             relativeCursorPosition: start - lm.index - lm[0].length,
-            isInElement: start >= lm.index + lm[0].length,
+            isInElement: start >= lm.index + lm[0].length - 1,
             elementcontent: ec,
             isClosingTag: tag[1] !== '',
             isSelfClosingTag: ec.endsWith("/"),
@@ -269,16 +271,19 @@ class XmlBase extends Log_1.Log {
         }
         return attributes;
     }
-    getAttributes(type, schema) {
+    getAttributes(type) {
         if (type.basetype) {
             for (let att of type.complexContent[0].extension[0].attribute)
                 att.__owner = type;
-            return this.getAttributes(type.basetype, type.schema).concat(type.complexContent[0].extension[0].attribute);
+            return this.getAttributes(type.basetype).concat(type.complexContent[0].extension[0].attribute);
         }
         else {
-            for (let att of type.attribute)
-                att.__owner = type;
-            return type.attribute;
+            let attributes = type.complexContent ? type.complexContent[0].attribute : type.attribute;
+            if (!attributes)
+                attributes = [];
+            for (let attribute of attributes)
+                attribute.__owner = type;
+            return attributes;
         }
     }
 }
