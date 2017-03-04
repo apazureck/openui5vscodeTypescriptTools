@@ -54,15 +54,18 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		let downpath: string[] = [];
 		let element: ElementEx;
 
-		// go down the path to get the first parent element in the owning schema
-		while (part = path.pop()) {
-			element = this.findElement(part, this.getSchema(part))
-			if (element) {
-				break;
-			} else {
-				downpath.push(part);
+		if (cursor.path.length > 0)
+			// go down the path to get the first parent element in the owning schema
+			while (part = path.pop()) {
+				element = this.findElement(part, this.getSchema(part))
+				if (element) {
+					break;
+				} else {
+					downpath.push(part);
+				}
 			}
-		}
+		else
+			element = this.findElement(cursor.fullName, this.getSchema(cursor.fullName));
 
 		// Find out if element is referenced first
 		if (element.$ && element.$.ref) {
@@ -325,9 +328,9 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		let elementType = this.getTypeOfElement(element);
 		this.logDebug(() => "Found Element type: " + elementType.$.name);
 		let types = this.getBaseTypes(elementType, []);
-		if(types && types.length > 0)
+		if (types && types.length > 0)
 			elementType.basetype = types[0];
-			
+
 		let attributes = this.getAttributes(elementType);
 
 		this.logDebug(() => "Found " + attributes.length + " Attributes");

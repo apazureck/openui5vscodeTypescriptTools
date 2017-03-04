@@ -142,7 +142,14 @@ export interface FoundElementHeader {
 	 * @type {number}
 	 * @memberOf FoundElementHeader
 	 */
-	startindex?: number
+	startindex: number
+	/**
+	 * End of element header
+	 * 
+	 * @type {number}
+	 * @memberOf FoundElementHeader
+	 */
+	endindex: number
 	elementcontent: string
 	path: string[]
 	tagName: string
@@ -203,7 +210,18 @@ export class XmlBaseHandler extends Log {
 			this.usedNamespaces[match[1]] = match[2];
 	}
 
-	textGetElements(txt: string): FoundElementHeader {
+	/**
+	 * Searches all Elements and puts them in a structure.
+	 * 
+	 * @param {string} txt 
+	 * @param {(curIndex: number) => boolean} [cancel] 
+	 * @returns {FoundElementHeader} 
+	 * 
+	 * @memberOf XmlBaseHandler
+	 */
+	textGetElements(txt: string): FoundElementHeader
+	textGetElements(txt: string, cancel: (curIndex: number) => boolean): FoundCursor
+	textGetElements(txt: string, cancel?: (curIndex: number) => boolean): FoundElementHeader | FoundCursor {
 		// Regex to find the text between a closing and opening bracket "> ... found text <"
 		let relbody = /(>(?!--|.*>)[\s\S]*?<)/g;
 		let p: string[] = [];
@@ -217,6 +235,9 @@ export class XmlBaseHandler extends Log {
 
 		// Get rest of the elements
 		while (bmatch = relbody.exec(txt)) {
+			if (cancel && cancel(bmatch.index)) {
+				break;
+			}
 			let part = txt.substring(lastmatch.index, bmatch.index);
 			let start = lastmatch.index + lastmatch[0].length;
 			let end = bmatch.index
@@ -260,6 +281,7 @@ export class XmlBaseHandler extends Log {
 						fullName: (tag[2].match(/\w+/) ? tag[2] + ":" : "") + tag[3],
 						path: p.slice(),
 						startindex: start,
+						endindex: end,
 						parent: parent
 					};
 					felement.attributes = this.textGetAttributes(felement);
@@ -278,6 +300,7 @@ export class XmlBaseHandler extends Log {
 					children: [],
 					parent: parent,
 					startindex: start,
+					endindex: end,
 					path: p.slice(),
 				};
 				felement.attributes = this.textGetAttributes(felement);
@@ -295,89 +318,18 @@ export class XmlBaseHandler extends Log {
 	}
 
 	textGetElementAtCursorPos(txt: string, start: number): FoundCursor {
-		// Regex will find all stuff between two xml elements. so it will find sth. like this: <element1> ... "This is found" ... <element2>
-		let regx = /(>(?!--|.*>)[\s\S]*?<)/g;
-		let p: string[] = [];
-		let comment = false;
-		let m: RegExpMatchArray;
-		let lm: RegExpMatchArray = regx.exec(txt);
 
-		// Move one left
-		start--;
-
-		while (m = regx.exec(txt)) {
-			if (m.index > start) {
-				break;
-			}
-			let part = txt.substring(lm.index, m.index);
-			let inner = txt.substring(lm.index + lm[0].length, m.index)
-			lm = m;
-			this.logDebug("Found potential element '" + inner + "'")
-			// 1: slash at start, if closing tag
-			// 2: namespace
-			// 3: name
-			// 4: space or stringend, if empty opening tag
-			// 5: arguments, if There
-			// 6: / at the end if self closing element
-			let tag = inner.match(/^(\/?)(\w*?):?(\w+?)(\s|.$)(.*?)(\/?)$/);
-			if (comment || !tag) {
-				if (inner.startsWith("!--")) {
-					comment = true;
-					this.logDebug("Found comment");
-				}
-				if (inner.endsWith("--")) {
-					comment = false;
-					this.logDebug("Comment ended");
-				}
-			}
-			// todo: Handle potential open and closing tags when in attribute values
-			// Case closing tag
-			else if (tag[1] === "/") {
-				p.pop();
-				this.logDebug(() => "Found closing tag. New Stack: " + p.join(" > "))
-			} else if (tag[6]) {
-				this.logDebug("Found self closing element '" + tag[2] + "'")
-			} else {
-				let fulltag = (tag[2].match(/\w+/) ? tag[2] + ":" : "") + tag[3];
-				if (tag[4].match(/\w/))
-					p.push(fulltag + tag[4]);
-				else
-					p.push(fulltag);
-				this.logDebug(() => "Found opening tag '" + tag[2] + "'. New Stack: " + p.join(" > "))
-			}
-
-
-
-		}
-
-		// If cursor is in element is inbetween elements the index of start is smaller than the found index of lm and the length of the part: tag'> .... stuff .... <'
-		// Otherwise the cursor is in the following element
-		let ec = txt.substring(lm.index + lm[0].length, m.index);
-		let tag = (ec + " ").match(/^\s*?(\/?)\s*?(\w*?):?(\w+?)(\s|\/)/);
-		let foundcursor: FoundCursor = {
-			absoluteCursorPosition: start,
-			relativeCursorPosition: start - lm.index - lm[0].length,
-			isInElement: start >= lm.index + lm[0].length - 1, // + 1 to take the end tag '>' into account
-			elementcontent: ec,
-			isClosingTag: tag[1] !== '',
-			isSelfClosingTag: ec.endsWith("/"),
-			tagName: tag[3],
-			tagNamespace: tag[2],
-			fullName: tag[2] ? tag[2] + ":" + tag[3] : tag[2],
-			path: p,
-			isInAttribute: false
-		}
+		let foundcursor = this.textGetElements(txt, (i) => i > start);
+		foundcursor.absoluteCursorPosition = start;
+		foundcursor.relativeCursorPosition = start - foundcursor.startindex;
+		foundcursor.isInElement = start <= foundcursor.endindex;
+		foundcursor.isInAttribute = false;
 
 		if (foundcursor.isInElement) {
-			foundcursor.attributes = this.textGetAttributes(foundcursor);
 			foundcursor.isInAttribute = this.textIsInAttribute(foundcursor);
 		}
 
 		return foundcursor;
-	}
-
-	textGetElement() {
-
 	}
 
 	textIsInAttribute(foundcursor: FoundCursor): boolean {
