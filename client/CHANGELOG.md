@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.2.4 - ???
+## Version 0.2.4 - 2017-03-04
 
 * **FEATURE** I18n diagnostic will automatically updated when i18n.properties file is changed
 * **FEATURE** XML Diagnostic attribute check (double attributes)
