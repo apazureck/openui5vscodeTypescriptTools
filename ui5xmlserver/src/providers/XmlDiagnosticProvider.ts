@@ -135,14 +135,16 @@ export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic 
 
 export class XmlAttributeDiagnosticProvider extends XmlBaseHandler implements IDiagnostic {
     private text: string;
+    private document: TextDocument;
     constructor(schemastorage: XmlStorage, connection: IConnection, logLevel: LogLevel, private diagnostics?: Diagnostic[]) {
         super(schemastorage, connection, logLevel);
-        if(!diagnostics)
-            diagnostics = []
+        if(!this.diagnostics)
+            this.diagnostics = []
     }
     async diagnose(doc: TextDocument): Promise<Diagnostic[]> {
         return new Promise<Diagnostic[]>((resolve, reject) => {
             try {
+                this.document = doc;
                 this.text = doc.getText();
                 let baselement = this.textGetElements(this.text);
                 this.checkAllElementsForAttributes(baselement);
@@ -170,7 +172,7 @@ export class XmlAttributeDiagnosticProvider extends XmlBaseHandler implements ID
                 this.diagnostics.push({
                     code: DiagnosticCodes.DoubleAttribute,
                     message: "Double attribute '" + attribute.name + "'",
-                    range: { start: getPositionFromIndex(this.text, attribute.startpos), end: getPositionFromIndex(this.text, attribute.endpos) },
+                    range: { start: this.document.positionAt(element.startindex + attribute.startpos), end: this.document.positionAt(element.startindex + attribute.endpos) },
                     severity: DiagnosticSeverity.Error,
                     source: "xmllint"
                 });
