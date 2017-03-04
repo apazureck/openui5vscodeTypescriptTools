@@ -22,23 +22,23 @@ This extension improves the experience using UI5 with typescript. It is currentl
 * **XML** support
     * Code completion for XML views (Attributes and Elements)
     * Simple check for well-formed xml files
-    * Autoclosing tags when putting '/' at the end of the opening tag of an empty XML Element **will be removed in the next release, please use plug-ins that can do that much better**. Can be deactivated in the settings
+    * Check for double attributes
 
 ## Requirements
 
-[Typescript definitions]() (UI5 Version 1.42.2) for UI5 from the repository or check out the typescript generator (currently C#/.NET)
+[Typescript definitions](https://github.com/apazureck/UI5TypescriptDeclarations) (based on UI5 Version 1.42.6) for UI5 from the repository or check out the [typescript generator](https://github.com/apazureck/openui5TypescriptGenerator/stargazers) (currently C#/.NET)
 
 ## Usage
 
 Check out the [Wiki on Github](https://github.com/apazureck/openui5vscodeTypescriptTools/wiki).
 
-Will be updated in the next weeks (~ 3-10-17)
+> Will be updated in the next weeks (~ 3-20-17)
 
 ## Known Issues
 
 This is a early release, therefore, functionallity is very limited and the functions provided are not stable and may not work in all circumstances. If you confront problems let me know by [creating an issue](https://github.com/apazureck/openui5vscodeTypescriptTools/issues) on github.
 
-## Contribution welcome!
+## Contribution welcome
 
 * [Fork on Github](https://github.com/apazureck/openui5vscodeTypescriptTools)
 * [Report a bug or request a Features](https://github.com/apazureck/openui5vscodeTypescriptTools/issues)

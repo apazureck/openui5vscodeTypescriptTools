@@ -136,6 +136,13 @@ export interface FoundCursor extends FoundElementHeader {
 }
 
 export interface FoundElementHeader {
+	/**
+	 * TODO: Make mandatory
+	 * 
+	 * @type {number}
+	 * @memberOf FoundElementHeader
+	 */
+	startindex?: number
 	elementcontent: string
 	path: string[]
 	tagName: string
@@ -211,7 +218,9 @@ export class XmlBaseHandler extends Log {
 		// Get rest of the elements
 		while (bmatch = relbody.exec(txt)) {
 			let part = txt.substring(lastmatch.index, bmatch.index);
-			let inner = txt.substring(lastmatch.index + lastmatch[0].length, bmatch.index)
+			let start = lastmatch.index + lastmatch[0].length;
+			let end = bmatch.index
+			let inner = txt.substring(start, end)
 			lastmatch = bmatch;
 			this.logDebug("Found potential element '" + inner + "'")
 			// 1: slash at start, if closing tag
@@ -220,10 +229,8 @@ export class XmlBaseHandler extends Log {
 			// 4: space or stringend, if empty opening tag
 			// 5: arguments, if There
 			// 6: / at the end if self closing element
-			let tag = inner.match(/^(\/?)(\w*?):?(\w+?)(\s|.$)(.*?)(\/?)$/);
-
-			let elcontent = txt.substring(lastmatch.index + lastmatch[0].length, bmatch.index);
-			let eltag = (elcontent + " ").match(/^\s*?(\/?)\s*?(\w*?):?(\w+?)(\s|\/)/);
+			// Space at the end to get the last letter from tags only containing the tag name in the correct group
+			let tag = (inner + " ").match(/^(\/?)(\w*?):?(\w+?)\s(.*?)(\/?)\s?$/);
 
 			if (comment || !tag) {
 				if (inner.startsWith("!--")) {
@@ -238,42 +245,49 @@ export class XmlBaseHandler extends Log {
 			else if (tag[1] === "/") {
 				p.pop();
 				this.logDebug(() => "Found closing tag. New Stack: " + p.join(" > "))
-				if(parent.parent !== undefined)
+				if (parent.parent !== undefined)
 					parent = parent.parent;
-			} else if (tag[6]) {
+				// TODO: Maybe Append content of parent element when closing or give end index
+			} else if (tag[5]) {
 				this.logDebug("Found self closing element '" + tag[2] + "'")
-				if(parent)
-					parent.children.push({
-					elementcontent: elcontent,
-					isClosingTag: tag[1] !== '',
-					isSelfClosingTag: elcontent.endsWith("/"),
-					tagName: tag[3],
-					tagNamespace: tag[2],
-					fullName: tag[2] ? tag[2] + ":" + tag[3] : tag[2],
-					path: p,
-				});
-			} else {
-				this.logDebug(() => "Found opening element '" + tag[2] + "'. New Stack: " + p.join(" > "))
-				let fulltag = (tag[2].match(/\w+/) ? tag[2] + ":" : "") + tag[3];
-				if (tag[4].match(/\w/))
-					p.push(fulltag + tag[4]);
-				else
-					p.push(fulltag);
-
-				let nelement: FoundElementHeader = {
-					elementcontent: elcontent,
-					isClosingTag: tag[1] !== '',
-					isSelfClosingTag: elcontent.endsWith("/"),
-					tagName: tag[3],
-					tagNamespace: tag[2],
-					fullName: tag[2] ? tag[2] + ":" + tag[3] : tag[2],
-					path: p,
-					parent: parent,
-					children: []
+				if (parent) {
+					let felement: FoundElementHeader = {
+						elementcontent: tag[3] ? tag[3] + " " + tag[4] : tag[4],
+						isClosingTag: false,
+						isSelfClosingTag: true,
+						tagName: tag[3],
+						tagNamespace: tag[2],
+						fullName: (tag[2].match(/\w+/) ? tag[2] + ":" : "") + tag[3],
+						path: p.slice(),
+						startindex: start,
+						parent: parent
+					};
+					felement.attributes = this.textGetAttributes(felement);
+					parent.children.push();
+				} else {
+					this.logError("Self closing element at root level");
 				}
-				if(parent)
-					parent.children.push(nelement);
-				parent = nelement;
+			} else {
+				let felement: FoundElementHeader = {
+					elementcontent: tag[3] ? tag[3] + " " + tag[4] : tag[4],
+					isClosingTag: false,
+					isSelfClosingTag: false,
+					tagName: tag[3],
+					tagNamespace: tag[2],
+					fullName: (tag[2].match(/\w+/) ? tag[2] + ":" : "") + tag[3],
+					children: [],
+					parent: parent,
+					startindex: start,
+					path: p.slice(),
+				};
+				felement.attributes = this.textGetAttributes(felement);
+				p.push(felement.fullName);
+
+				this.logDebug(() => "Found opening element '" + tag[3] + "'. New Stack: " + p.join(" > "))
+
+				if (parent)
+					parent.children.push(felement);
+				parent = felement;
 			}
 		}
 

@@ -136,13 +136,14 @@ class XmlAttributeDiagnosticProvider extends xmltypes_1.XmlBaseHandler {
     constructor(schemastorage, connection, logLevel, diagnostics) {
         super(schemastorage, connection, logLevel);
         this.diagnostics = diagnostics;
-        if (!diagnostics)
-            diagnostics = [];
+        if (!this.diagnostics)
+            this.diagnostics = [];
     }
     diagnose(doc) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 try {
+                    this.document = doc;
                     this.text = doc.getText();
                     let baselement = this.textGetElements(this.text);
                     this.checkAllElementsForAttributes(baselement);
@@ -171,7 +172,7 @@ class XmlAttributeDiagnosticProvider extends xmltypes_1.XmlBaseHandler {
                 this.diagnostics.push({
                     code: DiagnosticCodes.DoubleAttribute,
                     message: "Double attribute '" + attribute.name + "'",
-                    range: { start: server_1.getPositionFromIndex(this.text, attribute.startpos), end: server_1.getPositionFromIndex(this.text, attribute.endpos) },
+                    range: { start: this.document.positionAt(element.startindex + attribute.startpos), end: this.document.positionAt(element.startindex + attribute.endpos) },
                     severity: vscode_languageserver_1.DiagnosticSeverity.Error,
                     source: "xmllint"
                 });
