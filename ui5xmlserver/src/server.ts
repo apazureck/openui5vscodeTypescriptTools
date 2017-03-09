@@ -147,6 +147,8 @@ connection.onDidChangeConfiguration((change) => {
 
 export function getLine(text: string, linenumber: number): string {
 	let lines = text.split(/\n/);
+	if(linenumber > lines.length-1)
+		linenumber = lines.length-1;
 	return lines[linenumber];
 }
 

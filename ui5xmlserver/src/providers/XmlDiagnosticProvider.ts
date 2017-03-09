@@ -33,7 +33,9 @@ export class DiagnosticCollection {
 }
 
 export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic {
+    private doc: TextDocument;
     async diagnose(doc: TextDocument): Promise<Diagnostic[]> {
+        this.doc = doc;
         let text = doc.getText();
         let items: Diagnostic[] = []
         try {
@@ -107,9 +109,9 @@ export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic 
                         message: error.message,
                         severity: DiagnosticSeverity.Error
                     }
+                    resolve([x]);
+                } else
                     resolve([]);
-                }
-                resolve([]);
             });
         });
 
