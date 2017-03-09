@@ -32,6 +32,7 @@ exports.DiagnosticCollection = DiagnosticCollection;
 class XmlWellFormedDiagnosticProvider extends Log_1.Log {
     diagnose(doc) {
         return __awaiter(this, void 0, void 0, function* () {
+            this.doc = doc;
             let text = doc.getText();
             let items = [];
             try {
@@ -108,9 +109,10 @@ class XmlWellFormedDiagnosticProvider extends Log_1.Log {
                         message: error.message,
                         severity: vscode_languageserver_1.DiagnosticSeverity.Error
                     };
-                    resolve([]);
+                    resolve([x]);
                 }
-                resolve([]);
+                else
+                    resolve([]);
             });
         });
     }

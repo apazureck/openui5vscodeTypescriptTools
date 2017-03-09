@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.2.5 - 2017-03-09
+
+* **HOTFIX** xml2js linting did not work
+
 ## Version 0.2.4 - 2017-03-04
 
 * **FEATURE** I18n diagnostic will automatically updated when i18n.properties file is changed

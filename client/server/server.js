@@ -95,6 +95,8 @@ connection.onDidChangeConfiguration((change) => {
 });
 function getLine(text, linenumber) {
     let lines = text.split(/\n/);
+    if (linenumber > lines.length - 1)
+        linenumber = lines.length - 1;
     return lines[linenumber];
 }
 exports.getLine = getLine;

@@ -53,16 +53,19 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         let part;
         let downpath = [];
         let element;
-        // go down the path to get the first parent element in the owning schema
-        while (part = path.pop()) {
-            element = this.findElement(part, this.getSchema(part));
-            if (element) {
-                break;
+        if (cursor.path.length > 0)
+            // go down the path to get the first parent element in the owning schema
+            while (part = path.pop()) {
+                element = this.findElement(part, this.getSchema(part));
+                if (element) {
+                    break;
+                }
+                else {
+                    downpath.push(part);
+                }
             }
-            else {
-                downpath.push(part);
-            }
-        }
+        else
+            element = this.findElement(cursor.fullName, this.getSchema(cursor.fullName));
         // Find out if element is referenced first
         if (element.$ && element.$.ref) {
             element = this.getElementFromReference(element.$.ref, element.ownerschema);
