@@ -1,21 +1,21 @@
 import * as vscode from 'vscode';
-import * as extension from '../extension';
+import { ui5tsglobal } from '../extension';
 
 export function showerror(message: string) {
-    vscode.window.showErrorMessage(extension.name + ": " + message);
+    vscode.window.showErrorMessage(ui5tsglobal.name + ": " + message);
 }
 export function showinfo(message: string) {
-    vscode.window.showInformationMessage(extension.name + ": " + message);
+    vscode.window.showInformationMessage(ui5tsglobal.name + ": " + message);
 }
 export function showWarning(message: string) {
-    vscode.window.showWarningMessage(extension.name + ": " + message);
+    vscode.window.showWarningMessage(ui5tsglobal.name + ": " + message);
 }
 export function printInfo(message: string) {
-    console.info(extension.name + ": "+message);
+    console.info(ui5tsglobal.name + ": "+message);
 }
 export function printError(message: string) {
-    console.error(extension.name + ": "+message);
+    console.error(ui5tsglobal.name + ": "+message);
 }
 export function printWarning(message: string) {
-    console.warn(extension.name + ": "+message);
+    console.warn(ui5tsglobal.name + ": "+message);
 }

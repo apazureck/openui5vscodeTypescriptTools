@@ -3,7 +3,7 @@ import * as vscode from 'vscode'
 import { Ui5ManifestBase } from '../../baseclasses';
 import * as path from 'path';
 import { DiagnosticCollection, TextDocumentChangeEvent, Diagnostic, DiagnosticSeverity, Range } from 'vscode';
-import * as extension from '../../extension';
+import {ui5tsglobal} from '../../extension';
 
 export class ManifestDiagnostics extends Ui5ManifestBase implements IDiagnose {
     constructor(public diagnosticCollection: DiagnosticCollection) {
@@ -52,7 +52,7 @@ export class ManifestDiagnostics extends Ui5ManifestBase implements IDiagnose {
             if(diag.length>0)
                 this.diagnosticCollection.set(document.uri, diag);
                 if(jcontent)
-                    extension.core.manifest = jcontent;
+                    ui5tsglobal.core.manifest = jcontent;
         } catch (error) {
 
         }
