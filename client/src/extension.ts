@@ -2,6 +2,7 @@
 import { I18nDiagnosticProvider } from './language/xml/XmlDiagnostics';
 import {
     I18nDfinitionProvider,
+    Ui5ViewDefinitionProvider,
     ViewControllerDefinitionProvider,
     ViewFragmentDefinitionProvider
 } from './language/ui5/Ui5DefinitionProviders';
@@ -37,19 +38,65 @@ export interface IDiagnose {
     diagnosticCollection: DiagnosticCollection
 }
 
-export const name = "ui5-ts";
 export class Ui5Extension {
     namespacemappings?: { [id: string]: string; };
     manifest?: Manifest;
     extensionPath?: string;
     schemaStoragePath?: string;
+    relativemainfestlocation: string;
+    absolutemanifestlocation: string
+
+    /**
+     * Creates a relative workspace path to manifest.json file from the namespace
+     * 
+     * @param {string} path 
+     * @returns {string} 
+     * 
+     * @memberOf Ui5Extension
+     */
+    CreateRelativePath(namespace: string): string {
+        for (let map in this.namespacemappings) {
+            if (namespace.startsWith(map)) {
+                let relpath = path.normalize(path.join(ui5tsglobal.core.relativemainfestlocation, namespace.replace(map, this.namespacemappings[map]).replace(/\./g, "/").replace(/\/\/+/g, "/")));
+                if (relpath.startsWith("/") || relpath.startsWith("\\"))
+                    return relpath.substring(1).replace(/\\/g, "/");
+                else
+                    return relpath.replace(/\\/g, "/");
+            }
+        }
+    }
+
+    GetFullNameByFile(file: string): string {
+        let m = path.dirname(ui5tsglobal.core.absolutemanifestlocation);
+        let fn = path.dirname(file);
+        let rel = "./" + path.relative(m, fn).replace("\\", "/") + "/" + path.basename(window.activeTextEditor.document.fileName);
+        // rel = rel.replace(/\.controller\.(ts|fs)$/, "").replace(/[\/\\]/g, ".");
+        let sources: {k: string, v: string}[] = [];
+        for(let ns in ui5tsglobal.core.namespacemappings) {
+            let relsource = ui5tsglobal.core.namespacemappings[ns];
+            if(rel.startsWith(relsource))
+                sources.push( {k: relsource, v: ns } );
+        }
+        let bestmatch;
+        if(sources.length>1) {
+            bestmatch = sources.sort((a, b) => a.k.length-b.k.length).pop();
+        } else 
+            bestmatch = sources[0];
+        return bestmatch.v + "." + rel.substring(2).replace(/\.controller\.(ts|fs)$/, "").replace(/[\/\\]/g, ".");
+    }
+}
+
+export namespace ui5tsglobal {
+    export const name = "ui5-ts";
+    export const core: Ui5Extension = new Ui5Extension();
+
 }
 
 const ui5_jsonviews: DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.view.json" };
 
 const ui5_tscontrollers: DocumentFilter = { language: 'typescript', scheme: 'file', pattern: "**/*.controller.ts" };
 const ui5_jscontrollers: DocumentFilter = { language: 'javascript', scheme: 'file', pattern: "**/*.controller.js" };
-const ui5_jsonfragments: DocumentFilter = { language: 'json', scheme: 'file', pattern: "**/*.fragment.json" };
+const ui5_jsonfragments: DocumentFilter = { language: 'json', scheme: 'file', pattern: "**/*.{fragment,view}.json" };
 
 const ui5_xml: DocumentFilter = { language: "xml", scheme: 'file', pattern: "**/*.{fragment,view}.xml" };
 const ui5_view: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.view.xml" };
@@ -57,7 +104,6 @@ const ui5_fragment: DocumentFilter = { language: "xml", scheme: "file", pattern:
 
 const ui5_manifest: DocumentFilter = { language: "json", scheme: 'file', pattern: "**/manifest.json" };
 
-export var core: Ui5Extension = new Ui5Extension();
 export var channel = window.createOutputChannel("UI5 TS Extension");
 var context: ExtensionContext;
 
@@ -65,11 +111,13 @@ var context: ExtensionContext;
 // your extension is activated the very first time the command is executed
 export async function activate(c: ExtensionContext) {
     context = c;
-    core.extensionPath = c.extensionPath;
-    core.schemaStoragePath = c.asAbsolutePath("schemastore");
+    ui5tsglobal.core.extensionPath = c.extensionPath;
+    ui5tsglobal.core.schemaStoragePath = c.asAbsolutePath("schemastore");
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Activating UI5 extension.');
+
+    getManifestLocation();
 
     startXmlViewLanguageServer(context);
     // startManifestLanguageServer();
@@ -112,6 +160,7 @@ export async function activate(c: ExtensionContext) {
     c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewFragmentDefinitionProvider));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewControllerDefinitionProvider));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new I18nDfinitionProvider));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new Ui5ViewDefinitionProvider))
 }
 
 function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) {
@@ -127,8 +176,22 @@ function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) 
             diag.diagnose(otd);
 }
 
+function getManifestLocation() {
+    try {
+        var workspaceroot = workspace.rootPath
+        let manifest = workspace.findFiles("manifest.json", '').then((value) => {
+            let val = value;
+            ui5tsglobal.core.absolutemanifestlocation = val[0].fsPath;
+            ui5tsglobal.core.relativemainfestlocation = path.relative(workspaceroot, val[0].fsPath).replace("manifest.json", "");
+        });
+
+    } catch (error) {
+
+    }
+}
+
 async function getAllNamespaceMappings() {
-    core.namespacemappings = {};
+    ui5tsglobal.core.namespacemappings = {};
     // search all html files
     let docs = await file.File.find(".*\\.(html|htm)$");
     for (let doc of docs) {
@@ -146,14 +209,14 @@ async function getAllNamespaceMappings() {
                 let key = entry[0].trim();
                 let val = entry[1].trim();
                 log.printInfo("Found " + key + " to replace with " + val);
-                core.namespacemappings[key.substr(1, key.length - 2)] = val.substr(1, val.length - 2);
+                ui5tsglobal.core.namespacemappings[key.substr(1, key.length - 2)] = val.substr(1, val.length - 2);
             }
         }
         catch (error) {
 
         }
     }
-    console.info(core.namespacemappings);
+    console.info(ui5tsglobal.core.namespacemappings);
 }
 
 // this method is called when your extension is deactivated

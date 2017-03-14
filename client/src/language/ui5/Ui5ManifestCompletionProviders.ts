@@ -10,7 +10,7 @@ import {
     TextDocument
 } from 'vscode';
 import * as path from 'path';
-import * as extension from '../../extension';
+import{ui5tsglobal} from '../../extension';
 
 export class ManifestCompletionItemProvider extends Ui5ManifestBase implements CompletionItemProvider {
     public provideCompletionItems(document: TextDocument, position: Position, token: CancellationToken): Thenable<CompletionItem[]> | CompletionItem[] | Thenable<CompletionList> {
@@ -31,10 +31,10 @@ export class ManifestCompletionItemProvider extends Ui5ManifestBase implements C
 				case "target":
 					console.log("Target triggered\n");
 					let targets: Array<string>;
-					extension.core.manifest = JSON.parse(document.getText());
+					ui5tsglobal.core.manifest = JSON.parse(document.getText());
 					try {
-						if(extension.core.manifest)
-							targets = (this.getTargets(extension.core.manifest));
+						if(ui5tsglobal.core.manifest)
+							targets = (this.getTargets(ui5tsglobal.core.manifest));
 						else
 							targets = this.getTargets(JSON.parse(document.getText()));
 					} catch (error) {
@@ -54,8 +54,8 @@ export class ManifestCompletionItemProvider extends Ui5ManifestBase implements C
 					val = new CompletionList(targets.map(x => {
 							if(token.isCancellationRequested) throw("Cancelled");
 							let item = this.newCompletionItem(x, kind);
-							item.documentation = "viewName: '"  + extension.core.manifest["sap.ui5"].routing.targets[item.label].viewName + "'\n" +
-												 "transition: '" + extension.core.manifest["sap.ui5"].routing.targets[item.label].transition + "'";
+							item.documentation = "viewName: '"  + ui5tsglobal.core.manifest["sap.ui5"].routing.targets[item.label].viewName + "'\n" +
+												 "transition: '" + ui5tsglobal.core.manifest["sap.ui5"].routing.targets[item.label].transition + "'";
 							return item;
 					}), false);
 					return resolve(val);
@@ -69,9 +69,9 @@ export class ManifestCompletionItemProvider extends Ui5ManifestBase implements C
 
 					let views = this.getViews();
 					let relativeViews: Array<Ui5View> = []
-					if(extension.core.manifest["sap.ui5"].routing.config.viewPath) {
+					if(ui5tsglobal.core.manifest["sap.ui5"].routing.config.viewPath) {
 						//make relative namespaces
-						let prefix = extension.core.manifest["sap.ui5"].routing.config.viewPath+".";
+						let prefix = ui5tsglobal.core.manifest["sap.ui5"].routing.config.viewPath+".";
 
 						for(let view of views) {
 							relativeViews.push({

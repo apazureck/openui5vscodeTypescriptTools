@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Range } from 'vscode';
 import * as file from './helpers/filehandler';
 import * as path from 'path';
-import * as extension from './extension';
+import { ui5tsglobal } from './extension';
 
 export interface Ui5View {
 	type: ViewType;
@@ -46,7 +46,7 @@ export class Ui5Base {
         for(let viewpath of viewpaths) {
             ret.push({
                 fullpath: viewpath,
-                name: this.getViewName(viewpath, extension.core.namespacemappings),
+                name: this.getViewName(viewpath, ui5tsglobal.core.namespacemappings),
                 type: this.getViewType(viewpath)
             });
         }

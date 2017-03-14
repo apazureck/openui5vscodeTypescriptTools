@@ -15,23 +15,32 @@ import {
     Uri,
     Range
 } from 'vscode';
-import { channel } from '../../extension'
+import { channel, ui5tsglobal } from '../../extension'
 import { Storage } from '../xml/XmlDiagnostics'
 
 const controllerFileEx = ".controller.{js,ts}";
 const fragmentFileEx = ".fragment.{xml,json}";
+const viewFileEx = ".view.{xml,json}"
 
 export class Ui5ViewDefinitionProvider implements DefinitionProvider {
-    provideDefinition(document: TextDocument, position: Position, token: CancellationToken): Thenable<Definition> {
-        return null
+    async provideDefinition(document: TextDocument, position: Position, token: CancellationToken): Promise<Definition> {
+        let line = document.lineAt(position);
+        let map = ui5tsglobal.core.namespacemappings;
+        let tag = line.text.match(/viewName\s*[:=]\s*["']([\w.]+?)["']/);
+        if(!tag)
+            return;
+        let files = await workspace.findFiles(ui5tsglobal.core.CreateRelativePath(tag[1]) + viewFileEx, undefined);
+        return files.map(uri => new Location(uri, new Position(0, 0)));
     }
 }
 
 export class ViewFragmentDefinitionProvider implements DefinitionProvider {
     public async provideDefinition(document: TextDocument, position: Position, token: CancellationToken): Promise<Definition> {
         let line = document.lineAt(position);
-        let tag = line.text.match(/fragmentName\s*[:=]\s*["'](\w+?)["']/);
-        let files = await workspace.findFiles(tag[1] + fragmentFileEx, undefined);
+        let tag = line.text.match(/fragmentName\s*[:=]\s*["']([\w.]+?)["']/);
+        if(!tag)
+            return;
+        let files = await workspace.findFiles(ui5tsglobal.core.CreateRelativePath(tag[1]) + fragmentFileEx, undefined);
         return files.map(uri => new Location(uri, new Position(0, 0)));
     }
 }
@@ -39,8 +48,10 @@ export class ViewFragmentDefinitionProvider implements DefinitionProvider {
 export class ViewControllerDefinitionProvider implements DefinitionProvider {
     public async provideDefinition(document: TextDocument, position: Position, token: CancellationToken): Promise<Definition> {
         let line = document.lineAt(position);
-        let tag = line.text.match(/controllerName\s*[:=]\s*["'](\w+?)["']/);
-        let files = await workspace.findFiles(tag[1] + controllerFileEx, undefined);
+        let tag = line.text.match(/controllerName\s*[:=]\s*["']([\w.]+?)["']/);
+        if(!tag)
+            return;
+        let files = await workspace.findFiles(ui5tsglobal.core.CreateRelativePath(tag[1]) + controllerFileEx, undefined);
         return files.map(uri => new Location(uri, new Position(0, 0)));
     }
 }
