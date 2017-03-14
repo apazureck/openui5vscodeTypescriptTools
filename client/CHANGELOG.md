@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.2.6 - 2017-03-15 [Navigation Fix]
+
+* **FIXED** Goto fragments, controllers and other views from views and fragments
+
 ## Version 0.2.5 - 2017-03-09
 
 * **HOTFIX** xml2js linting did not work
