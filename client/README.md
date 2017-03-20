@@ -33,14 +33,15 @@ This extension improves the experience using UI5 with typescript. It is currentl
 
 Check out the [Wiki on Github](https://github.com/apazureck/openui5vscodeTypescriptTools/wiki).
 
-> Will be updated in the next weeks (~ 3-30-17)
+> Will be updated in the next weeks (~ 17-03-30)
 
 ## Known Issues
 
 This is a early release, therefore, functionallity is very limited and the functions provided are not stable and may not work in all circumstances. If you confront any problems let me know by [creating an issue](https://github.com/apazureck/openui5vscodeTypescriptTools/issues) on github.
 
-1. Autocomplete in xml views at the root level does not work properly. Will be fixed in the next release (~17-03-25)
-1. Autocomplete for attributes does sometimes not work as intended (may be caused by Issue 1). Will be fixed in the next release (~17-03-25)
+1. ~~Autocomplete in xml views at the root level does not work properly. Will be fixed in the next release (~17-03-25)~~
+1. ~~Autocomplete for attributes does sometimes not work as intended (may be caused by Issue 1). Will be fixed in the next release (~17-03-25)~~
+1. Autocomplete does not show correct elements when cursor is in an attribute. For example `<Page><content>!Cursorpos!</content>` will sometimes not display the correct elements.
 1. Navigation from fragment to controllers does not work for now. Will be fixed in the next release (~17-03-25)
 
 Problems are caused by splitting up xml linting functionallity and ui5 xml providers. Furthermore, a new algorithm for finding elements was introduced, which may be buggy some times. My apologies for the inconvenience.
