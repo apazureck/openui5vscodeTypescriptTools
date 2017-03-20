@@ -1,6 +1,11 @@
 # Changelog
 
-## Version 0.2.6 - 2017-03-15 [Navigation Fix]
+## Version 0.2.7 - 2017-03-20 `XML Autocomplete Improvement I`
+
+* **FIXED** Root element was not recognized
+* **FIXED** Autocomplete crashed when Elements were in subattributes of their parent element
+
+## Version 0.2.6 - 2017-03-15 `Navigation Fix`
 
 * **FIXED** Goto fragments, controllers and other views from views and fragments
 

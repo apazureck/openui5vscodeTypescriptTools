@@ -230,14 +230,31 @@ export class XmlBaseHandler extends Log {
 		// execute once to get the first match
 		let lastmatch: RegExpMatchArray = relbody.exec(txt);
 
+		let inner = txt.substring(1, lastmatch.index);
+		let tag = (inner + " ").match(/(\/?)(\w*?):?(\w+?)\s([\s\S]*?)(\/?)\s?$/);
+		if (tag[5])
+			this.logError("Self closing element at root level");
 		// Get first element
-		let parent: FoundElementHeader = undefined;
+		let parent: FoundElementHeader = {
+			elementcontent: tag[3] ? tag[3] + " " + tag[4] : tag[4],
+			isClosingTag: false,
+			isSelfClosingTag: true,
+			tagName: tag[3],
+			tagNamespace: tag[2],
+			fullName: (tag[2].match(/\w+/) ? tag[2] + ":" : "") + tag[3],
+			path: p.slice(),
+			startindex: 0,
+			endindex: lastmatch.index,
+			children: []
+		};
+		parent.attributes = this.textGetAttributes(parent);
+		// Check if cancel criteria is fulfilled in first element
+		if (cancel && cancel(lastmatch.index)) {
+			return parent;
+		}
 
 		// Get rest of the elements
 		while (bmatch = relbody.exec(txt)) {
-			if (cancel && cancel(bmatch.index)) {
-				break;
-			}
 			let part = txt.substring(lastmatch.index, bmatch.index);
 			let start = lastmatch.index + lastmatch[0].length;
 			let end = bmatch.index
@@ -251,8 +268,8 @@ export class XmlBaseHandler extends Log {
 			// 5: arguments, if There
 			// 6: / at the end if self closing element
 			// Space at the end to get the last letter from tags only containing the tag name in the correct group
-			let tag = (inner + " ").match(/^(\/?)(\w*?):?(\w+?)\s(.*?)(\/?)\s?$/);
-
+			let tag = (inner + " ").match(/(\/?)(\w*?):?(\w+?)\s([\s\S]*?)(\/?)\s?$/);
+			let felement: FoundElementHeader = undefined;
 			if (comment || !tag) {
 				if (inner.startsWith("!--")) {
 					comment = true;
@@ -272,7 +289,7 @@ export class XmlBaseHandler extends Log {
 			} else if (tag[5]) {
 				this.logDebug("Found self closing element '" + tag[2] + "'")
 				if (parent) {
-					let felement: FoundElementHeader = {
+					felement = {
 						elementcontent: tag[3] ? tag[3] + " " + tag[4] : tag[4],
 						isClosingTag: false,
 						isSelfClosingTag: true,
@@ -285,12 +302,12 @@ export class XmlBaseHandler extends Log {
 						parent: parent
 					};
 					felement.attributes = this.textGetAttributes(felement);
-					parent.children.push();
+					parent.children.push(felement);
 				} else {
 					this.logError("Self closing element at root level");
 				}
 			} else {
-				let felement: FoundElementHeader = {
+				felement = {
 					elementcontent: tag[3] ? tag[3] + " " + tag[4] : tag[4],
 					isClosingTag: false,
 					isSelfClosingTag: false,
@@ -312,6 +329,13 @@ export class XmlBaseHandler extends Log {
 					parent.children.push(felement);
 				parent = felement;
 			}
+
+			if (cancel && cancel(bmatch.index)) {
+				if (felement)
+					return felement;
+				else
+					return parent;
+			}
 		}
 
 		return parent;
@@ -320,10 +344,17 @@ export class XmlBaseHandler extends Log {
 	textGetElementAtCursorPos(txt: string, start: number): FoundCursor {
 
 		let foundcursor = this.textGetElements(txt, (i) => i > start);
+		let cursorpos = start - foundcursor.startindex;
+		if (cursorpos < 0) {
+			foundcursor = foundcursor.parent as FoundCursor;
+			cursorpos = start - foundcursor.startindex;
+		}
+
 		foundcursor.absoluteCursorPosition = start;
-		foundcursor.relativeCursorPosition = start - foundcursor.startindex;
-		foundcursor.isInElement = start <= foundcursor.endindex;
+		foundcursor.relativeCursorPosition = cursorpos;
+		foundcursor.isInElement = start > foundcursor.startindex && start <= foundcursor.endindex;
 		foundcursor.isInAttribute = false;
+
 
 		if (foundcursor.isInElement) {
 			foundcursor.isInAttribute = this.textIsInAttribute(foundcursor);
