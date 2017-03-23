@@ -3,7 +3,7 @@
     "displayName": "openui5 Typescript Tool",
     "license": "MIT",
     "description": "A typescript extension for openui5",
-    "version": "0.2.7",
+    "version": "0.2.8",
     "versvsce publishion": "0.1.0",
     "publisher": "apazureck",
     "engines": {
@@ -42,7 +42,7 @@
         "snippets": [
             {
                 "language": "typescript",
-                "path": "./snippets/typescript.json."
+                "path": "./snippets/typescript.json"
             },
             {
                 "language": "xml",
@@ -173,8 +173,11 @@
     "devDependencies": {
         "@types/mocha": "^2.2.39",
         "@types/node": "^7.0.5",
+        "gulp": "^3.9.1",
+        "gulp-util": "^3.0.8",
         "gulpclass": "^0.1.1",
         "mocha": "^2.3.3",
+        "run-sequence": "^1.2.2",
         "typescript": "^2.1.6",
         "vscode": "^1.0.3",
         "vscode-languageclient": "^3.0.4"

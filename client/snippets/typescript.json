@@ -1,40 +1,28 @@
 {
-    "ui5ts: Controller": {
-		"description": "Inserts a new UI5 typescript controller",
-		"prefix": "ui5ts.doc.controller",
-		"body":
-			[   "sap.ui.define([\"sap/ui/core/mvc/Controller\",",
-				"	// Insert your used ui5 elements here to get them loaded",
-				"], function (Controller: sap.ui.core.mvc.Controller) {",
-				"    \"use strict\";",
-				"    return Controller.extend(\"${namespace}.controller.${name}\");",
-				"});",
-				"",
-				"namespace ${namespace} {",
-				"",
-				"    export class ${name} extends sap.ui.core.mvc.Controller {",
-				"		onInit(): void {",
-				"			console.info(\"${name} initialized\");",
-				"		}",
-                "       onBeforeRendering(): void {",
-                "       }",
-                "       onAfterRendering(): void {",
-                "       }",
-                "       onExit(): void {",
-                "       }",
-				"	}",
-				"}"]
-	},
-	"ui5ts: XML View": {
-		"description": "Inserts a new UI5 XML page",
-		"prefix": "ui5ts.doc.xmlview",
-		"body": [	"<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>",
-					"<mvc:View",
-					"    xmlns=\"sap.m\"",
-					"	xmlns:l=\"sap.ui.layout\"",
-					"    xmlns:mvc=\"sap.ui.core.mvc\"",
-					"	controllerName=\"$1\">",
-					"\t$0",
-					"</mvc:View>"]
-	}
+    "ui5tsController": {
+        "description": "Inserts a new UI5 typescript controller",
+        "prefix": "ui5controller",
+        "body": ["sap.ui.define([\"sap/ui/core/mvc/Controller\",",
+            "// Insert your used ui5 elements here to get them loaded",
+            "], function (Controller: sap.ui.core.mvc.Controller) {",
+            "    \"use strict\";",
+            "    return Controller.extend(\"${namespace}.controller.${name}\");",
+            "});",
+            "",
+            "namespace ${namespace} {",
+            "",
+            "    export class ${name} extends sap.ui.core.mvc.Controller {",
+            "       onInit(): void {",
+            "           console.info(\"${name} initialized\");",
+            "       }",
+            "       onBeforeRendering(): void {",
+            "       }",
+            "       onAfterRendering(): void {",
+            "       }",
+            "       onExit(): void {",
+            "       }",
+            "    }",
+            "}"
+        ]
+    }
 }

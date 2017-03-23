@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.2.8 - 2017-03-23 `Snippet fixes`
+
+* **FIXED** XML View was in ts file
+* **FIXED** typescript.json was not referenced correctly in project json
+* Updated README to provide help which snippets are available
+
 ## Version 0.2.7 - 2017-03-20 `XML Autocomplete Improvement I`
 
 * **FIXED** Root element was not recognized
