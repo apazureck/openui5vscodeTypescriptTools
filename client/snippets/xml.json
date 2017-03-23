@@ -25,9 +25,9 @@
         "body": ["<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>",
             "<mvc:View",
             "    xmlns=\"sap.m\"",
-            "	xmlns:l=\"sap.ui.layout\"",
+            "    xmlns:l=\"sap.ui.layout\"",
             "    xmlns:mvc=\"sap.ui.core.mvc\"",
-            "	controllerName=\"$1\">",
+            "    controllerName=\"$1\">",
             "\t$0",
             "</mvc:View>"
         ]
