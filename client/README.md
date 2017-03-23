@@ -35,6 +35,29 @@ Check out the [Wiki on Github](https://github.com/apazureck/openui5vscodeTypescr
 
 > Will be updated in the next weeks (~ 17-03-30)
 
+## Snippets
+
+If you have useful snippets to share please [let me know](https://github.com/apazureck/openui5vscodeTypescriptTools/issues).
+
+### Typescript
+
+<!--TYPESCRIPTSNIPPETS-->
+* `ui5controller`: Inserts a new UI5 typescript controller
+
+<!--TYPESCRIPTSNIPPETS-->
+
+### XML
+
+<!--XMLSNIPPETS-->
+
+* `i18n`: Creates a model reference with i18n address
+* `labeli18n`: Creates a label with i18n address
+* `titlei18n`: Creates a title with i18n address
+* `sapmodel`: Creates a sap.m.Text element with text property
+* `ui5xmlview`: Inserts a new UI5 XML page
+
+<!--XMLSNIPPETS-->
+
 ## Known Issues
 
 This is a early release, therefore, functionallity is very limited and the functions provided are not stable and may not work in all circumstances. If you confront any problems let me know by [creating an issue](https://github.com/apazureck/openui5vscodeTypescriptTools/issues) on github.

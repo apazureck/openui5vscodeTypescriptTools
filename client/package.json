@@ -1,197 +1,207 @@
 {
-    "name": "ui5-ts",
-    "displayName": "openui5 Typescript Tool",
-    "license": "MIT",
-    "description": "A typescript extension for openui5",
-    "version": "0.2.7",
-    "versvsce publishion": "0.1.0",
-    "publisher": "apazureck",
-    "engines": {
-        "vscode": "^1.5.0"
-    },
-    "author": {
-        "name": "Andreas Pazureck",
-        "email": "andreas@pazureck.de",
-        "url": "www.pazureck.de"
-    },
-    "icon": "img/OpenUI5_logo.png",
-    "categories": [
-        "Languages",
-        "Snippets",
-        "Other"
+  "name": "ui5-ts",
+  "displayName": "openui5 Typescript Tool",
+  "license": "MIT",
+  "description": "A typescript extension for openui5",
+  "version": "0.2.7",
+  "versvsce publishion": "0.1.0",
+  "publisher": "apazureck",
+  "engines": {
+    "vscode": "^1.5.0"
+  },
+  "author": {
+    "name": "Andreas Pazureck",
+    "email": "andreas@pazureck.de",
+    "url": "www.pazureck.de"
+  },
+  "icon": "img/OpenUI5_logo.png",
+  "categories": [
+    "Languages",
+    "Snippets",
+    "Other"
+  ],
+  "galleryBanner": {
+    "color": "#17c3d9"
+  },
+  "activationEvents": [
+    "workspaceContains:manifest.json",
+    "onLanguage:xml",
+    "onLanguage:json",
+    "onCommand:ui5ts.SwitchToController",
+    "onCommand:ui5ts.SwitchToView",
+    "onCommand:ui5ts.AddSchemaToStorage"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "jsonValidation": [
+      {
+        "fileMatch": "manifest.json",
+        "url": "./jsonschemas/manifest.schema.json"
+      }
     ],
-    "galleryBanner": {
-        "color": "#17c3d9"
-    },
-    "activationEvents": [
-        "workspaceContains:manifest.json",
-        "onLanguage:xml",
-        "onLanguage:json",
-        "onCommand:ui5ts.SwitchToController",
-        "onCommand:ui5ts.SwitchToView",
-        "onCommand:ui5ts.AddSchemaToStorage"
+    "snippets": [
+      {
+        "language": "typescript",
+        "path": "./snippets/typescript.json"
+      },
+      {
+        "language": "xml",
+        "path": "./snippets/xml.json"
+      }
     ],
-    "main": "./out/src/extension",
-    "contributes": {
-        "jsonValidation": [{
-            "fileMatch": "manifest.json",
-            "url": "./jsonschemas/manifest.schema.json"
-        }],
-        "snippets": [{
-                "language": "typescript",
-                "path": "./snippets/typescript.json"
-            },
-            {
-                "language": "xml",
-                "path": "./snippets/xml.json"
-            }
-        ],
-        "commands": [{
-                "category": "UI5 Edit",
-                "command": "ui5ts.SwitchToController",
-                "title": "Swtich to Controller"
-            },
-            {
-                "category": "UI5 Edit",
-                "command": "ui5ts.SwitchToView",
-                "title": "Swtich to View"
-            },
-            {
-                "category": "XML",
-                "command": "ui5ts.AddSchemaToStorage",
-                "title": "Add XSD Schema(s) To Storage"
-            },
-            {
-                "category": "i18n",
-                "command": "ui5ts.CreateNewI18nLabel",
-                "title": "Create new i18n Label"
-            },
-            {
-                "category": "i18n",
-                "command": "ui5ts.ResetI18NStorage",
-                "title": "Reset i18n Storage"
-            }
-        ],
-        "menus": {
-            "editor/context": [{
-                    "when": "resourceLangId == xml",
-                    "command": "ui5ts.SwitchToController",
-                    "group": "navigation"
-                },
-                {
-                    "when": "resourceLangId == typescript",
-                    "command": "ui5ts.SwitchToView",
-                    "group": "navigation"
-                },
-                {
-                    "when": "resourceLangId == javascript",
-                    "command": "ui5ts.SwitchToView",
-                    "group": "navigation"
-                }
-            ]
+    "commands": [
+      {
+        "category": "UI5 Edit",
+        "command": "ui5ts.SwitchToController",
+        "title": "Swtich to Controller"
+      },
+      {
+        "category": "UI5 Edit",
+        "command": "ui5ts.SwitchToView",
+        "title": "Swtich to View"
+      },
+      {
+        "category": "XML",
+        "command": "ui5ts.AddSchemaToStorage",
+        "title": "Add XSD Schema(s) To Storage"
+      },
+      {
+        "category": "i18n",
+        "command": "ui5ts.CreateNewI18nLabel",
+        "title": "Create new i18n Label"
+      },
+      {
+        "category": "i18n",
+        "command": "ui5ts.ResetI18NStorage",
+        "title": "Reset i18n Storage"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceLangId == xml",
+          "command": "ui5ts.SwitchToController",
+          "group": "navigation"
         },
-        "configuration": {
-            "title": "Settings for UI5 Typescript extension",
-            "properties": {
-                "ui5ts.lang.i18n.modelname": {
-                    "type": "string",
-                    "default": "i18n",
-                    "description": "Sets the name for the i18n model, if not the default name is used. It is used for code completion when referenced on views."
-                },
-                "ui5ts.lang.i18n.modelfilelocation": {
-                    "type": "string",
-                    "default": "./i18n/i18n.properties",
-                    "description": "Location of the i18n file used for code completion"
-                },
-                "ui5ts.lang.xml.autoCloseEmptyElement": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Closes empty tag when a '/' is typed at the end."
-                },
-                "ui5ts.lang.xml.LogLevel": {
-                    "type": "number",
-                    "default": 4,
-                    "description": "Loglevel of the language server. Debug: 0, Warning: 1, Error: 2, None, 3. A low loglevel may cause language server to slow down.",
-                    "oneOf": [{
-                            "description": "Debug",
-                            "enum": [
-                                0
-                            ]
-                        },
-                        {
-                            "description": "Information",
-                            "enum": [
-                                1
-                            ]
-                        },
-                        {
-                            "description": "Warning",
-                            "enum": [
-                                2
-                            ]
-                        },
-                        {
-                            "description": "Error",
-                            "enum": [
-                                3
-                            ]
-                        },
-                        {
-                            "description": "None",
-                            "enum": [
-                                4
-                            ]
-                        }
-                    ]
-                }
-            }
+        {
+          "when": "resourceLangId == typescript",
+          "command": "ui5ts.SwitchToView",
+          "group": "navigation"
         },
-        "keybindings": [{
-                "command": "ui5ts.SwitchToController",
-                "key": "f7",
-                "when": "editorTextFocus"
+        {
+          "when": "resourceLangId == javascript",
+          "command": "ui5ts.SwitchToView",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Settings for UI5 Typescript extension",
+      "properties": {
+        "ui5ts.lang.i18n.modelname": {
+          "type": "string",
+          "default": "i18n",
+          "description": "Sets the name for the i18n model, if not the default name is used. It is used for code completion when referenced on views."
+        },
+        "ui5ts.lang.i18n.modelfilelocation": {
+          "type": "string",
+          "default": "./i18n/i18n.properties",
+          "description": "Location of the i18n file used for code completion"
+        },
+        "ui5ts.lang.xml.autoCloseEmptyElement": {
+          "type": "boolean",
+          "default": true,
+          "description": "Closes empty tag when a '/' is typed at the end."
+        },
+        "ui5ts.lang.xml.LogLevel": {
+          "type": "number",
+          "default": 4,
+          "description": "Loglevel of the language server. Debug: 0, Warning: 1, Error: 2, None, 3. A low loglevel may cause language server to slow down.",
+          "oneOf": [
+            {
+              "description": "Debug",
+              "enum": [
+                0
+              ]
             },
             {
-                "command": "ui5ts.SwitchToView",
-                "key": "shift+f7",
-                "when": "editorTextFocus"
+              "description": "Information",
+              "enum": [
+                1
+              ]
+            },
+            {
+              "description": "Warning",
+              "enum": [
+                2
+              ]
+            },
+            {
+              "description": "Error",
+              "enum": [
+                3
+              ]
+            },
+            {
+              "description": "None",
+              "enum": [
+                4
+              ]
             }
-        ]
+          ]
+        }
+      }
     },
-    "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "devDependencies": {
-        "@types/mocha": "^2.2.39",
-        "@types/node": "^7.0.5",
-        "gulpclass": "^0.1.1",
-        "mocha": "^2.3.3",
-        "typescript": "^2.1.6",
-        "vscode": "^1.0.3",
-        "vscode-languageclient": "^3.0.4"
-    },
-    "dependencies": {
-        "@types/fs-finder": "^1.8.28",
-        "linq-es6": "^0.2.1",
-        "ncp": "^2.0.0",
-        "recursive-readdir": "^2.1.1",
-        "vscode-languageclient": "^3.0.4",
-        "xml2js": "^0.4.17",
-        "xmlchecker": "^0.1.0"
-    },
-    "bugs": {
-        "url": "https://github.com/apazureck/openui5vscodeTypescriptTools/issues"
-    },
-    "repository": {
-        "url": "https://github.com/apazureck/openui5vscodeTypescriptTools.git",
-        "type": "git"
-    },
-    "preview": true,
-    "__metadata": {
-        "id": "f7e5001a-4c9a-41d6-aa30-c9b178fb3f87",
-        "publisherId": "dfcbdf2a-d834-40d8-83df-b7b07ae0a566",
-        "publisherDisplayName": "Andreas Pazureck"
-    }
+    "keybindings": [
+      {
+        "command": "ui5ts.SwitchToController",
+        "key": "f7",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "ui5ts.SwitchToView",
+        "key": "shift+f7",
+        "when": "editorTextFocus"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.39",
+    "@types/node": "^7.0.5",
+    "gulp": "^3.9.1",
+    "gulp-util": "^3.0.8",
+    "gulpclass": "^0.1.1",
+    "mocha": "^2.3.3",
+    "run-sequence": "^1.2.2",
+    "typescript": "^2.1.6",
+    "vscode": "^1.0.3",
+    "vscode-languageclient": "^3.0.4"
+  },
+  "dependencies": {
+    "@types/fs-finder": "^1.8.28",
+    "linq-es6": "^0.2.1",
+    "ncp": "^2.0.0",
+    "recursive-readdir": "^2.1.1",
+    "vscode-languageclient": "^3.0.4",
+    "xml2js": "^0.4.17",
+    "xmlchecker": "^0.1.0"
+  },
+  "bugs": {
+    "url": "https://github.com/apazureck/openui5vscodeTypescriptTools/issues"
+  },
+  "repository": {
+    "url": "https://github.com/apazureck/openui5vscodeTypescriptTools.git",
+    "type": "git"
+  },
+  "preview": true,
+  "__metadata": {
+    "id": "f7e5001a-4c9a-41d6-aa30-c9b178fb3f87",
+    "publisherId": "dfcbdf2a-d834-40d8-83df-b7b07ae0a566",
+    "publisherDisplayName": "Andreas Pazureck"
+  }
 }
