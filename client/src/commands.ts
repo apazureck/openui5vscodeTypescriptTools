@@ -62,16 +62,16 @@ export async function SetupUi5(): Promise<void> {
 }
 
 export async function SwitchToView(): Promise<void> {
-    
+
     let fullname = ui5tsglobal.core.GetFullNameByFile(window.activeTextEditor.document.fileName);
     let views = await getViewsForController(fullname);
 
-    if(views.length<1)
+    if (views.length < 1)
         return;
 
     // TODO: Make selection
-    if(views.length>1) {
-        let pick = await window.showQuickPick(views.map(x=> x.path.substring(1)));
+    if (views.length > 1) {
+        let pick = await window.showQuickPick(views.map(x => x.path.substring(1)));
         window.showTextDocument(await workspace.openTextDocument(pick));
     } else {
         window.showTextDocument(await workspace.openTextDocument(views[0]));
@@ -81,9 +81,9 @@ export async function SwitchToView(): Promise<void> {
 async function getViewsForController(cname: string): Promise<Uri[]> {
     let views = await workspace.findFiles("**/*" + viewFileEx, undefined);
     let ret: Uri[] = [];
-    for(let view of views) {
+    for (let view of views) {
         let doc = (await workspace.openTextDocument(view)).getText();
-        if(doc.match(new RegExp("controllerName=[\"']"+cname+"[\"']")))
+        if (doc.match(new RegExp("controllerName=[\"']" + cname + "[\"']")))
             ret.push(view);
     }
     return ret;
@@ -92,7 +92,7 @@ async function getViewsForController(cname: string): Promise<Uri[]> {
 export async function SwitchToController() {
     let text = "";
     // TODO: Find view with matching controller
-    //check if it is a view
+    // check if it is a view
     if (path.basename(window.activeTextEditor.document.uri.path).match(".view.")) {
         text = window.activeTextEditor.document.getText();
         // it is a fragment
@@ -100,15 +100,15 @@ export async function SwitchToController() {
         text = getView(window.activeTextEditor.document, path.basename(window.activeTextEditor.document.uri.path));
     }
 
-    let tag = text.match(/controllerName=["']([\w\.]+)["']/);
+    const tag = text.match(/controllerName=["']([\w\.]+)["']/);
 
     if (!tag) {
         return;
     }
 
-    let files = await workspace.findFiles(ui5tsglobal.core.CreateRelativePath(tag[1]) + controllerFileEx, undefined);
-    if(files.length>0)
-    await window.showTextDocument(await workspace.openTextDocument(files.length > 1 ? files[1] : files[0]));
+    const files = await workspace.findFiles(ui5tsglobal.core.CreateRelativePath(tag[1]) + controllerFileEx, undefined);
+    if (files.length > 0)
+        await window.showTextDocument(await workspace.openTextDocument(files.length > 1 ? files[1] : files[0]));
 }
 
 function getView(doc: TextDocument, fragmentName: string): string {

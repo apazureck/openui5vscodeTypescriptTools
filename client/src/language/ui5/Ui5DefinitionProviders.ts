@@ -60,7 +60,7 @@ export class I18nDfinitionProvider implements DefinitionProvider {
     public provideDefinition(document: TextDocument, position: Position, token: CancellationToken): Definition | Thenable<Definition> {
         let i18nlabelregex = new RegExp("\"\s*?{\s*?" + workspace.getConfiguration("ui5ts").get("lang.i18n.modelname") + "\s*?>\s*?(.*?)\s*?}\s*?\"", "g").exec(document.lineAt(position).text);
         if (i18nlabelregex) {
-            let label = Storage.i18n.labels[i18nlabelregex[1]];
+            let label = Storage.i18n.Labels[i18nlabelregex[1]];
             return <Location>{
                 range: new Range(label.line, 0, label.line, 1),
                 uri: Storage.i18n.modelfile
