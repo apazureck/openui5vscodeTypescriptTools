@@ -131,14 +131,12 @@ export async function activate(c: ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log("Activating UI5 extension.");
 
-    ui5tsglobal.config = workspace.getConfiguration("ui5ts");
-
-    getManifestLocation();
+    // Subscribe to workspace config changed configuration
+    workspace.onDidChangeConfiguration(e => onDidChangeConfiguration());
+    onDidChangeConfiguration();
 
     startXmlViewLanguageServer(context);
     // startManifestLanguageServer();
-
-    getAllNamespaceMappings();
 
     // Hook the commands
     // context.subscriptions.push(commands.registerCommand('ui5ts.SetupUi5', commands.SetupUi5));
@@ -177,6 +175,13 @@ export async function activate(c: ExtensionContext) {
     c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewControllerDefinitionProvider()));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new I18nDfinitionProvider()));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new Ui5ViewDefinitionProvider()));
+}
+
+function onDidChangeConfiguration() {
+    ui5tsglobal.config = workspace.getConfiguration("ui5ts");
+    getManifestLocation();
+    getAllNamespaceMappings();
+    ResetI18nStorage();
 }
 
 function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) {

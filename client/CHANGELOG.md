@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-* Project template to automatically generate a project template using BOWER packages
+* Project template to automatically generate a project template using BOWER packages and browser-sync
 * Typescript generator
+
+## [0.2.9] - 2017-03-28
+
+### Fixed
+
+* Relative source path to source project (in preparation to using the project template)
 
 ## [0.2.8] - 2017-03-23
 
