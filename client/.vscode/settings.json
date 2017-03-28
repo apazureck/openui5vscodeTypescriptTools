@@ -6,9 +6,13 @@
         "node_modules/*": true
     },
     "search.exclude": {
-        "out": true, // set this to false to include "out" folder in search results
-        "node_modules/*": true
+        "out/**/*": true, // set this to false to include "out" folder in search results
+        "node_modules/**/*": true
     },
     "typescript.tsdk": "./node_modules/typescript/lib",
-    "vsicons.presets.angular": false // we want to use the TS server from our node_modules folder to control its version
+    "vsicons.presets.angular": false, // we want to use the TS server from our node_modules folder to control its version
+    "markdownlint.config": {
+        "MD013": false,
+        "MD024": false
+    }
 }

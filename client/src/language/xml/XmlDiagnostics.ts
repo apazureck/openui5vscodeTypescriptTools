@@ -1,7 +1,7 @@
-import { IDiagnose } from '../../extension';
-import { Message } from '_debugger';
-import * as vscode from 'vscode';
-import * as path from 'path';
+import { Message } from "_debugger";
+import * as fs from "fs";
+import * as path from "path";
+import * as vscode from "vscode";
 import {
     CancellationToken,
     Diagnostic,
@@ -12,56 +12,67 @@ import {
     TextDocument,
     TextDocumentChangeEvent,
     TextLine,
-    Uri
-} from 'vscode';
-import * as extension from '../../extension';
-import * as xml2js from 'xml2js';
-import * as fs from 'fs';
-var xmlChecker = require('xmlChecker');
-import { File } from '../../helpers/filehandler';
+    Uri,
+} from "vscode";
+import * as xml2js from "xml2js";
+import * as xmlChecker from "xmlChecker";
+import { IDiagnose, ui5tsglobal } from "../../extension";
+import * as extension from "../../extension";
+import { File } from "../../helpers/filehandler";
 
 export interface I18nLabel {
-    text: string
-    line: number
+    text: string;
+    line: number;
 }
 export class I18nLabelStorage {
+    public get Labels(): { [label: string]: I18nLabel } {
+        if (!this.labels) {
+            this.create();
+        } else {
+            return this.labels;
+        }
+    }
+    public modelfilename: string;
+    public modelfile: Uri;
+    public linecount: number;
+    private labels: { [label: string]: I18nLabel };
+
     constructor() {
         try {
             this.create();
         } catch (error) {
+            console.log(error.toString());
+            // do nothing
         }
     }
 
-    labels: { [label: string]: I18nLabel }
-    modelfilename: string
-    modelfile: Uri
-    linecount: number;
-    create() {
-        this.labels = {};
-        this.modelfilename = <string>vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelfilelocation") || "./i18n/i18n.properties";
-        this.modelfile = Uri.parse("file:///" + path.join(vscode.workspace.rootPath, this.modelfilename));
-        let content = fs.readFileSync(this.modelfile.fsPath, "utf-8").split("\n");
+    public create() {
+        this.modelfilename = vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelfilelocation") as string || "./i18n/i18n.properties";
+        const root = ui5tsglobal.core.absoluteRootPath;
+        this.modelfile = Uri.file(path.join(root, this.modelfilename));
+        const content = fs.readFileSync(this.modelfile.fsPath, "utf-8").split("\n");
         this.linecount = 0;
-        for (let line of content) {
-            let match = line.match(/^(.*?)\s*=\s*(.*)/);
+        this.labels = {};
+        for (const line of content) {
+            const match = line.match(/^(.*?)\s*=\s*(.*)/);
             if (match)
-                this.labels[match[1]] = {
+                this.Labels[match[1]] = {
+                    line: this.linecount,
                     text: match[2],
-                    line: this.linecount
-                }
+                };
             this.linecount++;
         }
     }
 
-    addNewLabel(label: string, text: string) {
-        if (this.labels[label])
+    public addNewLabel(label: string, text: string) {
+        if (this.Labels[label])
             throw new Error("Label already exists");
 
-        let modelfilename = <string>vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelfilelocation") || "./i18n/i18n.properties";
+        const modelfilename = vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelfilelocation") as string || "./i18n/i18n.properties";
         fs.appendFileSync(path.join(vscode.workspace.rootPath, this.modelfilename), "\n" + label + "=" + text);
-        this.labels[label] = {
+        this.Labels[label] = {
             line: this.linecount++,
-            text: text
+            text,
         };
     }
 }
@@ -69,6 +80,7 @@ export class I18nLabelStorage {
 export interface I18nDiagnostic extends Diagnostic {
     label: string;
 }
+
 
 export namespace Storage {
     export const i18n: I18nLabelStorage = new I18nLabelStorage();
@@ -84,30 +96,30 @@ export class I18nDiagnosticProvider implements IDiagnose {
         this.diagnosticCollection.set(document.uri, this.diagi18n(document));
     }
 
-    diagi18n(document: TextDocument): Diagnostic[] {
+    public diagi18n(document: TextDocument): Diagnostic[] {
         try {
-            let text = document.getText();
-            let i18nreg = new RegExp("\"\\s*?{\\s*?" + vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelname") + "\\s*?>\\s*?(.*?)\\s*?}\\s*?\"", "g");
+            const text = document.getText();
+            const i18nreg = new RegExp("\"\\s*?{\\s*?" + vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelname") + "\\s*?>\\s*?(.*?)\\s*?}\\s*?\"", "g");
             let match: RegExpMatchArray;
-            let ret: I18nDiagnostic[] = []
+            const ret: I18nDiagnostic[] = [];
             while (match = i18nreg.exec(text))
-                if (!Storage.i18n.labels[match[1]]) {
+                if (!Storage.i18n.Labels[match[1]]) {
                     ret.push({
-                        range: this.getRange(document, match.index, match[0].length),
+                        code: "i18nLabelMissing",
+                        label: match[1],
                         message: "Label " + match[1] + " does not exist",
+                        range: this.getRange(document, match.index, match[0].length),
                         severity: DiagnosticSeverity.Warning,
                         source: "ui5ts",
-                        code: "i18nLabelMissing",
-                        label: match[1]
                     });
                 }
             return ret;
         } catch (error) {
-
+            // Do nothing
         }
     }
 
-    getRange(document: TextDocument, startIndex: number, length: number): Range {
+    public getRange(document: TextDocument, startIndex: number, length: number): Range {
         return new Range(document.positionAt(startIndex), document.positionAt(startIndex + length));
     }
-} 
+}

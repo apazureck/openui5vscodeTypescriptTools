@@ -3,7 +3,7 @@
     "displayName": "openui5 Typescript Tool",
     "license": "MIT",
     "description": "A typescript extension for openui5",
-    "version": "0.2.8",
+    "version": "0.3.0",
     "versvsce publishion": "0.1.0",
     "publisher": "apazureck",
     "engines": {
@@ -108,11 +108,6 @@
                     "default": "./i18n/i18n.properties",
                     "description": "Location of the i18n file used for code completion"
                 },
-                "ui5ts.lang.xml.autoCloseEmptyElement": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Closes empty tag when a '/' is typed at the end."
-                },
                 "ui5ts.lang.xml.LogLevel": {
                     "type": "number",
                     "default": 4,
@@ -149,6 +144,11 @@
                             ]
                         }
                     ]
+                },
+                "ui5ts.manifestlocation": {
+                    "type": "string",
+                    "description": "Relative location of manifest.json file. Will be asked and set, if multiple files are found",
+                    "default": null
                 }
             }
         },
@@ -179,7 +179,7 @@
         "mocha": "^2.3.3",
         "run-sequence": "^1.2.2",
         "typescript": "^2.1.6",
-        "vscode": "^1.0.3",
+        "vscode": "^1.1.0",
         "vscode-languageclient": "^3.0.4"
     },
     "dependencies": {

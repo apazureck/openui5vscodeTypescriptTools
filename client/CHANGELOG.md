@@ -1,64 +1,118 @@
-# Changelog
+# Change Log
 
-## Version 0.2.8 - 2017-03-23 `Snippet fixes`
+All notable changes to this project will be documented in this file.
 
-* **FIXED** XML View was in ts file
-* **FIXED** typescript.json was not referenced correctly in project json
+The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [Unreleased]
+
+* Project template to automatically generate a project template using BOWER packages and browser-sync
+* Typescript generator
+
+## [0.3.0] - 2017-03-28
+
+### Added
+
+* Relative source path to source project (in preparation to the project template)
+* Extension listens to workspace config changes
+
+### Changed
+
+* Switch to controller and view commands are now using relative root path (location of manifest.json)
+* I18n file is now resolved relative to the manifest.json path (default still ./i18n/i18n.properties)
+* Improved readme
+
+## [0.2.8] - 2017-03-23
+
+### Fixed
+
+* XML View was in ts file
+* typescript.json was not referenced correctly in project json
 * Updated README to provide help which snippets are available
 
-## Version 0.2.7 - 2017-03-20 `XML Autocomplete Improvement I`
+## [0.2.7] - 2017-03-20
 
-* **FIXED** Root element was not recognized
-* **FIXED** Autocomplete crashed when Elements were in subattributes of their parent element
+### Fixed
 
-## Version 0.2.6 - 2017-03-15 `Navigation Fix`
+* Root element was not recognized
+* Autocomplete crashed when Elements were in subattributes of their parent element
 
-* **FIXED** Goto fragments, controllers and other views from views and fragments
+## [0.2.6] - 2017-03-15
 
-## Version 0.2.5 - 2017-03-09
+### Fixed
 
-* **HOTFIX** xml2js linting did not work
+* Goto fragments, controllers and other views from views and fragments
 
-## Version 0.2.4 - 2017-03-04
+## [0.2.5] - 2017-03-09
 
-* **FEATURE** I18n diagnostic will automatically updated when i18n.properties file is changed
-* **FEATURE** XML Diagnostic attribute check (double attributes)
-* **FEATURE** XML CodeCompletion for SimpleForm (`sap.ui.layout.form`) and Views (`sap.ui.core.mvc`)
-* **BUGFIX** XML Attribute search improved
-* Completely split basic XML features from UI5 specific features
+### Fixed
 
-## Version 0.2.3 - 2017-02-25
+* xml2js linting did not work
 
-* **FEATURE** I18n Diagnostic provider for existing labels
-* **FEATURE** Create new I18n Label via command or CodeAction
-* **FEATURE** Go to definition of i18n label
-* **BUGFIX** Code completion for i18n label
-* **BUGFIX** Improved Element Crawling in language server, can now resolve subelements properly
+## [0.2.4] - 2017-03-04
+
+### Added
+
+* I18n diagnostic will automatically updated when i18n.properties file is changed
+* XML Diagnostic attribute check (double attributes)
+* XML CodeCompletion for SimpleForm (`sap.ui.layout.form`) and Views (`sap.ui.core.mvc`)
+
+### Fixed
+
+* XML Attribute search improved
+
+## [0.2.3] - 2017-02-25
+
+### Added
+
+* I18n Diagnostic provider for existing labels
+* Create new I18n Label via command or CodeAction
+* Go to definition of i18n label
+
+### Fixed
+
+* Code completion for i18n label
+* Improved Element Crawling in language server, can now resolve subelements properly
 * Split some ui5 specific features from xml language server
 
-## Version 0.2.2 - 2017-02-23
+## [0.2.2] - 2017-02-23
 
-* **BUGFIX** Fixed false auto delete empty tag closing wrong element.
+### Fixed
 
-## Version 0.2.1 - 2017-02-23
+* Fixed false auto delete empty tag closing wrong element.
 
-* **BUGFIX** Completion Items for i18n model weren't generated
+## [0.2.1] - 2017-02-23
+
+### Fixed
+
+* Completion Items for i18n model weren't generated
 * Removed wrong feature in Readme.md
 
-## Version 0.2.0 - 2017-02-22
+## [0.2.0] - 2017-02-22
 
-* **FEATURE** Autoclose on empty XML Elements when putting / at the end.
-* **FEATURE** Context menu entries for switch to controller and switch to view
-* **BUGFIX** Replaced document crawling algorithm for code completion with a much more stable one
+### Added
 
-## Version 0.1.4 - 2017-02-21
+* Autoclose on empty XML Elements when putting / at the end.
+* Context menu entries for switch to controller and switch to view
 
-* **BUGFIX** Extension did not start due to missing modlue
+### Fixed
 
-## Version 0.1.1 - 2017-02-21
+* Replaced document crawling algorithm for code completion with a much more stable one
+
+## [0.1.4] - 2017-02-21
+
+### Fixed
+
+* Extension did not start due to missing modlue
+
+## [0.1.1] - 2017-02-21
+
+### Added
 
 * Added Changelog
 
-## Version 0.1.0 - 2017-02-21
+## [0.1.0] - 2017-02-21
+
+### Added
 
 * Initial Release

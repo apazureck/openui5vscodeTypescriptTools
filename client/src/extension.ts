@@ -13,11 +13,13 @@ import {
     DocumentFilter,
     ExtensionContext,
     languages,
+    QuickPickItem,
     TextDocument,
     TextDocumentChangeEvent,
     Uri,
     window,
-    workspace
+    workspace,
+    WorkspaceConfiguration
 } from 'vscode';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
@@ -34,30 +36,40 @@ import { ManifestCompletionItemProvider } from './language/ui5/Ui5ManifestComple
 import { I18nCodeActionprovider } from './language/xml/XmlActionProviders'
 
 export interface IDiagnose {
-    diagnose(document: TextDocument)
-    diagnosticCollection: DiagnosticCollection
+    diagnosticCollection: DiagnosticCollection;
+    diagnose(document: TextDocument);
 }
 
 export class Ui5Extension {
-    namespacemappings?: { [id: string]: string; };
-    manifest?: Manifest;
-    extensionPath?: string;
-    schemaStoragePath?: string;
-    relativemainfestlocation: string;
-    absolutemanifestlocation: string
+    public namespacemappings?: { [id: string]: string; };
+    public manifest?: Manifest;
+    public extensionPath?: string;
+    public schemaStoragePath?: string;
+    /**
+     * Relative path to the ui5 project root (level of manifest.json)
+     * @type {string}
+     * @memberOf Ui5Extension
+     */
+    public relativeRootPath: string;
+    /**
+     * Absolute path to the ui5 project root
+     * @type {string}
+     * @memberOf Ui5Extension
+     */
+    public absoluteRootPath: string;
 
     /**
      * Creates a relative workspace path to manifest.json file from the namespace
-     * 
-     * @param {string} path 
-     * @returns {string} 
-     * 
+     *
+     * @param {string} path
+     * @returns {string}
+     *
      * @memberOf Ui5Extension
      */
-    CreateRelativePath(namespace: string): string {
-        for (let map in this.namespacemappings) {
+    public CreateRelativePath(namespace: string): string {
+        for (const map in this.namespacemappings) {
             if (namespace.startsWith(map)) {
-                let relpath = path.normalize(path.join(ui5tsglobal.core.relativemainfestlocation, namespace.replace(map, this.namespacemappings[map]).replace(/\./g, "/").replace(/\/\/+/g, "/")));
+                const relpath = path.normalize(path.join(ui5tsglobal.core.relativeRootPath, namespace.replace(map, this.namespacemappings[map]).replace(/\./g, "/").replace(/\/\/+/g, "/")));
                 if (relpath.startsWith("/") || relpath.startsWith("\\"))
                     return relpath.substring(1).replace(/\\/g, "/");
                 else
@@ -66,29 +78,32 @@ export class Ui5Extension {
         }
     }
 
-    GetFullNameByFile(file: string): string {
-        let m = path.dirname(ui5tsglobal.core.absolutemanifestlocation);
-        let fn = path.dirname(file);
-        let rel = "./" + path.relative(m, fn).replace("\\", "/") + "/" + path.basename(window.activeTextEditor.document.fileName);
+    public GetFullNameByFile(file: string): string {
+        const m = ui5tsglobal.core.absoluteRootPath;
+        const fn = path.dirname(file);
+        const rel = "./" + path.relative(m, fn).replace("\\", "/") + "/" + path.basename(window.activeTextEditor.document.fileName);
         // rel = rel.replace(/\.controller\.(ts|fs)$/, "").replace(/[\/\\]/g, ".");
-        let sources: {k: string, v: string}[] = [];
-        for(let ns in ui5tsglobal.core.namespacemappings) {
+        const sources: { k: string, v: string }[] = [];
+        for (const ns in ui5tsglobal.core.namespacemappings) {
             let relsource = ui5tsglobal.core.namespacemappings[ns];
-            if(rel.startsWith(relsource))
-                sources.push( {k: relsource, v: ns } );
+            if (rel.startsWith(relsource))
+                sources.push({ k: relsource, v: ns });
         }
         let bestmatch;
-        if(sources.length>1) {
-            bestmatch = sources.sort((a, b) => a.k.length-b.k.length).pop();
-        } else 
+        if (sources.length > 1) {
+            bestmatch = sources.sort((a, b) => a.k.length - b.k.length).pop();
+        } else
             bestmatch = sources[0];
         return bestmatch.v + "." + rel.substring(2).replace(/\.controller\.(ts|fs)$/, "").replace(/[\/\\]/g, ".");
     }
 }
 
+// tslint:disable-next-line:no-namespace
 export namespace ui5tsglobal {
     export const name = "ui5-ts";
     export const core: Ui5Extension = new Ui5Extension();
+
+    export var config: WorkspaceConfiguration;
 
 }
 
@@ -115,30 +130,30 @@ export async function activate(c: ExtensionContext) {
     ui5tsglobal.core.schemaStoragePath = c.asAbsolutePath("schemastore");
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log('Activating UI5 extension.');
+    console.log("Activating UI5 extension.");
 
-    getManifestLocation();
+    // Subscribe to workspace config changed configuration
+    workspace.onDidChangeConfiguration(e => onDidChangeConfiguration());
+    onDidChangeConfiguration();
 
     startXmlViewLanguageServer(context);
     // startManifestLanguageServer();
 
-    getAllNamespaceMappings();
-
     // Hook the commands
     // context.subscriptions.push(commands.registerCommand('ui5ts.SetupUi5', commands.SetupUi5));
-    c.subscriptions.push(commands.registerTextEditorCommand('ui5ts.SwitchToView', SwitchToView.bind(context)));
-    c.subscriptions.push(commands.registerTextEditorCommand('ui5ts.SwitchToController', SwitchToController.bind(context)));
-    c.subscriptions.push(commands.registerCommand('ui5ts.AddSchemaToStorage', AddSchemaToStore.bind(context)));
-    c.subscriptions.push(commands.registerCommand('ui5ts.CreateNewI18nLabel', AddI18nLabel.bind(context)));
-    c.subscriptions.push(commands.registerCommand('ui5ts.ResetI18NStorage', ResetI18nStorage.bind(context)));
+    c.subscriptions.push(commands.registerTextEditorCommand("ui5ts.SwitchToView", SwitchToView.bind(context)));
+    c.subscriptions.push(commands.registerTextEditorCommand("ui5ts.SwitchToController", SwitchToController.bind(context)));
+    c.subscriptions.push(commands.registerCommand("ui5ts.AddSchemaToStorage", AddSchemaToStore.bind(context)));
+    c.subscriptions.push(commands.registerCommand("ui5ts.CreateNewI18nLabel", AddI18nLabel.bind(context)));
+    c.subscriptions.push(commands.registerCommand("ui5ts.ResetI18NStorage", ResetI18nStorage.bind(context)));
 
     // Setup Language Providers
     console.log("Creating I18N Provider!");
-    c.subscriptions.push(languages.registerCodeActionsProvider(ui5_xml, new I18nCodeActionprovider));
+    c.subscriptions.push(languages.registerCodeActionsProvider(ui5_xml, new I18nCodeActionprovider()));
 
     // c.subscriptions.push(languages.registerCompletionItemProvider([ui5_xmlviews, ui5_xmlfragments], new Ui5i18nCompletionItemProvider));
 
-    let diags: IDiagnose[] = [new ManifestDiagnostics(languages.createDiagnosticCollection('json')), new I18nDiagnosticProvider(languages.createDiagnosticCollection('i18n'))];
+    const diags: IDiagnose[] = [new ManifestDiagnostics(languages.createDiagnosticCollection("json")), new I18nDiagnosticProvider(languages.createDiagnosticCollection("i18n"))];
 
     createDiagnosticSubscriptions(c, diags);
 
@@ -147,20 +162,27 @@ export async function activate(c: ExtensionContext) {
             return;
 
         ResetI18nStorage();
-        for (let otd of workspace.textDocuments)
-            for (let diag of diags)
+        for (const otd of workspace.textDocuments)
+            for (const diag of diags)
                 diag.diagnose(otd);
     });
 
     // Completionitemproviders
-    c.subscriptions.push(languages.registerCompletionItemProvider(ui5_manifest, new ManifestCompletionItemProvider));
-    c.subscriptions.push(languages.registerCompletionItemProvider(ui5_xml, new I18NCompletionItemProvider));
+    c.subscriptions.push(languages.registerCompletionItemProvider(ui5_manifest, new ManifestCompletionItemProvider()));
+    c.subscriptions.push(languages.registerCompletionItemProvider(ui5_xml, new I18NCompletionItemProvider()));
 
     // Definitionproviders
-    c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewFragmentDefinitionProvider));
-    c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewControllerDefinitionProvider));
-    c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new I18nDfinitionProvider));
-    c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new Ui5ViewDefinitionProvider))
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewFragmentDefinitionProvider()));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewControllerDefinitionProvider()));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new I18nDfinitionProvider()));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new Ui5ViewDefinitionProvider()));
+}
+
+function onDidChangeConfiguration() {
+    ui5tsglobal.config = workspace.getConfiguration("ui5ts");
+    getManifestLocation();
+    getAllNamespaceMappings();
+    ResetI18nStorage();
 }
 
 function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) {
@@ -171,49 +193,64 @@ function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) 
         });
         workspace.onDidOpenTextDocument(diag.diagnose.bind(diag));
     }
-    for (let otd of workspace.textDocuments)
-        for (let diag of diags)
+    for (const otd of workspace.textDocuments)
+        for (const diag of diags)
             diag.diagnose(otd);
 }
 
-function getManifestLocation() {
+async function getManifestLocation() {
     try {
-        var workspaceroot = workspace.rootPath
-        let manifest = workspace.findFiles("manifest.json", '').then((value) => {
-            let val = value;
-            ui5tsglobal.core.absolutemanifestlocation = val[0].fsPath;
-            ui5tsglobal.core.relativemainfestlocation = path.relative(workspaceroot, val[0].fsPath).replace("manifest.json", "");
-        });
+        if (!ui5tsglobal.config.get("manifestlocation")) {
+            const workspaceroot = workspace.rootPath;
+            const manifest = await workspace.findFiles("**/manifest.json", "").then(async (value) => {
+                let val: string;
+                if (value.length < 1) {
+                    window.showWarningMessage("Could not find any manifest.json in your project. Please set the path to your manifest.json file in the workspace settings.");
+                    return;
+                } else if (value.length > 1) {
+                    window.showInformationMessage("Multiple manifests found");
+                    val = (await window.showQuickPick(value.map(x => ({ label: path.relative(workspace.rootPath, x.fsPath), description: x.fsPath })) as QuickPickItem[], { ignoreFocusOut: true })).label;
+                    window.showInformationMessage("Set manifest.json path to workspace settings");
+                } else {
+                    val = value[0].fsPath;
+                }
+                await (ui5tsglobal.config as any).update("manifestlocation", workspace.asRelativePath(val));
+            });
+        }
+        if (ui5tsglobal.config.get("manifestlocation")) {
+            window.showInformationMessage("UI5ts is using '" + (path.dirname(ui5tsglobal.config.get("manifestlocation") as string).length > 0 ? path.dirname(ui5tsglobal.config.get("manifestlocation") as string) : "./") + "' as project location. You can change that in your workspace settings.");
+            ui5tsglobal.core.absoluteRootPath = path.dirname(path.join(workspace.rootPath, ui5tsglobal.config.get("manifestlocation") as string));
+            ui5tsglobal.core.relativeRootPath = path.dirname(ui5tsglobal.config.get("manifestlocation") as string);
+        }
 
     } catch (error) {
-
+        // Do nothing
     }
 }
 
 async function getAllNamespaceMappings() {
     ui5tsglobal.core.namespacemappings = {};
     // search all html files
-    let docs = await file.File.find(".*\\.(html|htm)$");
-    for (let doc of docs) {
+    const docs = await (workspace as any).findFiles("**/*.{html,htm}");
+    for (const doc of docs) {
         try {
-            let text = (await workspace.openTextDocument(Uri.parse("file:///" + doc))).getText();
+            const text = (await workspace.openTextDocument(doc)).getText();
             // get script html tag with data-sap-ui-resourceroots
-            let scripttag = text.match(/<\s*script[\s\S]*sap-ui-core[\s\S]*data-sap-ui-resourceroots[\s\S]*?>/m)[0];
+            const scripttag = text.match(/<\s*script[\s\S]*sap-ui-core[\s\S]*data-sap-ui-resourceroots[\s\S]*?>/m)[0];
             if (!scripttag)
                 continue;
-            let resourceroots = scripttag.match(/data-sap-ui-resourceroots.*?['"][\s\S]*?{([\s\S]*)}[\s\S]*['"]/m)[1];
+            const resourceroots = scripttag.match(/data-sap-ui-resourceroots.*?['"][\s\S]*?{([\s\S]*)}[\s\S]*['"]/m)[1];
             if (!resourceroots)
                 continue;
             for (let rr of resourceroots.split(",")) {
-                let entry = rr.split(":");
-                let key = entry[0].trim();
-                let val = entry[1].trim();
+                const entry = rr.split(":");
+                const key = entry[0].trim();
+                const val = entry[1].trim();
                 log.printInfo("Found " + key + " to replace with " + val);
                 ui5tsglobal.core.namespacemappings[key.substr(1, key.length - 2)] = val.substr(1, val.length - 2);
             }
-        }
-        catch (error) {
-
+        } catch (error) {
+            // Do nothing;
         }
     }
     console.info(ui5tsglobal.core.namespacemappings);
@@ -224,40 +261,40 @@ export function deactivate() {
 
 }
 
-function startXmlViewLanguageServer(context: ExtensionContext): Promise<void> {
+function startXmlViewLanguageServer(c: ExtensionContext): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         // The server is implemented in node
         log.printInfo("Staring XML View language server");
-        let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
+        const serverModule = c.asAbsolutePath(path.join("server", "server.js"));
         // The debug options for the server
-        let debugOptions = { storagepath: context.asAbsolutePath("schemastore"), execArgv: ["--nolazy", "--debug=6009"] };
+        const debugOptions = { storagepath: c.asAbsolutePath("schemastore"), execArgv: ["--nolazy", "--debug=6009"] };
 
         // If the extension is launched in debug mode then the debug server options are used
         // Otherwise the run options are used
-        let serverOptions: ServerOptions = {
+        const serverOptions: ServerOptions = {
+            debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions },
             run: { module: serverModule, transport: TransportKind.ipc },
-            debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
-        }
+        };
 
         // Options to control the language client
-        let clientOptions: LanguageClientOptions = {
+        const clientOptions: LanguageClientOptions = {
             // Register the server for xml decuments documents
-            documentSelector: ['xml', 'xsd'],
             diagnosticCollectionName: "xmlDiagnostics",
+            documentSelector: ["xml", "xsd"],
+            initializationOptions: { storagepath: c.asAbsolutePath("schemastore") } as XmlInitOptions,
             synchronize: {
-                // Synchronize the setting section 'languageServerExample' to the server
-                configurationSection: 'ui5ts',
+                // Synchronize the setting section "languageServerExample" to the server
+                configurationSection: "ui5ts",
                 // Notify the server about file changes to '.clientrc files contain in the workspace
                 fileEvents: workspace.createFileSystemWatcher("**/*.{xml,xsd}", false, false, false)
-            },
-            initializationOptions: { storagepath: context.asAbsolutePath("schemastore") } as XmlInitOptions
-        }
+            }
+        };
 
         // Create the language client and start the client.
-        let disposable = new LanguageClient('XmlLangServer', serverOptions, clientOptions);
-        // Push the disposable to the context's subscriptions so that the 
+        const disposable = new LanguageClient("XmlLangServer", serverOptions, clientOptions);
+        // Push the disposable to the context's subscriptions so that the
         // client can be deactivated on extension deactivation
-        context.subscriptions.push(disposable.start());
+        c.subscriptions.push(disposable.start());
     })
 
 }
