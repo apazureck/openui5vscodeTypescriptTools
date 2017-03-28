@@ -1,6 +1,8 @@
 # ui5ts Extension
 
-This extension improves the experience using UI5 with typescript. It is currently work in progress.
+This extension improves the experience using UI5 with typescript. It is also targeted to give a quicker start in developing UI5, but also more experieced users may have a profit.
+
+It is currently work in progress. It also may benefit js programming, as I try to keep all filesearches to both, ts and js file endings. Please let me know on github, if something mentioned below does not work for js.
 
 ## Disclaimer
 
@@ -8,8 +10,8 @@ This extension improves the experience using UI5 with typescript. It is currentl
 
 ## Features
 
-* **Code snippets**
-  * generate views and controllers in typescript
+* **Code snippets** see also snippet section under Usage, will automatically updated if new snippets are available. Contribution welcome!
+  * generate views and controllers in typescript (ts only)
 * **Navigation** between views and controllers
   * Navigation between views and controllers using `CTRL+F7` _(view)_ or `CTRL+SHIFT+F7` _(controller)_.
   * Go to event handlers by pressing `F12`.
@@ -20,20 +22,57 @@ This extension improves the experience using UI5 with typescript. It is currentl
 * **manifest.json** support
   * JSON Schema
   * Autocomplete for routings
+  * Check if target views exist
 * **XML** support
   * Code completion for XML views (Attributes and Elements)
   * Simple check for well-formed xml files
   * Check for double attributes
+* **Project Template** with auto compile, bower support and browser sync
+  * [Check out this repo for now](https://github.com/apazureck/UI5TypescriptDeclarations/tree/master/generator)
+  * Will be included in one of the next releases, if stable enough
 
 ## Requirements
 
-[Typescript definitions](https://github.com/apazureck/UI5TypescriptDeclarations) (based on UI5 Version 1.42.6) for UI5 from the repository or check out the [typescript generator](https://github.com/apazureck/openui5TypescriptGenerator/stargazers) (currently C#/.NET)
+Get the typescript declarations:
+
+1. [Typescript definitions](https://github.com/apazureck/UI5TypescriptDeclarations) (based on UI5 Version 1.42.6) for UI5 from the repository or check out the [typescript generator](https://github.com/apazureck/openui5TypescriptGenerator) (currently C#/.NET).
+1. There are also other Typescript declarations on dt, so check out these, if you like: `typings install openui5`. These are also used by vscode when writing js code.
+1. There is [another generator](https://github.com/maylukas/openui5-typescript-definition-parser) written in typescript. This generator may be included in this extension in a later release, if the author is ok with that.
+
+I can reccomend using the first generator, as it also respects the UI5 version you want to use, but feel free to experiment on that topic for now.
 
 ## Usage
 
-Check out the [Wiki on Github](https://github.com/apazureck/openui5vscodeTypescriptTools/wiki).
+This extension will start if you open any xml file or your workspace contains any manifest.json file. Check if the XML Language server gets started in the output window.
 
-> Will be updated in the next weeks (~ 17-03-30)
+From Version `0.3.0` on you should be informed either
+
+1. no manifest.json is found.
+1. multiple manifest.json files were found (Quickpick to choose).
+1. exactly 1 manifest.json file is found.
+
+After that the manifest.json location will be added to your workspace settings. All search for views, controllers, etc. will be done in the folders below this manifest.json, so make sure you have one in your project. [Use this template to get started](https://github.com/apazureck/UI5TypescriptDeclarations/tree/master/generator) (will be included in this extension in the near future).
+
+You may also manually set the manifest.json, even if you do not have any. It may work this way, too. Just set it manually in the settings.json
+
+### Commands
+
+1. Go to controller `CTRL + F7` (works only in xml views (maybe also in json views, not tested so far))
+1. Go to view `CTRL + Shift + F7` (works only in js,ts controllers)
+1. Go to from view or fragment to fragment, view or controller: Put cursor on line with view/fragment/controller and press `F12`
+
+### i18n
+
+1. Set up your relative model file path in your workspace settings `ui5ts.lang.i18n.modelfilelocation` (default `<manifest.json location>/i18n/i18n.properties`).
+1. Set up your model name in your workspace settings `ui5ts.lang.i18n.modelname` (default `i18n`)
+
+After that the xml files should be checked for missing labels. Check your Problems window on that. If a missing label is found a code action will allow you to add it to your i18n file. It will always be appended (no sorting so far).
+
+### Tell me more...
+
+Check out for more detail at the [Wiki on Github](https://github.com/apazureck/openui5vscodeTypescriptTools/wiki). Contribution very welcome here!
+
+> Will be updated in the next weeks (~ 17-04-30)
 
 ## Snippets
 
@@ -66,6 +105,7 @@ This is a early release, therefore, functionallity is very limited and the funct
 1. ~~Autocomplete for attributes does sometimes not work as intended (may be caused by Issue 1). Will be fixed in the next release (~17-03-25)~~
 1. Autocomplete does not show correct elements when cursor is in an attribute. For example `<Page><content>!Cursorpos!</content>` will sometimes not display the correct elements.
 1. Navigation from fragment to controllers does not work for now. Will be fixed in the next release (~17-03-25)
+1. Go to controller/view/fragment may not work at the fist time. This is due to the fact, that the namespace mappings will be triggered first. *Workaround:* Try it a few times.
 
 Problems are caused by splitting up xml linting functionallity and ui5 xml providers. Furthermore, a new algorithm for finding elements was introduced, which may be buggy some times. My apologies for the inconvenience.
 

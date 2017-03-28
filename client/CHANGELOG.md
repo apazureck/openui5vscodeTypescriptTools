@@ -9,11 +9,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 * Project template to automatically generate a project template using BOWER packages and browser-sync
 * Typescript generator
 
-## [0.2.9] - 2017-03-28
+## [0.3.0] - 2017-03-28
 
-### Fixed
+### Added
 
-* Relative source path to source project (in preparation to using the project template)
+* Relative source path to source project (in preparation to the project template)
+* Extension listens to workspace config changes
+
+### Changed
+
+* Switch to controller and view commands are now using relative root path (location of manifest.json)
+* I18n file is now resolved relative to the manifest.json path (default still ./i18n/i18n.properties)
+* Improved readme
 
 ## [0.2.8] - 2017-03-23
 

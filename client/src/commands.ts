@@ -69,9 +69,9 @@ export async function SwitchToView(): Promise<void> {
     if (views.length < 1)
         return;
 
-    // TODO: Make selection
     if (views.length > 1) {
-        let pick = await window.showQuickPick(views.map(x => x.path.substring(1)));
+        window.showInformationMessage("Multiple views found");
+        const pick = await window.showQuickPick(views.map(x => x.path.substring(1)));
         window.showTextDocument(await workspace.openTextDocument(pick));
     } else {
         window.showTextDocument(await workspace.openTextDocument(views[0]));
@@ -79,7 +79,7 @@ export async function SwitchToView(): Promise<void> {
 }
 
 async function getViewsForController(cname: string): Promise<Uri[]> {
-    let views = await workspace.findFiles("**/*" + viewFileEx, undefined);
+    let views = await workspace.findFiles(ui5tsglobal.core.relativeRootPath + "/**/*" + viewFileEx, undefined);
     let ret: Uri[] = [];
     for (let view of views) {
         let doc = (await workspace.openTextDocument(view)).getText();

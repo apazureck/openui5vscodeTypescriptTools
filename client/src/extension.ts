@@ -13,13 +13,14 @@ import {
     DocumentFilter,
     ExtensionContext,
     languages,
+    QuickPickItem,
     TextDocument,
     TextDocumentChangeEvent,
     Uri,
     window,
     workspace,
     WorkspaceConfiguration
-} from "vscode";
+} from 'vscode';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as file from './helpers/filehandler';
@@ -78,7 +79,7 @@ export class Ui5Extension {
     }
 
     public GetFullNameByFile(file: string): string {
-        const m = path.dirname(ui5tsglobal.core.absoluteRootPath);
+        const m = ui5tsglobal.core.absoluteRootPath;
         const fn = path.dirname(file);
         const rel = "./" + path.relative(m, fn).replace("\\", "/") + "/" + path.basename(window.activeTextEditor.document.fileName);
         // rel = rel.replace(/\.controller\.(ts|fs)$/, "").replace(/[\/\\]/g, ".");
@@ -207,7 +208,9 @@ async function getManifestLocation() {
                     window.showWarningMessage("Could not find any manifest.json in your project. Please set the path to your manifest.json file in the workspace settings.");
                     return;
                 } else if (value.length > 1) {
-                    val = await window.showQuickPick(value.map(x => x.fsPath));
+                    window.showInformationMessage("Multiple manifests found");
+                    val = (await window.showQuickPick(value.map(x => ({ label: path.relative(workspace.rootPath, x.fsPath), description: x.fsPath })) as QuickPickItem[], { ignoreFocusOut: true })).label;
+                    window.showInformationMessage("Set manifest.json path to workspace settings");
                 } else {
                     val = value[0].fsPath;
                 }
@@ -215,6 +218,7 @@ async function getManifestLocation() {
             });
         }
         if (ui5tsglobal.config.get("manifestlocation")) {
+            window.showInformationMessage("UI5ts is using '" + (path.dirname(ui5tsglobal.config.get("manifestlocation") as string).length > 0 ? path.dirname(ui5tsglobal.config.get("manifestlocation") as string) : "./") + "' as project location. You can change that in your workspace settings.");
             ui5tsglobal.core.absoluteRootPath = path.dirname(path.join(workspace.rootPath, ui5tsglobal.config.get("manifestlocation") as string));
             ui5tsglobal.core.relativeRootPath = path.dirname(ui5tsglobal.config.get("manifestlocation") as string);
         }
@@ -227,10 +231,10 @@ async function getManifestLocation() {
 async function getAllNamespaceMappings() {
     ui5tsglobal.core.namespacemappings = {};
     // search all html files
-    const docs = await file.File.find(".*\\.(html|htm)$");
+    const docs = await (workspace as any).findFiles("**/*.{html,htm}");
     for (const doc of docs) {
         try {
-            const text = (await workspace.openTextDocument(Uri.parse("file:///" + doc))).getText();
+            const text = (await workspace.openTextDocument(doc)).getText();
             // get script html tag with data-sap-ui-resourceroots
             const scripttag = text.match(/<\s*script[\s\S]*sap-ui-core[\s\S]*data-sap-ui-resourceroots[\s\S]*?>/m)[0];
             if (!scripttag)

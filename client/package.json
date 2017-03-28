@@ -103,11 +103,6 @@
                     "default": "./i18n/i18n.properties",
                     "description": "Location of the i18n file used for code completion"
                 },
-                "ui5ts.lang.xml.autoCloseEmptyElement": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Closes empty tag when a '/' is typed at the end."
-                },
                 "ui5ts.lang.xml.LogLevel": {
                     "type": "number",
                     "default": 4,
