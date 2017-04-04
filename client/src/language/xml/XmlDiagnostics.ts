@@ -69,7 +69,7 @@ export class I18nLabelStorage {
             throw new Error("Label already exists");
 
         const modelfilename = vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelfilelocation") as string || "./i18n/i18n.properties";
-        fs.appendFileSync(path.join(vscode.workspace.rootPath, this.modelfilename), "\n" + label + "=" + text);
+        fs.appendFileSync(path.join(ui5tsglobal.core.absoluteRootPath, this.modelfilename), "\n" + label + "=" + text);
         this.Labels[label] = {
             line: this.linecount++,
             text,
