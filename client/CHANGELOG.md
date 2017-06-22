@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 * Project template to automatically generate a project template using BOWER packages and browser-sync
 * Typescript generator
 
+## [0.3.1] - 2017-04-04
+
+### Fixed
+
+* I18N file was not found due to wrong relative path
+
 ## [0.3.0] - 2017-03-28
 
 ### Added

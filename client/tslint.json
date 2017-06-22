@@ -28,6 +28,10 @@
         ],
         "indent": [
             false
+        ],
+        "no-conditional-assignment": false,
+        "array-type": [
+            false
         ]
     },
     "jsRules": {
