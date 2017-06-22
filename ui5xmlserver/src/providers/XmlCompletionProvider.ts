@@ -10,6 +10,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		super(schemastorage, connection, loglevel);
 		this.schemastorage = schemastorage.schemas
 	}
+
 	async getCompletionSuggestions(handler: TextDocumentPositionParams): Promise<CompletionItem[]> {
 
 		let doc = this.documents.get(handler.textDocument.uri);
@@ -45,7 +46,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 	}
 
 	private processAllowedElements(cursor: FoundCursor): CompletionItem[] {
-		let foundElements: { namespace: string, elements: Element[] }[] = [];
+		let foundElements: { namespace: string, elements: Element[], ciKind?: CompletionItemKind }[] = [];
 		let baseElements: Element[] = [];
 
 		// copy path to leave original intact
@@ -54,7 +55,12 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		let downpath: string[] = [];
 		let element: ElementEx;
 
-		if (cursor.path.length > 0)
+		// Try to find current element in schema
+		element = this.findElement(cursor.fullName, this.getSchema(cursor.fullName));
+
+		// If not found and there is a path try to crawl down the path to get fitting elements
+		if (!element && cursor.path.length > 0) {
+			downpath.push(cursor.fullName);
 			// go down the path to get the first parent element in the owning schema
 			while (part = path.pop()) {
 				element = this.findElement(part, this.getSchema(part))
@@ -64,8 +70,14 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 					downpath.push(part);
 				}
 			}
-		else
-			element = this.findElement(cursor.fullName, this.getSchema(cursor.fullName));
+		}
+			
+
+
+		if (!element) {
+			this.logInfo("Element not found.");
+			return;
+		}
 
 		// Find out if element is referenced first
 		if (element.$ && element.$.ref) {
@@ -82,12 +94,12 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		for (let e of elements)
 			// Get Type if type is given as attribute, which indicates it may be used by others.
 			if (e.$ && e.$.type) {
-				derivedelements = derivedelements.concat(this.getDerivedElements(e, this.getSchema(e.$.name)))
+				derivedelements = derivedelements.concat(this.getDerivedElements(e, element.ownerschema));
 				// Get Elements if type is a reference
 			} else if (e.$ && e.$.ref) {
-				e = this.getElementFromReference(e.$.ref, this.getSchema(e.$.ref))
+				e = this.getElementFromReference(e.$.ref, element.ownerschema);
 				if (e && e.$ && e.$.type)
-					derivedelements = derivedelements.concat(this.getDerivedElements(e, this.getSchema(e.$.name)));
+					derivedelements = derivedelements.concat(this.getDerivedElements(e, element.ownerschema));
 			} else {
 				ownelements.push(e);
 			}
@@ -95,7 +107,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		// Append additional elements
 		for (let ns in this.usedNamespaces) {
 			if (this.usedNamespaces[ns] === element.ownerschema.targetNamespace) {
-				foundElements.push({ namespace: ns, elements: ownelements });
+				foundElements.push({ namespace: ns, elements: ownelements, ciKind: CompletionItemKind.Property });
 				break;
 			}
 		}
@@ -109,7 +121,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 					let nsprefix = item.namespace.length > 0 ? item.namespace + ":" : "";
 					citem.insertText = "<" + nsprefix + entry.$.name + ">$0</" + nsprefix + entry.$.name + ">";
 					citem.insertTextFormat = 2;
-					citem.kind = CompletionItemKind.Class;
+					citem.kind = item.ciKind || CompletionItemKind.Class;
 					if (item.namespace.length > 0)
 						citem.detail = "Namespace: " + item.namespace;
 					try {
@@ -271,8 +283,10 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 	}
 
 	private getElementFromReference(elementref: string, schema: StorageSchema): ElementEx {
+		if(!schema)
+			return undefined;
 		// Split namespace and 
-		let nsregex = elementref.match(/(\w*?):?(\w+?)$/);
+		let nsregex = elementref.match(this.namespaceRegex);
 		if (schema.referencedNamespaces[nsregex[1]] !== schema.targetNamespace)
 			schema = this.schemastorage[schema.referencedNamespaces[nsregex[1]]];
 

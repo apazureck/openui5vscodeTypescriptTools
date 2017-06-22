@@ -53,7 +53,11 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         let part;
         let downpath = [];
         let element;
-        if (cursor.path.length > 0)
+        // Try to find current element in schema
+        element = this.findElement(cursor.fullName, this.getSchema(cursor.fullName));
+        // If not found and there is a path try to crawl down the path to get fitting elements
+        if (!element && cursor.path.length > 0) {
+            downpath.push(cursor.fullName);
             // go down the path to get the first parent element in the owning schema
             while (part = path.pop()) {
                 element = this.findElement(part, this.getSchema(part));
@@ -64,8 +68,11 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
                     downpath.push(part);
                 }
             }
-        else
-            element = this.findElement(cursor.fullName, this.getSchema(cursor.fullName));
+        }
+        if (!element) {
+            this.logInfo("Element not found.");
+            return;
+        }
         // Find out if element is referenced first
         if (element.$ && element.$.ref) {
             element = this.getElementFromReference(element.$.ref, element.ownerschema);
@@ -77,12 +84,12 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         for (let e of elements)
             // Get Type if type is given as attribute, which indicates it may be used by others.
             if (e.$ && e.$.type) {
-                derivedelements = derivedelements.concat(this.getDerivedElements(e, this.getSchema(e.$.name)));
+                derivedelements = derivedelements.concat(this.getDerivedElements(e, element.ownerschema));
             }
             else if (e.$ && e.$.ref) {
-                e = this.getElementFromReference(e.$.ref, this.getSchema(e.$.ref));
+                e = this.getElementFromReference(e.$.ref, element.ownerschema);
                 if (e && e.$ && e.$.type)
-                    derivedelements = derivedelements.concat(this.getDerivedElements(e, this.getSchema(e.$.name)));
+                    derivedelements = derivedelements.concat(this.getDerivedElements(e, element.ownerschema));
             }
             else {
                 ownelements.push(e);
@@ -90,7 +97,7 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         // Append additional elements
         for (let ns in this.usedNamespaces) {
             if (this.usedNamespaces[ns] === element.ownerschema.targetNamespace) {
-                foundElements.push({ namespace: ns, elements: ownelements });
+                foundElements.push({ namespace: ns, elements: ownelements, ciKind: vscode_languageserver_1.CompletionItemKind.Property });
                 break;
             }
         }
@@ -103,7 +110,7 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
                     let nsprefix = item.namespace.length > 0 ? item.namespace + ":" : "";
                     citem.insertText = "<" + nsprefix + entry.$.name + ">$0</" + nsprefix + entry.$.name + ">";
                     citem.insertTextFormat = 2;
-                    citem.kind = vscode_languageserver_1.CompletionItemKind.Class;
+                    citem.kind = item.ciKind || vscode_languageserver_1.CompletionItemKind.Class;
                     if (item.namespace.length > 0)
                         citem.detail = "Namespace: " + item.namespace;
                     try {
@@ -267,8 +274,10 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         return path;
     }
     getElementFromReference(elementref, schema) {
+        if (!schema)
+            return undefined;
         // Split namespace and 
-        let nsregex = elementref.match(/(\w*?):?(\w+?)$/);
+        let nsregex = elementref.match(this.namespaceRegex);
         if (schema.referencedNamespaces[nsregex[1]] !== schema.targetNamespace)
             schema = this.schemastorage[schema.referencedNamespaces[nsregex[1]]];
         return this.findElement(nsregex[2], schema);

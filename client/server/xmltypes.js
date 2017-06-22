@@ -76,6 +76,7 @@ exports.getNamespaces = getNamespaces;
 class XmlBaseHandler extends Log_1.Log {
     constructor(schemastorage, connection, loglevel) {
         super(connection, loglevel);
+        this.namespaceRegex = /^(\w*?):?(\w+)?$/;
         this.schemastorage = schemastorage.schemas;
     }
     /**
@@ -87,7 +88,11 @@ class XmlBaseHandler extends Log_1.Log {
      * @memberOf XmlBase
      */
     getSchema(fullElementName) {
-        return this.schemastorage[this.usedNamespaces[fullElementName.match(/(\w*?):?\w+/)[1]]];
+        const schema = this.schemastorage[this.usedNamespaces[fullElementName.match(this.namespaceRegex)[1]]];
+        if (!schema) {
+            this.logDebug("Schema for element '" + fullElementName + "' not found.");
+        }
+        return schema;
     }
     /**
      * gets the used namespaces in the input string. The used namespaces are stored in the usedNamespaces property.

@@ -1,5 +1,5 @@
 import * as path from "path";
-import { window } from "vscode/vscode";
+import { window } from "vscode";
 import { ui5tsglobal } from "./extension";
 
 export class Ui5Extension {

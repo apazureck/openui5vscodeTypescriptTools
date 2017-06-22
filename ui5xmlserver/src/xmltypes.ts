@@ -176,6 +176,7 @@ export interface FoundElementHeader {
 }
 
 export class XmlBaseHandler extends Log {
+	protected readonly namespaceRegex = /^(\w*?):?(\w+)?$/;
 	public schemastorage: { [targetNamespace: string]: StorageSchema }
 	public usedNamespaces: { [abbrevation: string]: string }
 	constructor(schemastorage: XmlStorage, connection: IConnection, loglevel: LogLevel) {
@@ -192,7 +193,11 @@ export class XmlBaseHandler extends Log {
 	 * @memberOf XmlBase
 	 */
 	getSchema(fullElementName: string): StorageSchema {
-		return this.schemastorage[this.usedNamespaces[fullElementName.match(/(\w*?):?\w+/)[1]]]
+		const schema = this.schemastorage[this.usedNamespaces[fullElementName.match(this.namespaceRegex)[1]]];
+		if(!schema) {
+			this.logDebug("Schema for element '"+fullElementName+"' not found.");
+		}
+		return schema;
 	}
 
 	/**
