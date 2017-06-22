@@ -15,11 +15,8 @@ import {
     workspace,
     WorkspaceConfiguration,
 } from "vscode";
-// import * as mcp from './language/ui5/ManifestCompletionItemProvider';
 import { LanguageClient, LanguageClientOptions, ServerOptions, SettingMonitor, TransportKind } from "vscode-languageclient";
 import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from "./commands";
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as file from "./helpers/filehandler";
 import * as log from "./helpers/logging";
 import { ModuleReferenceProvider } from "./language/js/ModuleReferenceProvider";
@@ -35,92 +32,32 @@ import { ManifestCompletionItemProvider } from "./language/ui5/Ui5ManifestComple
 import { ManifestDiagnostics } from "./language/ui5/Ui5ManifestDiagnostics";
 import { I18nCodeActionprovider } from "./language/xml/XmlActionProviders";
 import { I18nDiagnosticProvider } from "./language/xml/XmlDiagnostics";
+import { Ui5Extension } from "./UI5Extension";
 
 export interface IDiagnose {
     diagnosticCollection: DiagnosticCollection;
     diagnose(document: TextDocument);
 }
 
-export class Ui5Extension {
-    public namespacemappings?: { [id: string]: string; };
-    public manifest?: Manifest;
-    public extensionPath?: string;
-    public schemaStoragePath?: string;
-    /**
-     * Relative path to the ui5 project root (level of manifest.json)
-     * @type {string}
-     * @memberOf Ui5Extension
-     */
-    public relativeRootPath: string;
-    /**
-     * Absolute path to the ui5 project root
-     * @type {string}
-     * @memberOf Ui5Extension
-     */
-    public absoluteRootPath: string;
-
-    /**
-     * Creates a relative workspace path to manifest.json file from the namespace
-     *
-     * @param {string} path
-     * @returns {string}
-     *
-     * @memberOf Ui5Extension
-     */
-    public CreateRelativePath(namespace: string): string {
-        for (const map in this.namespacemappings) {
-            if (namespace.startsWith(map)) {
-                const relpath = path.normalize(path.join(ui5tsglobal.core.relativeRootPath, namespace.replace(map, this.namespacemappings[map]).replace(/\./g, "/").replace(/\/\/+/g, "/")));
-                if (relpath.startsWith("/") || relpath.startsWith("\\"))
-                    return relpath.substring(1).replace(/\\/g, "/");
-                else
-                    return relpath.replace(/\\/g, "/");
-            }
-        }
-    }
-
-    public GetFullNameByFile(file: string): string {
-        const m = ui5tsglobal.core.absoluteRootPath;
-        const fn = path.dirname(file);
-        const rel = "./" + path.relative(m, fn).replace("\\", "/") + "/" + path.basename(window.activeTextEditor.document.fileName);
-        // rel = rel.replace(/\.controller\.(ts|fs)$/, "").replace(/[\/\\]/g, ".");
-        const sources: { k: string, v: string }[] = [];
-        for (const ns in ui5tsglobal.core.namespacemappings) {
-            if (ns) {
-                const relsource = ui5tsglobal.core.namespacemappings[ns];
-                if (rel.startsWith(relsource))
-                    sources.push({ k: relsource, v: ns });
-            }
-        }
-        let bestmatch;
-        if (sources.length > 1) {
-            bestmatch = sources.sort((a, b) => a.k.length - b.k.length).pop();
-        } else
-            bestmatch = sources[0];
-        return bestmatch.v + "." + rel.substring(2).replace(/\.controller\.(ts|fs)$/, "").replace(/[\/\\]/g, ".");
-    }
-}
-
 // tslint:disable-next-line:no-namespace
 export namespace ui5tsglobal {
     export const name = "ui5-ts";
     export const core: Ui5Extension = new Ui5Extension();
-
-    export var config: WorkspaceConfiguration;
+    export let config: WorkspaceConfiguration;
 
 }
 
-const ui5_jsonviews: DocumentFilter = { language: "json", scheme: "file", pattern: "*.view.json" };
+const ui5JsonViews: DocumentFilter = { language: "json", scheme: "file", pattern: "*.view.json" };
 
-const ui5_tscontrollers: DocumentFilter = { language: "typescript", scheme: "file", pattern: "**/*.controller.ts" };
-const ui5_jscontrollers: DocumentFilter = { language: "javascript", scheme: "file", pattern: "**/*.controller.js" };
-const ui5_jsonfragments: DocumentFilter = { language: "json", scheme: "file", pattern: "**/*.{fragment,view}.json" };
+const ui5TsControllers: DocumentFilter = { language: "typescript", scheme: "file", pattern: "**/*.controller.ts" };
+const ui5JsControllers: DocumentFilter = { language: "javascript", scheme: "file", pattern: "**/*.controller.js" };
+const ui5JsonFragments: DocumentFilter = { language: "json", scheme: "file", pattern: "**/*.{fragment,view}.json" };
 
-const ui5_xml: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.{fragment,view}.xml" };
-const ui5_view: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.view.xml" };
-const ui5_fragment: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.fragment.xml" };
+const ui5Xml: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.{fragment,view}.xml" };
+const ui5View: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.view.xml" };
+const ui5Fragment: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.fragment.xml" };
 
-const ui5_manifest: DocumentFilter = { language: "json", scheme: "file", pattern: "**/manifest.json" };
+const ui5Manifest: DocumentFilter = { language: "json", scheme: "file", pattern: "**/manifest.json" };
 
 const javascript: DocumentFilter = { language: "javascript", scheme: "file" };
 
@@ -154,7 +91,7 @@ export async function activate(c: ExtensionContext) {
 
     // Setup Language Providers
     console.log("Creating I18N Provider!");
-    c.subscriptions.push(languages.registerCodeActionsProvider(ui5_xml, new I18nCodeActionprovider()));
+    c.subscriptions.push(languages.registerCodeActionsProvider(ui5Xml, new I18nCodeActionprovider()));
 
     // c.subscriptions.push(languages.registerCompletionItemProvider([ui5_xmlviews, ui5_xmlfragments], new Ui5i18nCompletionItemProvider));
 
@@ -173,14 +110,14 @@ export async function activate(c: ExtensionContext) {
     });
 
     // Completionitemproviders
-    c.subscriptions.push(languages.registerCompletionItemProvider(ui5_manifest, new ManifestCompletionItemProvider()));
-    c.subscriptions.push(languages.registerCompletionItemProvider(ui5_xml, new I18NCompletionItemProvider()));
+    c.subscriptions.push(languages.registerCompletionItemProvider(ui5Manifest, new ManifestCompletionItemProvider()));
+    c.subscriptions.push(languages.registerCompletionItemProvider(ui5Xml, new I18NCompletionItemProvider()));
 
     // Definitionproviders
-    c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewFragmentDefinitionProvider()));
-    c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewControllerDefinitionProvider()));
-    c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new I18nDfinitionProvider()));
-    c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new Ui5ViewDefinitionProvider()));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5View, new ViewFragmentDefinitionProvider()));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5View, new ViewControllerDefinitionProvider()));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5Xml, new I18nDfinitionProvider()));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5Xml, new Ui5ViewDefinitionProvider()));
 
     c.subscriptions.push(languages.registerReferenceProvider(javascript, new ModuleReferenceProvider()));
 }
@@ -193,7 +130,7 @@ function onDidChangeConfiguration() {
 }
 
 function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) {
-    for (let diag of diags) {
+    for (const diag of diags) {
         c.subscriptions.push(diag.diagnosticCollection);
         workspace.onDidChangeTextDocument((changes: TextDocumentChangeEvent) => {
             diag.diagnose(changes.document);
@@ -249,7 +186,7 @@ async function getAllNamespaceMappings() {
             const resourceroots = scripttag.match(/data-sap-ui-resourceroots.*?['"][\s\S]*?{([\s\S]*)}[\s\S]*['"]/m)[1];
             if (!resourceroots)
                 continue;
-            for (let rr of resourceroots.split(",")) {
+            for (const rr of resourceroots.split(",")) {
                 const entry = rr.split(":");
                 const key = entry[0].trim();
                 const val = entry[1].trim();
@@ -264,9 +201,8 @@ async function getAllNamespaceMappings() {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {
-
-}
+// export function deactivate() {
+// }
 
 function startXmlViewLanguageServer(c: ExtensionContext): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -288,12 +224,12 @@ function startXmlViewLanguageServer(c: ExtensionContext): Promise<void> {
             // Register the server for xml decuments documents
             diagnosticCollectionName: "xmlDiagnostics",
             documentSelector: ["xml", "xsd"],
-            initializationOptions: { storagepath: c.asAbsolutePath("schemastore") } as XmlInitOptions,
+            initializationOptions: { storagepath: c.asAbsolutePath("schemastore") } as IXmlInitOptions,
             synchronize: {
                 // Synchronize the setting section "languageServerExample" to the server
                 configurationSection: "ui5ts",
                 // Notify the server about file changes to '.clientrc files contain in the workspace
-                fileEvents: workspace.createFileSystemWatcher("**/*.{xml,xsd}", false, false, false)
+                fileEvents: workspace.createFileSystemWatcher("**/*.{xml,xsd}", false, false, false),
             },
         };
 
@@ -308,10 +244,10 @@ function startXmlViewLanguageServer(c: ExtensionContext): Promise<void> {
 
 /**
  * Initialization options for the xml language server
- * 
+ *
  * @interface XmlInitOptions
  */
-interface XmlInitOptions {
+interface IXmlInitOptions {
     /**
      * asolute path to the folder of the xsd files
      * 

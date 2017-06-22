@@ -25,7 +25,7 @@ export class ModuleReferenceProvider implements ReferenceProvider {
                 this.parseRequireDefine(tmpResult[2]);
 
             let modulePath;
-            modulePath = ui5tsglobal.core.GetFullNameByFile(this.currentList[word]);
+            modulePath = ui5tsglobal.core.GetNamespaceFromFilePath(this.currentList[word]);
 
             // We matched a module (word is a module)
             if (modulePath) {
