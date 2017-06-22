@@ -1,12 +1,6 @@
-'use strict';
-import { I18nDiagnosticProvider } from './language/xml/XmlDiagnostics';
-import {
-    I18nDfinitionProvider,
-    Ui5ViewDefinitionProvider,
-    ViewControllerDefinitionProvider,
-    ViewFragmentDefinitionProvider
-} from './language/ui5/Ui5DefinitionProviders';
-import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from './commands';
+"use strict";
+import * as fs from "fs";
+import * as path from "path";
 import {
     commands,
     DiagnosticCollection,
@@ -19,21 +13,28 @@ import {
     Uri,
     window,
     workspace,
-    WorkspaceConfiguration
-} from 'vscode';
+    WorkspaceConfiguration,
+} from "vscode";
+// import * as mcp from './language/ui5/ManifestCompletionItemProvider';
+import { LanguageClient, LanguageClientOptions, ServerOptions, SettingMonitor, TransportKind } from "vscode-languageclient";
+import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from "./commands";
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as file from './helpers/filehandler';
-import * as fs from 'fs';
-import * as log from './helpers/logging';
-import * as defprov from './language/ui5/Ui5DefinitionProviders';
-// import * as mcp from './language/ui5/ManifestCompletionItemProvider';
-import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind } from 'vscode-languageclient';
-import * as path from 'path';
-import { ManifestDiagnostics } from './language/ui5/Ui5ManifestDiagnostics'
-import { I18NCompletionItemProvider } from './language/ui5/Ui5CompletionProviders'
-import { ManifestCompletionItemProvider } from './language/ui5/Ui5ManifestCompletionProviders'
-import { I18nCodeActionprovider } from './language/xml/XmlActionProviders'
+import * as file from "./helpers/filehandler";
+import * as log from "./helpers/logging";
+import { ModuleReferenceProvider } from "./language/js/ModuleReferenceProvider";
+import { I18NCompletionItemProvider } from "./language/ui5/Ui5CompletionProviders";
+import {
+    I18nDfinitionProvider,
+    Ui5ViewDefinitionProvider,
+    ViewControllerDefinitionProvider,
+    ViewFragmentDefinitionProvider,
+} from "./language/ui5/Ui5DefinitionProviders";
+import * as defprov from "./language/ui5/Ui5DefinitionProviders";
+import { ManifestCompletionItemProvider } from "./language/ui5/Ui5ManifestCompletionProviders";
+import { ManifestDiagnostics } from "./language/ui5/Ui5ManifestDiagnostics";
+import { I18nCodeActionprovider } from "./language/xml/XmlActionProviders";
+import { I18nDiagnosticProvider } from "./language/xml/XmlDiagnostics";
 
 export interface IDiagnose {
     diagnosticCollection: DiagnosticCollection;
@@ -85,9 +86,11 @@ export class Ui5Extension {
         // rel = rel.replace(/\.controller\.(ts|fs)$/, "").replace(/[\/\\]/g, ".");
         const sources: { k: string, v: string }[] = [];
         for (const ns in ui5tsglobal.core.namespacemappings) {
-            let relsource = ui5tsglobal.core.namespacemappings[ns];
-            if (rel.startsWith(relsource))
-                sources.push({ k: relsource, v: ns });
+            if (ns) {
+                const relsource = ui5tsglobal.core.namespacemappings[ns];
+                if (rel.startsWith(relsource))
+                    sources.push({ k: relsource, v: ns });
+            }
         }
         let bestmatch;
         if (sources.length > 1) {
@@ -107,20 +110,22 @@ export namespace ui5tsglobal {
 
 }
 
-const ui5_jsonviews: DocumentFilter = { language: 'json', scheme: 'file', pattern: "*.view.json" };
+const ui5_jsonviews: DocumentFilter = { language: "json", scheme: "file", pattern: "*.view.json" };
 
-const ui5_tscontrollers: DocumentFilter = { language: 'typescript', scheme: 'file', pattern: "**/*.controller.ts" };
-const ui5_jscontrollers: DocumentFilter = { language: 'javascript', scheme: 'file', pattern: "**/*.controller.js" };
-const ui5_jsonfragments: DocumentFilter = { language: 'json', scheme: 'file', pattern: "**/*.{fragment,view}.json" };
+const ui5_tscontrollers: DocumentFilter = { language: "typescript", scheme: "file", pattern: "**/*.controller.ts" };
+const ui5_jscontrollers: DocumentFilter = { language: "javascript", scheme: "file", pattern: "**/*.controller.js" };
+const ui5_jsonfragments: DocumentFilter = { language: "json", scheme: "file", pattern: "**/*.{fragment,view}.json" };
 
-const ui5_xml: DocumentFilter = { language: "xml", scheme: 'file', pattern: "**/*.{fragment,view}.xml" };
+const ui5_xml: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.{fragment,view}.xml" };
 const ui5_view: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.view.xml" };
 const ui5_fragment: DocumentFilter = { language: "xml", scheme: "file", pattern: "**/*.fragment.xml" };
 
-const ui5_manifest: DocumentFilter = { language: "json", scheme: 'file', pattern: "**/manifest.json" };
+const ui5_manifest: DocumentFilter = { language: "json", scheme: "file", pattern: "**/manifest.json" };
 
-export var channel = window.createOutputChannel("UI5 TS Extension");
-var context: ExtensionContext;
+const javascript: DocumentFilter = { language: "javascript", scheme: "file" };
+
+export let channel = window.createOutputChannel("UI5 TS Extension");
+let context: ExtensionContext;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -176,6 +181,8 @@ export async function activate(c: ExtensionContext) {
     c.subscriptions.push(languages.registerDefinitionProvider(ui5_view, new ViewControllerDefinitionProvider()));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new I18nDfinitionProvider()));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5_xml, new Ui5ViewDefinitionProvider()));
+
+    c.subscriptions.push(languages.registerReferenceProvider(javascript, new ModuleReferenceProvider()));
 }
 
 function onDidChangeConfiguration() {
@@ -218,7 +225,7 @@ async function getManifestLocation() {
             });
         }
         if (ui5tsglobal.config.get("manifestlocation")) {
-            window.showInformationMessage("UI5ts is using '" + (path.dirname(ui5tsglobal.config.get("manifestlocation") as string).length > 0 ? path.dirname(ui5tsglobal.config.get("manifestlocation") as string) : "./") + "' as project location. You can change that in your workspace settings.");
+            // window.showInformationMessage("UI5ts is using '" + (path.dirname(ui5tsglobal.config.get("manifestlocation") as string).length > 0 ? path.dirname(ui5tsglobal.config.get("manifestlocation") as string) : "./") + "' as project location. You can change that in your workspace settings.");
             ui5tsglobal.core.absoluteRootPath = path.dirname(path.join(workspace.rootPath, ui5tsglobal.config.get("manifestlocation") as string));
             ui5tsglobal.core.relativeRootPath = path.dirname(ui5tsglobal.config.get("manifestlocation") as string);
         }
@@ -287,7 +294,7 @@ function startXmlViewLanguageServer(c: ExtensionContext): Promise<void> {
                 configurationSection: "ui5ts",
                 // Notify the server about file changes to '.clientrc files contain in the workspace
                 fileEvents: workspace.createFileSystemWatcher("**/*.{xml,xsd}", false, false, false)
-            }
+            },
         };
 
         // Create the language client and start the client.
@@ -295,7 +302,7 @@ function startXmlViewLanguageServer(c: ExtensionContext): Promise<void> {
         // Push the disposable to the context's subscriptions so that the
         // client can be deactivated on extension deactivation
         c.subscriptions.push(disposable.start());
-    })
+    });
 
 }
 

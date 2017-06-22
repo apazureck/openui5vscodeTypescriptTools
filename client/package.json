@@ -3,7 +3,7 @@
     "displayName": "openui5 Typescript Tool",
     "license": "MIT",
     "description": "A typescript extension for openui5",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "versvsce publishion": "0.1.0",
     "publisher": "apazureck",
     "engines": {
