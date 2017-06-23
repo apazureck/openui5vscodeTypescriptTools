@@ -77,7 +77,7 @@ export declare interface ComplexTypeEx extends ComplexType {
 }
 
 export declare interface ElementEx extends Element {
-	ownerschema?: StorageSchema
+	schema?: StorageSchema
 }
 
 export function getNamespaces(xmlobject: any): Namespace[] {
@@ -372,6 +372,13 @@ export class XmlBaseHandler extends Log {
 		return parent;
 	}
 
+	protected markdownText(input: string): string {
+		input = input.replace(/<code>([\s\S]*?)<\/code>/gm, "`$1`");
+		input = input.replace(/<b>([\s\S]*?)<\/b>/gm, "**$1**");
+		input = input.replace(/<i>([\s\S]*?)<\/i>/gm, "*$1*");
+		return input;
+	}
+
 	textGetElementAtCursorPos(txt: string, start: number): FoundCursor {
 
 		let foundcursor = this.textGetElements(txt, start);
@@ -388,8 +395,8 @@ export class XmlBaseHandler extends Log {
 
 
 		if (foundcursor.isInElement) {
-			for(const attribute of foundcursor.attributes) {
-				if(foundcursor.relativeCursorPosition >= attribute.endpos-attribute.value.length && foundcursor.relativeCursorPosition <= attribute.endpos) {
+			for (const attribute of foundcursor.attributes) {
+				if (foundcursor.relativeCursorPosition >= attribute.endpos - attribute.value.length && foundcursor.relativeCursorPosition <= attribute.endpos) {
 					foundcursor.attribute = attribute;
 					foundcursor.isInAttribute = true;
 					break;
@@ -432,21 +439,26 @@ export class XmlBaseHandler extends Log {
 
 	getAttributes(type: ComplexTypeEx): Attribute[] {
 		if (type.basetype) {
-			for (let att of type.complexContent[0].extension[0].attribute as Attribute[])
-				att.__owner = type;
+			for (let att of type.complexContent[0].extension[0].attribute as Attribute[]) {
+				att.owner = type;
+				att.schema = type.schema;
+			}
 			return this.getAttributes(type.basetype).concat(type.complexContent[0].extension[0].attribute);
 		}
 		else {
 			let attributes = type.complexContent ? type.complexContent[0].attribute : type.attribute;
 			if (!attributes)
 				attributes = [];
-			for (let attribute of attributes)
-				attribute.__owner = type;
+			for (let attribute of attributes) {
+				attribute.owner = type;
+				attribute.schema = type.schema;
+			}
+
 			return attributes;
 		}
 	}
 
-	private findTypeByName(typename: string, schema: StorageSchema): ComplexTypeEx {
+	private findTypeByName(typename: string, schema: StorageSchema): ComplexTypeEx | SimpleType {
 		let aType = typename.split(":");
 		let tn, namespace: string;
 		if (aType.length > 1) {
@@ -476,7 +488,7 @@ export class XmlBaseHandler extends Log {
 				// If complextype has complex content it is derived.
 				if (complextype.complexContent) {
 					let basetypename = complextype.complexContent[0].extension[0].$.base as string;
-					let basetype = this.findTypeByName(basetypename, schema);
+					let basetype = this.findTypeByName(basetypename, schema) as ComplexTypeEx;
 					complextype.basetype = basetype;
 				}
 				complextype.schema = schema;
@@ -484,6 +496,20 @@ export class XmlBaseHandler extends Log {
 				return complextype;
 			}
 		}
+
+		for (const simpletype of schema.schema.simpleType) {
+			if (!simpletype.$) {
+				continue;
+			}
+			if (!simpletype.$.name) {
+				continue;
+			}
+
+			if (simpletype.$.name === tn) {
+				return simpletype;
+			}
+		}
+		return undefined;
 	}
 	protected findElement(name: string, schema: StorageSchema): ElementEx {
 		// Iterate over all
@@ -495,7 +521,7 @@ export class XmlBaseHandler extends Log {
 			if (element.$.name !== name)
 				continue;
 
-			(<ElementEx>element).ownerschema = schema;
+			(<ElementEx>element).schema = schema;
 			return element;
 		}
 	}
@@ -512,7 +538,7 @@ export class XmlBaseHandler extends Log {
 	}
 
 	protected getRightSubElements(element: ElementEx, downpath: string[]): Element[] {
-		let type = this.getTypeOf(element);
+		let type = this.getTypeOf(element) as ComplexTypeEx;
 
 		// Distinguish between sequences and choices, etc. to display only elements that can be placed here.
 		let elements = this.getAllElementsInComplexType(type);
@@ -543,17 +569,17 @@ export class XmlBaseHandler extends Log {
 	 * 
 	 * @memberOf XmlCompletionHandler
 	 */
-	protected getTypeOf(element: XmlBase): ComplexTypeEx {
+	protected getTypeOf(element: XmlBase): ComplexTypeEx | SimpleType {
 		try {
 			// Check if complex Type is directly on element
 			if (element.complexType) {
 				let t: ComplexTypeEx = element.complexType[0] as ComplexTypeEx;
-				t.schema = element.ownerschema;
+				t.schema = element.schema;
 				t.attribute = this.getAttributes(t);
 				return t;
 				// Check if type is referenced by the element via type="<tname>"
 			} else if (element.$ && element.$.type) {
-				return this.findTypeByName(element.$.type, element.ownerschema);
+				return this.findTypeByName(element.$.type, element.schema);
 			} else {
 				// Check for simple type?
 				return null;
@@ -597,8 +623,8 @@ export class XmlBaseHandler extends Log {
 		return elements;
 	}
 	protected getDerivedElements(element: Element, schema: StorageSchema): { namespace: string, elements: Element[] }[] {
-		var type = this.findTypeByName(element.$.type, schema);
-		schema = type.schema
+		var type = this.findTypeByName(element.$.type, schema) as ComplexTypeEx;
+		schema = type.schema;
 		// Find all schemas using the owningSchema (and so maybe the element)
 		let schemasUsingNamespace: { nsabbrevation: string, schema: StorageSchema }[] = [];
 		for (let targetns in this.schemastorage) {
@@ -625,7 +651,7 @@ export class XmlBaseHandler extends Log {
 					if (!e.$ || !e.$.type)
 						continue;
 					try {
-						let basetypes = this.getBaseTypes(this.findTypeByName(e.$.type, schema.schema));
+						let basetypes = this.getBaseTypes(this.findTypeByName(e.$.type, schema.schema) as ComplexTypeEx);
 						let i = basetypes.findIndex(x => { try { return x.$.name === type.$.name; } catch (error) { return false; } });
 						if (i > -1)
 							newentry.elements.push(e);
@@ -648,7 +674,7 @@ export class XmlBaseHandler extends Log {
 
 		try {
 			let newtypename = type.complexContent[0].extension[0].$.base
-			let newtype = this.findTypeByName(newtypename, type.schema);
+			let newtype = this.findTypeByName(newtypename, type.schema) as ComplexTypeEx;
 			path.push(newtype);
 			this.getBaseTypes(newtype, path);
 		} catch (error) {

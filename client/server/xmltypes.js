@@ -251,6 +251,12 @@ class XmlBaseHandler extends Log_1.Log {
         }
         return parent;
     }
+    markdownText(input) {
+        input = input.replace(/<code>([\s\S]*?)<\/code>/gm, "`$1`");
+        input = input.replace(/<b>([\s\S]*?)<\/b>/gm, "**$1**");
+        input = input.replace(/<i>([\s\S]*?)<\/i>/gm, "*$1*");
+        return input;
+    }
     textGetElementAtCursorPos(txt, start) {
         let foundcursor = this.textGetElements(txt, start);
         let cursorpos = start - foundcursor.startindex;
@@ -301,16 +307,20 @@ class XmlBaseHandler extends Log_1.Log {
     }
     getAttributes(type) {
         if (type.basetype) {
-            for (let att of type.complexContent[0].extension[0].attribute)
-                att.__owner = type;
+            for (let att of type.complexContent[0].extension[0].attribute) {
+                att.owner = type;
+                att.schema = type.schema;
+            }
             return this.getAttributes(type.basetype).concat(type.complexContent[0].extension[0].attribute);
         }
         else {
             let attributes = type.complexContent ? type.complexContent[0].attribute : type.attribute;
             if (!attributes)
                 attributes = [];
-            for (let attribute of attributes)
-                attribute.__owner = type;
+            for (let attribute of attributes) {
+                attribute.owner = type;
+                attribute.schema = type.schema;
+            }
             return attributes;
         }
     }
@@ -352,6 +362,18 @@ class XmlBaseHandler extends Log_1.Log {
                 return complextype;
             }
         }
+        for (const simpletype of schema.schema.simpleType) {
+            if (!simpletype.$) {
+                continue;
+            }
+            if (!simpletype.$.name) {
+                continue;
+            }
+            if (simpletype.$.name === tn) {
+                return simpletype;
+            }
+        }
+        return undefined;
     }
     findElement(name, schema) {
         // Iterate over all
@@ -362,7 +384,7 @@ class XmlBaseHandler extends Log_1.Log {
                 continue;
             if (element.$.name !== name)
                 continue;
-            element.ownerschema = schema;
+            element.schema = schema;
             return element;
         }
     }
@@ -411,12 +433,12 @@ class XmlBaseHandler extends Log_1.Log {
             // Check if complex Type is directly on element
             if (element.complexType) {
                 let t = element.complexType[0];
-                t.schema = element.ownerschema;
+                t.schema = element.schema;
                 t.attribute = this.getAttributes(t);
                 return t;
             }
             else if (element.$ && element.$.type) {
-                return this.findTypeByName(element.$.type, element.ownerschema);
+                return this.findTypeByName(element.$.type, element.schema);
             }
             else {
                 // Check for simple type?

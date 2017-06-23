@@ -63,15 +63,19 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         let types = this.getBaseTypes(elementType, []);
         if (types && types.length > 0)
             elementType.basetype = types[0];
-        let allAttributeTypes = elementType.attribute || [];
-        let base = elementType.basetype;
-        while (base) {
-            allAttributeTypes = allAttributeTypes.concat(base.attribute || []);
-            base = base.basetype;
-        }
-        let matchingAttributeType = allAttributeTypes.find((value, index, obj) => value.$.name === cursor.attribute.name);
+        let matchingAttributeType = elementType.attribute.find((value, index, obj) => value.$.name === cursor.attribute.name);
         if (matchingAttributeType) {
+            // Check if this simple type has an enumeration on it
             const attributetype = this.getTypeOf(matchingAttributeType);
+            if (attributetype.restriction && attributetype.restriction[0].enumeration) {
+                return attributetype.restriction[0].enumeration.map((value, index, array) => {
+                    return {
+                        label: value.$.value,
+                        documentation: value.annotation ? (value.annotation[0].documentation ? this.markdownText(value.annotation[0].documentation[0]) : "") : "",
+                        kind: vscode_languageserver_1.CompletionItemKind.Enum
+                    };
+                });
+            }
         }
         return undefined;
     }
@@ -105,12 +109,12 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
             insertTextFormat: 2
         };
         try {
-            ce.detail = attribute.__owner ? "from " + attribute.__owner.$.name : undefined;
+            ce.detail = attribute.owner ? "from " + attribute.owner.$.name : undefined;
         }
         catch (error) {
         }
         try {
-            ce.documentation = attribute.annotation[0].documentation[0];
+            ce.documentation = this.markdownText(attribute.annotation[0].documentation[0]);
         }
         catch (error) {
         }
@@ -146,7 +150,7 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         }
         // Find out if element is referenced first
         if (element.$ && element.$.ref) {
-            element = this.getElementFromReference(element.$.ref, element.ownerschema);
+            element = this.getElementFromReference(element.$.ref, element.schema);
         }
         // Get the type (if there)
         let elements = this.getRightSubElements(element, downpath);
@@ -155,19 +159,19 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         for (let e of elements)
             // Get Type if type is given as attribute, which indicates it may be used by others.
             if (e.$ && e.$.type) {
-                derivedelements = derivedelements.concat(this.getDerivedElements(e, element.ownerschema));
+                derivedelements = derivedelements.concat(this.getDerivedElements(e, element.schema));
             }
             else if (e.$ && e.$.ref) {
-                e = this.getElementFromReference(e.$.ref, element.ownerschema);
+                e = this.getElementFromReference(e.$.ref, element.schema);
                 if (e && e.$ && e.$.type)
-                    derivedelements = derivedelements.concat(this.getDerivedElements(e, element.ownerschema));
+                    derivedelements = derivedelements.concat(this.getDerivedElements(e, element.schema));
             }
             else {
                 ownelements.push(e);
             }
         // Append additional elements
         for (let ns in this.usedNamespaces) {
-            if (this.usedNamespaces[ns] === element.ownerschema.targetNamespace) {
+            if (this.usedNamespaces[ns] === element.schema.targetNamespace) {
                 foundElements.push({ namespace: ns, elements: ownelements, ciKind: vscode_languageserver_1.CompletionItemKind.Property });
                 break;
             }
@@ -185,7 +189,7 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
                     if (item.namespace.length > 0)
                         citem.detail = "Namespace: " + item.namespace;
                     try {
-                        citem.documentation = entry.annotation[0].documentation[0];
+                        citem.documentation = this.markdownText(entry.annotation[0].documentation[0]);
                     }
                     catch (error) {
                     }
