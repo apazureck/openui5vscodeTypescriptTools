@@ -145,7 +145,7 @@ class XmlBaseHandler extends Log_1.Log {
             this.logError("Self closing element at root level");
         // Get first element
         let parent = {
-            elementcontent: tag[3] ? tag[3] + " " + tag[4] : tag[4],
+            elementHeader: tag[3] ? tag[3] + " " + tag[4] : tag[4],
             isClosingTag: false,
             isSelfClosingTag: true,
             tagName: tag[3],
@@ -205,7 +205,7 @@ class XmlBaseHandler extends Log_1.Log {
                 this.logDebug("Found self closing element '" + tag[2] + "'");
                 if (parent) {
                     felement = {
-                        elementcontent: tag[3] ? tag[3] + " " + tag[4] : tag[4],
+                        elementHeader: tag[3] ? tag[3] + " " + tag[4] : tag[4],
                         isClosingTag: false,
                         isSelfClosingTag: true,
                         tagName: tag[3],
@@ -225,7 +225,7 @@ class XmlBaseHandler extends Log_1.Log {
             }
             else {
                 felement = {
-                    elementcontent: tag[3] ? tag[3] + " " + tag[4] : tag[4],
+                    elementHeader: tag[3] ? tag[3] + " " + tag[4] : tag[4],
                     isClosingTag: false,
                     isSelfClosingTag: false,
                     tagName: tag[3],
@@ -259,31 +259,19 @@ class XmlBaseHandler extends Log_1.Log {
             cursorpos = start - foundcursor.startindex;
         }
         foundcursor.absoluteCursorPosition = start;
-        foundcursor.relativeCursorPosition = cursorpos;
+        foundcursor.relativeCursorPosition = cursorpos - (foundcursor.tagNamespace.length > 0 ? foundcursor.tagNamespace.length + 1 : 0);
         foundcursor.isInElement = start > foundcursor.startindex && start <= foundcursor.endindex;
         foundcursor.isInAttribute = false;
         if (foundcursor.isInElement) {
-            foundcursor.isInAttribute = this.textIsInAttribute(foundcursor);
-        }
-        return foundcursor;
-    }
-    textIsInAttribute(foundcursor) {
-        let quote = undefined;
-        for (let i = 0; i <= foundcursor.relativeCursorPosition; i++) {
-            switch (foundcursor.elementcontent[i]) {
-                case quote:
-                    quote = undefined;
-                    continue;
-                case "'":
-                case '"':
-                    if (!quote)
-                        quote = foundcursor.elementcontent[i];
-                    continue;
-                default:
-                    continue;
+            for (const attribute of foundcursor.attributes) {
+                if (foundcursor.relativeCursorPosition >= attribute.endpos - attribute.value.length && foundcursor.relativeCursorPosition <= attribute.endpos) {
+                    foundcursor.attribute = attribute;
+                    foundcursor.isInAttribute = true;
+                    break;
+                }
             }
         }
-        return quote !== undefined;
+        return foundcursor;
     }
     textGetAttributes(foundElement) {
         let quote = undefined;
@@ -295,14 +283,14 @@ class XmlBaseHandler extends Log_1.Log {
         // 2: opening quote
         let attributeregex = /\s*?(\w+?)\s*?=\s*?(["'])?/g;
         attributeregex.lastIndex = foundElement.fullName.length;
-        while (amatch = attributeregex.exec(foundElement.elementcontent)) {
-            for (let i = amatch.index + amatch[0].length; i < foundElement.elementcontent.length; i++) {
-                if (foundElement.elementcontent[i] === amatch[2]) {
+        while (amatch = attributeregex.exec(foundElement.elementHeader)) {
+            for (let i = amatch.index + amatch[0].length; i < foundElement.elementHeader.length; i++) {
+                if (foundElement.elementHeader[i] === amatch[2]) {
                     attributes.push({
                         startpos: amatch.index,
                         endpos: i,
                         name: amatch[1],
-                        value: foundElement.elementcontent.substring(amatch.index + amatch[0].length, i)
+                        value: foundElement.elementHeader.substring(amatch.index + amatch[0].length, i)
                     });
                     attributeregex.lastIndex = i + 1;
                     break;
@@ -360,6 +348,7 @@ class XmlBaseHandler extends Log_1.Log {
                     complextype.basetype = basetype;
                 }
                 complextype.schema = schema;
+                complextype.attribute = this.getAttributes(complextype);
                 return complextype;
             }
         }
@@ -387,7 +376,7 @@ class XmlBaseHandler extends Log_1.Log {
         return element.split(":").pop();
     }
     getRightSubElements(element, downpath) {
-        let type = this.getTypeOfElement(element);
+        let type = this.getTypeOf(element);
         // Distinguish between sequences and choices, etc. to display only elements that can be placed here.
         let elements = this.getAllElementsInComplexType(type);
         if (downpath.length > 0) {
@@ -409,7 +398,7 @@ class XmlBaseHandler extends Log_1.Log {
         return elements;
     }
     /**
-     * Gets the (complex) type of a given element (with schema)
+     * Gets the **(complex)** type of a given element (`with schema`)
      *
      * @private
      * @param {ElementEx} element Element to get the type from
@@ -417,12 +406,13 @@ class XmlBaseHandler extends Log_1.Log {
      *
      * @memberOf XmlCompletionHandler
      */
-    getTypeOfElement(element) {
+    getTypeOf(element) {
         try {
             // Check if complex Type is directly on element
             if (element.complexType) {
                 let t = element.complexType[0];
                 t.schema = element.ownerschema;
+                t.attribute = this.getAttributes(t);
                 return t;
             }
             else if (element.$ && element.$.type) {

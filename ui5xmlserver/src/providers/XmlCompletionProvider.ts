@@ -1,9 +1,6 @@
 import { TextDocumentPositionParams, CompletionItem, TextDocuments, IConnection, CompletionItemKind } from 'vscode-languageserver'
 import { ComplexTypeEx, ElementEx, FoundCursor, StorageSchema, XmlBaseHandler, XmlStorage } from '../xmltypes';
 import { LogLevel } from '../Log';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as xml from 'xml2js';
 
 export class XmlCompletionHandler extends XmlBaseHandler {
 	constructor(schemastorage: XmlStorage, private documents: TextDocuments, connection: IConnection, private schemastorePath: string, loglevel: LogLevel) {
@@ -42,10 +39,38 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 			return new Promise<CompletionItem[]>((resolve, reject) => {
 				resolve(this.getElementsInBody(foundCursor));
 			});
+		} else if (foundCursor.isInAttribute) {
+			return new Promise<CompletionItem[]>((resolve, reject) => {
+				resolve(this.getCompletionItemsForAttribute(foundCursor))
+			});
 		}
 	}
 
-	getElementsInAttribute(cursor: FoundCursor): CompletionItem[] {
+	getCompletionItemsForAttribute(cursor: FoundCursor): CompletionItem[] {
+		this.logDebug("Processing Tagstring: " + cursor.tagName);
+		let namespace = this.usedNamespaces[cursor.tagNamespace];
+		this.logDebug("Using Namespace: " + namespace)
+		let schema = this.schemastorage[namespace];
+		this.logDebug("Using Schema: " + schema.targetNamespace);
+		let element = this.findElement(cursor.tagName, schema);
+		this.logDebug(() => "Found element: " + element.$.name);
+		let elementType = this.getTypeOf(element);
+		this.logDebug(() => "Found Element type: " + elementType.$.name);
+		let types = this.getBaseTypes(elementType, []);
+		if (types && types.length > 0)
+			elementType.basetype = types[0];
+
+		let allAttributeTypes = elementType.attribute || [];
+		let base = elementType.basetype;
+		while (base) {
+			allAttributeTypes = allAttributeTypes.concat(base.attribute || []);
+			base = base.basetype;
+		}
+		let matchingAttributeType = allAttributeTypes.find((value, index, obj) => value.$.name === cursor.attribute.name);
+		if(matchingAttributeType) {
+			const attributetype = this.getTypeOf(matchingAttributeType);
+		}
+		
 		return undefined;
 	}
 
@@ -57,7 +82,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		this.logDebug("Using Schema: " + schema.targetNamespace);
 		let element = this.findElement(cursor.tagName, schema);
 		this.logDebug(() => "Found element: " + element.$.name);
-		let elementType = this.getTypeOfElement(element);
+		let elementType = this.getTypeOf(element);
 		this.logDebug(() => "Found Element type: " + elementType.$.name);
 		let types = this.getBaseTypes(elementType, []);
 		if (types && types.length > 0)

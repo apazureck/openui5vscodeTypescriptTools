@@ -6,8 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-* Project template to automatically generate a project template using BOWER packages and browser-sync
-* Typescript generator
+### Fixed
+
+* Fixed element finding in XML Language Server
+* Fixed wrong types for elements in XML Language Server
 
 ## [0.3.1] - 2017-04-04
 
