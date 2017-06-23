@@ -105,7 +105,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		let element: ElementEx;
 
 		// Try to find current element in schema
-		element = this.findElement(cursor.fullName, this.getSchema(cursor.fullName));
+		element = this.findElement(this.getElementName(cursor.fullName), this.getSchema(cursor.fullName));
 
 		// If not found and there is a path try to crawl down the path to get fitting elements
 		if (!element && cursor.path.length > 0) {

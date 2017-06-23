@@ -513,6 +513,15 @@ export class XmlBaseHandler extends Log {
 	}
 
 
+	/**
+	 * Gets the name of an xml element (removes the namespace part)
+	 * 
+	 * @param {string} element element name to get name from
+	 * @memberof XmlBaseHandler
+	 */
+	getElementName(element: string) {
+		return element.split(":").pop();
+	}
 
 	protected getRightSubElements(element: ElementEx, downpath: string[]): Element[] {
 		let type = this.getTypeOfElement(element);

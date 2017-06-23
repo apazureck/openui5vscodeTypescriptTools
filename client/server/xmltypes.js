@@ -377,6 +377,15 @@ class XmlBaseHandler extends Log_1.Log {
             return element;
         }
     }
+    /**
+     * Gets the name of an xml element (removes the namespace part)
+     *
+     * @param {string} element element name to get name from
+     * @memberof XmlBaseHandler
+     */
+    getElementName(element) {
+        return element.split(":").pop();
+    }
     getRightSubElements(element, downpath) {
         let type = this.getTypeOfElement(element);
         // Distinguish between sequences and choices, etc. to display only elements that can be placed here.
