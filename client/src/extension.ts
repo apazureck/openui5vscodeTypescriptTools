@@ -26,12 +26,14 @@ import {
     Ui5ViewDefinitionProvider,
     ViewControllerDefinitionProvider,
     ViewFragmentDefinitionProvider,
+    EventCallbackDefinitionProvider,
 } from "./language/ui5/Ui5DefinitionProviders";
 import * as defprov from "./language/ui5/Ui5DefinitionProviders";
 import { ManifestCompletionItemProvider } from "./language/ui5/Ui5ManifestCompletionProviders";
 import { ManifestDiagnostics } from "./language/ui5/Ui5ManifestDiagnostics";
 import { I18nCodeActionprovider } from "./language/xml/XmlActionProviders";
 import { I18nDiagnosticProvider } from "./language/xml/XmlDiagnostics";
+import { Settings } from "./Settings";
 import { Ui5Extension } from "./UI5Extension";
 
 export interface IDiagnose {
@@ -43,8 +45,7 @@ export interface IDiagnose {
 export namespace ui5tsglobal {
     export const name = "ui5-ts";
     export const core: Ui5Extension = new Ui5Extension();
-    export let config: WorkspaceConfiguration;
-
+    export let config: Settings = new Settings();
 }
 
 const ui5JsonViews: DocumentFilter = { language: "json", scheme: "file", pattern: "*.view.json" };
@@ -118,12 +119,14 @@ export async function activate(c: ExtensionContext) {
     c.subscriptions.push(languages.registerDefinitionProvider(ui5View, new ViewControllerDefinitionProvider()));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5Xml, new I18nDfinitionProvider()));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5Xml, new Ui5ViewDefinitionProvider()));
+    c.subscriptions.push(languages.registerDefinitionProvider(ui5Xml, new EventCallbackDefinitionProvider()));
 
-    c.subscriptions.push(languages.registerReferenceProvider(javascript, new ModuleReferenceProvider()));
+    if (ui5tsglobal.config.insiders) {
+        c.subscriptions.push(languages.registerReferenceProvider(javascript, new ModuleReferenceProvider()));
+    }
 }
 
 function onDidChangeConfiguration() {
-    ui5tsglobal.config = workspace.getConfiguration("ui5ts");
     getManifestLocation();
     getAllNamespaceMappings();
     ResetI18nStorage();
@@ -144,27 +147,27 @@ function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) 
 
 async function getManifestLocation() {
     try {
-        if (!ui5tsglobal.config.get("manifestlocation")) {
+        // Get manifest location if not set in workspace settings.
+        if (!ui5tsglobal.config.manifestlocation) {
             const workspaceroot = workspace.rootPath;
-            const manifest = await workspace.findFiles("**/manifest.json", "").then(async (value) => {
-                let val: string;
-                if (value.length < 1) {
-                    window.showWarningMessage("Could not find any manifest.json in your project. Please set the path to your manifest.json file in the workspace settings.");
-                    return;
-                } else if (value.length > 1) {
-                    window.showInformationMessage("Multiple manifests found");
-                    val = (await window.showQuickPick(value.map(x => ({ label: path.relative(workspace.rootPath, x.fsPath), description: x.fsPath })) as QuickPickItem[], { ignoreFocusOut: true })).label;
-                    window.showInformationMessage("Set manifest.json path to workspace settings");
-                } else {
-                    val = value[0].fsPath;
-                }
-                await (ui5tsglobal.config as any).update("manifestlocation", workspace.asRelativePath(val));
-            });
+            const manifest = await workspace.findFiles("**/manifest.json", "");
+            let val: string;
+            if (manifest.length < 1) {
+                window.showWarningMessage("Could not find any manifest.json in your project. Please set the path to your manifest.json file in the workspace settings.");
+                return;
+            } else if (manifest.length > 1) {
+                window.showInformationMessage("Multiple manifests found");
+                val = (await window.showQuickPick(manifest.map(x => ({ label: path.relative(workspace.rootPath, x.fsPath), description: x.fsPath })) as QuickPickItem[], { ignoreFocusOut: true })).label;
+                window.showInformationMessage("Set manifest.json path to workspace settings");
+            } else {
+                val = manifest[0].fsPath;
+            }
+            ui5tsglobal.config.manifestlocation = val;
         }
-        if (ui5tsglobal.config.get("manifestlocation")) {
+        if (ui5tsglobal.config.manifestlocation) {
             // window.showInformationMessage("UI5ts is using '" + (path.dirname(ui5tsglobal.config.get("manifestlocation") as string).length > 0 ? path.dirname(ui5tsglobal.config.get("manifestlocation") as string) : "./") + "' as project location. You can change that in your workspace settings.");
-            ui5tsglobal.core.absoluteRootPath = path.dirname(path.join(workspace.rootPath, ui5tsglobal.config.get("manifestlocation") as string));
-            ui5tsglobal.core.relativeRootPath = path.dirname(ui5tsglobal.config.get("manifestlocation") as string);
+            ui5tsglobal.core.absoluteRootPath = path.dirname(path.join(workspace.rootPath, ui5tsglobal.config.manifestlocation));
+            ui5tsglobal.core.relativeRootPath = path.dirname(ui5tsglobal.config.manifestlocation as string);
         }
 
     } catch (error) {
