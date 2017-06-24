@@ -34,7 +34,7 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
             if (foundCursor.isInElement && !foundCursor.isInAttribute) {
                 this.logDebug("Found cursor location to be in element");
                 return new Promise((resolve, reject) => {
-                    resolve(this.getElementsInTag(foundCursor));
+                    resolve(this.getElementsInTagHeader(foundCursor));
                 });
             }
             else if (!foundCursor.isInElement) {
@@ -79,7 +79,7 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         }
         return undefined;
     }
-    getElementsInTag(cursor) {
+    getElementsInTagHeader(cursor) {
         this.logDebug("Processing Tagstring: " + cursor.tagName);
         let namespace = this.usedNamespaces[cursor.tagNamespace];
         this.logDebug("Using Namespace: " + namespace);
@@ -97,11 +97,11 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         let ret = [];
         for (let attribute of attributes) {
             if (!(cursor.attributes.findIndex(x => x.name === attribute.$.name) > 0))
-                ret.push(this.getCompletionItemForAttribute(attribute, schema));
+                ret.push(this.getCompletionItemForSingleAttribute(attribute, schema));
         }
         return ret;
     }
-    getCompletionItemForAttribute(attribute, schema) {
+    getCompletionItemForSingleAttribute(attribute, schema) {
         let ce = {
             label: attribute.$.name,
             kind: vscode_languageserver_1.CompletionItemKind.Property,
@@ -135,7 +135,7 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
             downpath.push(cursor.fullName);
             // go down the path to get the first parent element in the owning schema
             while (part = path.pop()) {
-                element = this.findElement(part, this.getSchema(part));
+                element = this.findElement(this.getElementName(part), this.getSchema(part));
                 if (element) {
                     break;
                 }

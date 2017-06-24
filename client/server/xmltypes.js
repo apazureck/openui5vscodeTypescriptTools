@@ -403,7 +403,7 @@ class XmlBaseHandler extends Log_1.Log {
         let elements = this.getAllElementsInComplexType(type);
         if (downpath.length > 0) {
             let part;
-            if (part = downpath.pop()) {
+            if (part = this.getElementName(downpath.pop())) {
                 let child = elements.find(x => {
                     try {
                         return x.$.name === part;

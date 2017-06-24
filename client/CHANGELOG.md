@@ -6,10 +6,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+### Added
+
+* Completion for Enumeration
+* Insider Mode for review procedure
+* [Insider] Goto Module -> Credit to [anacierdem](https://github.com/anacierdem) for letting me use his code on of his [Require Module Support Provider](https://marketplace.visualstudio.com/items?itemName=lici.require-js)
+
 ### Fixed
 
 * Fixed element finding in XML Language Server
 * Fixed wrong types for elements in XML Language Server
+* Fixed attribute showing up when in attribute value section (part in quotes)
 
 ## [0.3.1] - 2017-04-04
 
