@@ -8,9 +8,31 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+* Typescript AMD declaration generator
+* Project generator (with browser sync)
+* GoTo Controller(s) from Fragments
+* GoTo Event from View
+* Find all references on callbacks in controllers includes Views and fragments
+* Code Lens for Callbacks on controllers (shown as reference, if in view)
+* Custom Typescript compiler to get better UI5 Syntax
+* XML Diagnostics for Elements, Attributes and their values
+* JSON view JSON schemas
+
+### Fixed
+
+* Path resolving in manifest.json (Router section)
+
+## [0.4.0] - 2017-06-XX - Major XML Improvements
+
+### Added
+
 * Completion for Enumeration
 * Insider Mode for review procedure
-* [Insider] Goto Module -> Credit to [anacierdem](https://github.com/anacierdem) for letting me use his code on of his [Require Module Support Provider](https://marketplace.visualstudio.com/items?itemName=lici.require-js)
+* [Insider] Goto Module -> Credit & thanks to [anacierdem](https://github.com/anacierdem) for letting me use his code on of his [Require Module Support Provider](https://marketplace.visualstudio.com/items?itemName=lici.require-js)
+
+### Changed
+
+* XML elements on parent element are now displayed as properties
 
 ### Fixed
 
