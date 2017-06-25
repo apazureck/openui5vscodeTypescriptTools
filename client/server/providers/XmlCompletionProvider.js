@@ -10,19 +10,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const vscode_languageserver_1 = require('vscode-languageserver');
 const xmltypes_1 = require('../xmltypes');
 class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
-    constructor(schemastorage, documents, connection, schemastorePath, loglevel) {
+    constructor(schemastorage, document, connection, schemastorePath, loglevel) {
         super(schemastorage, connection, loglevel);
-        this.documents = documents;
+        this.document = document;
         this.schemastorePath = schemastorePath;
         this.schemastorage = schemastorage.schemas;
     }
     getCompletionSuggestions(handler) {
         return __awaiter(this, void 0, void 0, function* () {
-            let doc = this.documents.get(handler.textDocument.uri);
-            let txt = doc.getText();
-            let pos = doc.offsetAt(handler.position);
+            const txt = this.document.getText();
+            const pos = this.document.offsetAt(handler.position);
             this.getUsedNamespaces(txt);
-            let foundCursor = this.textGetElementAtCursorPos(txt, pos);
+            const foundCursor = this.textGetElementAtCursorPos(txt, pos);
             // todo: Maybe bind to this necessary
             this.logDebug((() => {
                 let ret = "Used Namespaces: ";
@@ -56,14 +55,14 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         this.logDebug("Using Namespace: " + namespace);
         let schema = this.schemastorage[namespace];
         this.logDebug("Using Schema: " + schema.targetNamespace);
-        let element = this.findElement(cursor.tagName, schema);
+        const element = this.findElement(cursor.tagName, schema);
         this.logDebug(() => "Found element: " + element.$.name);
-        let elementType = this.getTypeOf(element);
+        const elementType = this.getTypeOf(element);
         this.logDebug(() => "Found Element type: " + elementType.$.name);
-        let types = this.getBaseTypes(elementType, []);
+        const types = this.getBaseTypes(elementType, []);
         if (types && types.length > 0)
             elementType.basetype = types[0];
-        let matchingAttributeType = elementType.attribute.find((value, index, obj) => value.$.name === cursor.attribute.name);
+        const matchingAttributeType = elementType.attribute.find((value, index, obj) => value.$.name === cursor.attribute.name);
         if (matchingAttributeType) {
             // Check if this simple type has an enumeration on it
             const attributetype = this.getTypeOf(matchingAttributeType);
@@ -95,14 +94,14 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         let attributes = this.getAttributes(elementType);
         this.logDebug(() => "Found " + attributes.length + " Attributes");
         let ret = [];
-        for (let attribute of attributes) {
+        for (const attribute of attributes) {
             if (!(cursor.attributes.findIndex(x => x.name === attribute.$.name) > 0))
                 ret.push(this.getCompletionItemForSingleAttribute(attribute, schema));
         }
         return ret;
     }
     getCompletionItemForSingleAttribute(attribute, schema) {
-        let ce = {
+        const ce = {
             label: attribute.$.name,
             kind: vscode_languageserver_1.CompletionItemKind.Property,
             insertText: " " + attribute.$.name + "=\"$0\" ",
@@ -170,7 +169,7 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
                 ownelements.push(e);
             }
         // Append additional elements
-        for (let ns in this.usedNamespaces) {
+        for (const ns in this.usedNamespaces) {
             if (this.usedNamespaces[ns] === element.schema.targetNamespace) {
                 foundElements.push({ namespace: ns, elements: ownelements, ciKind: vscode_languageserver_1.CompletionItemKind.Property });
                 break;
@@ -179,10 +178,10 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
         foundElements = foundElements.concat(derivedelements);
         let ret = [];
         for (let item of foundElements) {
-            for (let entry of item.elements)
+            for (const entry of item.elements)
                 try {
-                    let citem = vscode_languageserver_1.CompletionItem.create(entry.$.name);
-                    let nsprefix = item.namespace.length > 0 ? item.namespace + ":" : "";
+                    const citem = vscode_languageserver_1.CompletionItem.create(entry.$.name);
+                    const nsprefix = item.namespace.length > 0 ? item.namespace + ":" : "";
                     citem.insertText = "<" + nsprefix + entry.$.name + ">$0</" + nsprefix + entry.$.name + ">";
                     citem.insertTextFormat = 2;
                     citem.kind = item.ciKind || vscode_languageserver_1.CompletionItemKind.Class;

@@ -1,5 +1,8 @@
 # ui5ts Extension
 
+> **Important Note**<br/>
+> In Version `0.4.0` The settings were restructured. Please check your workspace settings and adjust it accordingly.
+
 This extension improves the experience using UI5 with typescript. It is also targeted to give a quicker start in developing UI5, but also more experieced users may have a profit.
 
 It is currently work in progress. It also may benefit js programming, as I try to keep all filesearches to both, ts and js file endings. Please let me know on github, if something mentioned below does not work for js.
@@ -7,6 +10,12 @@ It is currently work in progress. It also may benefit js programming, as I try t
 ## Disclaimer
 
 > This extension is not officially supported by SAP or the openUi5 team. It is currently in an early development phase, so [please report any issues](https://github.com/apazureck/openui5vscodeTypescriptTools/issues) you have. If you want to contribute, feel free to conatct me via [Github](https://github.com/apazureck/openui5vscodeTypescriptTools/issues). I will also update it quite frequently for the next time, which may cause some new bugs.
+
+## What is new in Version 0.4.0
+
+* GoTo Event on Controller (typescript only)
+* Better XML Autocomplete
+* Hover Providers for XML Views
 
 ## Features
 

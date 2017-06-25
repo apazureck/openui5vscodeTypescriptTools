@@ -1,22 +1,21 @@
-import { TextDocumentPositionParams, CompletionItem, TextDocuments, IConnection, CompletionItemKind } from 'vscode-languageserver'
+import { TextDocumentPositionParams, CompletionItem, TextDocuments, IConnection, CompletionItemKind, TextDocument } from 'vscode-languageserver'
 import { ComplexTypeEx, ElementEx, FoundCursor, StorageSchema, XmlBaseHandler, XmlStorage } from '../xmltypes';
 import { LogLevel } from '../Log';
 
 export class XmlCompletionHandler extends XmlBaseHandler {
 
-	constructor(schemastorage: XmlStorage, private documents: TextDocuments, connection: IConnection, private schemastorePath: string, loglevel: LogLevel) {
+	constructor(schemastorage: XmlStorage, private document: TextDocument, connection: IConnection, private schemastorePath: string, loglevel: LogLevel) {
 		super(schemastorage, connection, loglevel);
 		this.schemastorage = schemastorage.schemas
 	}
 
 	async getCompletionSuggestions(handler: TextDocumentPositionParams): Promise<CompletionItem[]> {
 
-		let doc = this.documents.get(handler.textDocument.uri);
-		let txt = doc.getText();
-		let pos = doc.offsetAt(handler.position);
+		const txt = this.document.getText();
+		const pos = this.document.offsetAt(handler.position);
 
 		this.getUsedNamespaces(txt);
-		let foundCursor = this.textGetElementAtCursorPos(txt, pos);
+		const foundCursor = this.textGetElementAtCursorPos(txt, pos);
 
 		// todo: Maybe bind to this necessary
 		this.logDebug((() => {
@@ -53,15 +52,15 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		this.logDebug("Using Namespace: " + namespace)
 		let schema = this.schemastorage[namespace];
 		this.logDebug("Using Schema: " + schema.targetNamespace);
-		let element = this.findElement(cursor.tagName, schema);
+		const element = this.findElement(cursor.tagName, schema);
 		this.logDebug(() => "Found element: " + element.$.name);
-		let elementType = this.getTypeOf(element) as ComplexTypeEx;
+		const elementType = this.getTypeOf(element) as ComplexTypeEx;
 		this.logDebug(() => "Found Element type: " + elementType.$.name);
-		let types = this.getBaseTypes(elementType, []);
+		const types = this.getBaseTypes(elementType, []);
 		if (types && types.length > 0)
 			elementType.basetype = types[0];
 
-		let matchingAttributeType = elementType.attribute.find((value, index, obj) => value.$.name === cursor.attribute.name);
+		const matchingAttributeType = elementType.attribute.find((value, index, obj) => value.$.name === cursor.attribute.name);
 		if (matchingAttributeType) {
 			// Check if this simple type has an enumeration on it
 			const attributetype = this.getTypeOf(matchingAttributeType) as SimpleType;
@@ -97,7 +96,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 
 		this.logDebug(() => "Found " + attributes.length + " Attributes");
 		let ret: CompletionItem[] = [];
-		for (let attribute of attributes) {
+		for (const attribute of attributes) {
 			if (!(cursor.attributes.findIndex(x => x.name === attribute.$.name) > 0))
 				ret.push(this.getCompletionItemForSingleAttribute(attribute, schema));
 		}
@@ -105,7 +104,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 	}
 
 	private getCompletionItemForSingleAttribute(attribute: Attribute, schema: StorageSchema): CompletionItem {
-		let ce: CompletionItem = {
+		const ce: CompletionItem = {
 			label: attribute.$.name,
 			kind: CompletionItemKind.Property,
 			insertText: " " + attribute.$.name + "=\"$0\" ",
@@ -151,8 +150,6 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 			}
 		}
 
-
-
 		if (!element) {
 			this.logInfo("Element not found.");
 			return;
@@ -184,7 +181,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 			}
 
 		// Append additional elements
-		for (let ns in this.usedNamespaces) {
+		for (const ns in this.usedNamespaces) {
 			if (this.usedNamespaces[ns] === element.schema.targetNamespace) {
 				foundElements.push({ namespace: ns, elements: ownelements, ciKind: CompletionItemKind.Property });
 				break;
@@ -194,10 +191,10 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		foundElements = foundElements.concat(derivedelements);
 		let ret: CompletionItem[] = [];
 		for (let item of foundElements) {
-			for (let entry of item.elements)
+			for (const entry of item.elements)
 				try {
-					let citem = CompletionItem.create(entry.$.name);
-					let nsprefix = item.namespace.length > 0 ? item.namespace + ":" : "";
+					const citem = CompletionItem.create(entry.$.name);
+					const nsprefix = item.namespace.length > 0 ? item.namespace + ":" : "";
 					citem.insertText = "<" + nsprefix + entry.$.name + ">$0</" + nsprefix + entry.$.name + ">";
 					citem.insertTextFormat = 2;
 					citem.kind = item.ciKind || CompletionItemKind.Class;

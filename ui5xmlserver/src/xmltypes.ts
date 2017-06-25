@@ -15,12 +15,12 @@ export class XmlStorage extends Log {
 				xml.parseString(xmltext, { normalize: true }, (err, res) => {
 					if (err)
 						throw err;
-					let tns = xmltext.match(/targetNamespace\s*?=\s*?["'](.*?)["']/);
+					const tns = xmltext.match(/targetNamespace\s*?=\s*?["'](.*?)["']/);
 					if (tns) {
-						let nsregex = /xmlns:(.*?)\s*?=\s*?["'](.*?)["']/g;
+						const nsregex = /xmlns:(.*?)\s*?=\s*?["'](.*?)["']/g;
 						let ns: RegExpMatchArray;
 						let schemanamespace: string;
-						let namespaces = {}
+						const namespaces = {}
 						while (ns = nsregex.exec(xmltext)) {
 							if (ns[2] === "http://www.w3.org/2001/XMLSchema")
 								schemanamespace = ns[1];
@@ -128,10 +128,11 @@ export interface FoundAttribute {
 }
 
 export interface FoundCursor extends FoundElementHeader {
-	absoluteCursorPosition: number
-	relativeCursorPosition: number
-	isInElement: boolean
-	isInAttribute: boolean
+	absoluteCursorPosition: number;
+	relativeCursorPosition: number;
+	isInElement: boolean;
+	isInAttribute: boolean;
+	isOnAttributeName: boolean;
 	attribute?: FoundAttribute
 }
 
@@ -208,7 +209,7 @@ export class XmlBaseHandler extends Log {
 	 * @memberOf XmlBase
 	 */
 	getUsedNamespaces(input: string): void {
-		let xmlnsregex = /xmlns:?(.*?)=['"](.*?)['"]/g
+		const xmlnsregex = /xmlns:?(.*?)=['"](.*?)['"]/g
 		let match: RegExpMatchArray;
 		this.usedNamespaces = {};
 		while (match = xmlnsregex.exec(input))
@@ -217,16 +218,16 @@ export class XmlBaseHandler extends Log {
 
 	/**
 	 * Searches all Elements and puts them in a structure.
-	 * 
-	 * @param {string} txt 
-	 * @param {(curIndex: number) => boolean} [cancel] 
-	 * @returns {FoundElementHeader} 
-	 * 
+	 *
+	 * @param {string} txt
+	 * @param {(curIndex: number) => boolean} [cancel]
+	 * @returns {FoundElementHeader}
+	 *
 	 * @memberOf XmlBaseHandler
 	 */
-	textGetElements(txt: string): FoundElementHeader
-	textGetElements(txt: string, cursorPosition: number): FoundCursor
-	textGetElements(txt: string, cursorPostion?: number): FoundElementHeader | FoundCursor {
+	public textGetElements(txt: string): FoundElementHeader
+	public textGetElements(txt: string, cursorPosition: number): FoundCursor
+	public textGetElements(txt: string, cursorPostion?: number): FoundElementHeader | FoundCursor {
 
 		// Canceloperation will not cancel if undefined, otherwise return found cursor position
 		const cancel = cursorPostion ? (foundElement: FoundElementHeader, parent: FoundElementHeader, nextMatch: RegExpMatchArray, lastMatch: RegExpMatchArray): FoundElementHeader => {
@@ -245,12 +246,12 @@ export class XmlBaseHandler extends Log {
 				return foundElement.parent;
 			}
 		} : undefined;
-		let stopIndex: number;
+
 		// Check if a number is given and if yes prepare the complex cancel operation.
 
 		// Regex to find the text between a closing and opening bracket "> ... found text <"
-		let relbody = />((?!--|.*>)[\s\S]*?<)/g;
-		let p: string[] = [];
+		const relbody = />((?!--|.*>)[\s\S]*?<)/g;
+		const p: string[] = [];
 		let comment = false;
 		let bmatch: RegExpMatchArray;
 		// execute once to get the first match
@@ -282,10 +283,10 @@ export class XmlBaseHandler extends Log {
 
 		// Get rest of the elements
 		while (bmatch = relbody.exec(txt)) {
-			let part = txt.substring(lastmatch.index, bmatch.index);
-			let start = lastmatch.index + lastmatch[0].length;
-			let end = bmatch.index
-			let inner = txt.substring(start, end)
+			const part = txt.substring(lastmatch.index, bmatch.index);
+			const start = lastmatch.index + lastmatch[0].length;
+			const end = bmatch.index;
+			inner = txt.substring(start, end);
 			lastmatch = bmatch;
 			this.logDebug("Found potential element '" + inner + "'")
 			// 1: slash at start, if closing tag
@@ -295,8 +296,8 @@ export class XmlBaseHandler extends Log {
 			// 5: arguments, if There
 			// 6: / at the end if self closing element
 			// Space at the end to get the last letter from tags only containing the tag name in the correct group
-			let tag = (inner + " ").match(/(\/?)(\w*?):?(\w+?)\s([\s\S]*?)(\/?)\s?$/);
-			let felement: FoundElementHeader = undefined;
+			tag = (inner + " ").match(/(\/?)(\w*?):?(\w+?)\s([\s\S]*?)(\/?)\s?$/);
+			let felement: FoundElementHeader;
 			if (comment || !tag) {
 				if (inner.startsWith("!--")) {
 					comment = true;
@@ -306,9 +307,8 @@ export class XmlBaseHandler extends Log {
 					comment = false;
 					this.logDebug("Comment ended");
 				}
-			}
-			// Check if element is closing
-			else if (tag[1] === "/") {
+			} else if (tag[1] === "/") {
+				// Check if element is closing
 				const docancel = cancel ? cancel(felement, parent, bmatch, lastmatch) : undefined;
 				if (docancel) {
 					return docancel;
@@ -372,13 +372,6 @@ export class XmlBaseHandler extends Log {
 		return parent;
 	}
 
-	protected markdownText(input: string): string {
-		input = input.replace(/<code>([\s\S]*?)<\/code>/gm, "`$1`");
-		input = input.replace(/<b>([\s\S]*?)<\/b>/gm, "**$1**");
-		input = input.replace(/<i>([\s\S]*?)<\/i>/gm, "*$1*");
-		return input;
-	}
-
 	textGetElementAtCursorPos(txt: string, start: number): FoundCursor {
 
 		let foundcursor = this.textGetElements(txt, start);
@@ -392,10 +385,16 @@ export class XmlBaseHandler extends Log {
 		foundcursor.relativeCursorPosition = cursorpos - (foundcursor.tagNamespace.length > 0 ? foundcursor.tagNamespace.length + 1 : 0);
 		foundcursor.isInElement = start > foundcursor.startindex && start <= foundcursor.endindex;
 		foundcursor.isInAttribute = false;
+		foundcursor.isOnAttributeName = false;
 
 
 		if (foundcursor.isInElement) {
 			for (const attribute of foundcursor.attributes) {
+				if (foundcursor.relativeCursorPosition >= attribute.startpos && foundcursor.relativeCursorPosition <= attribute.endpos - attribute.value.length) {
+					foundcursor.attribute = attribute;
+					foundcursor.isOnAttributeName = true;
+					break;
+				}
 				if (foundcursor.relativeCursorPosition >= attribute.endpos - attribute.value.length && foundcursor.relativeCursorPosition <= attribute.endpos) {
 					foundcursor.attribute = attribute;
 					foundcursor.isInAttribute = true;
@@ -408,30 +407,23 @@ export class XmlBaseHandler extends Log {
 	}
 
 	textGetAttributes(foundElement: FoundElementHeader): FoundAttribute[] {
-		let quote: string = undefined
-		let attributename = "";
-		let attributes: FoundAttribute[] = [];
-		let isinattributename: boolean = false;
+		const attributename = "";
+		const attributes: FoundAttribute[] = [];
+		const isinattributename: boolean = false;
 		let amatch: RegExpMatchArray
 
 		// 1: attributename
 		// 2: opening quote
-		let attributeregex = /\s*?(\w+?)\s*?=\s*?(["'])?/g;
-		attributeregex.lastIndex = foundElement.fullName.length;
+		// 3: value
+		const attributeregex = /\s*?(\w+?)=(["'])([\s\S]*?)\2/gm;
 
 		while (amatch = attributeregex.exec(foundElement.elementHeader)) {
-			for (let i = amatch.index + amatch[0].length; i < foundElement.elementHeader.length; i++) {
-				if (foundElement.elementHeader[i] === amatch[2]) {
-					attributes.push({
-						startpos: amatch.index,
-						endpos: i,
-						name: amatch[1],
-						value: foundElement.elementHeader.substring(amatch.index + amatch[0].length, i)
-					});
-					attributeregex.lastIndex = i + 1;
-					break;
-				}
-			}
+			attributes.push({
+				startpos: amatch.index,
+				endpos: amatch.index + amatch[0].length,
+				name: amatch[1],
+				value: amatch[3]
+			});
 		}
 
 		return attributes;
@@ -439,7 +431,7 @@ export class XmlBaseHandler extends Log {
 
 	getAttributes(type: ComplexTypeEx): Attribute[] {
 		if (type.basetype) {
-			for (let att of type.complexContent[0].extension[0].attribute as Attribute[]) {
+			for (const att of type.complexContent[0].extension[0].attribute as Attribute[]) {
 				att.owner = type;
 				att.schema = type.schema;
 			}
@@ -449,7 +441,7 @@ export class XmlBaseHandler extends Log {
 			let attributes = type.complexContent ? type.complexContent[0].attribute : type.attribute;
 			if (!attributes)
 				attributes = [];
-			for (let attribute of attributes) {
+			for (const attribute of attributes) {
 				attribute.owner = type;
 				attribute.schema = type.schema;
 			}
@@ -458,62 +450,9 @@ export class XmlBaseHandler extends Log {
 		}
 	}
 
-	private findTypeByName(typename: string, schema: StorageSchema): ComplexTypeEx | SimpleType {
-		let aType = typename.split(":");
-		let tn, namespace: string;
-		if (aType.length > 1) {
-			namespace = aType[0];
-			tn = aType[1];
-		} else {
-			tn = typename;
-		}
-		let complexTypes = schema.schema.complexType;
-		if (namespace) {
-			if (schema.referencedNamespaces[namespace] !== schema.targetNamespace) {
-				let newschema = this.schemastorage[schema.referencedNamespaces[namespace]];
-				if (!newschema) {
-					throw new Error("No schema found for namespace abbrevation '" + namespace + "' in schema '" + schema.targetNamespace + "'.");
-				}
-				return this.findTypeByName(typename, newschema);
-			}
-		}
-		let complextype: ComplexTypeEx;
-		for (complextype of complexTypes as ComplexTypeEx[]) {
-			if (!complextype.$)
-				continue;
-			if (!complextype.$.name)
-				continue;
-
-			if (complextype.$.name === tn) {
-				// If complextype has complex content it is derived.
-				if (complextype.complexContent) {
-					let basetypename = complextype.complexContent[0].extension[0].$.base as string;
-					let basetype = this.findTypeByName(basetypename, schema) as ComplexTypeEx;
-					complextype.basetype = basetype;
-				}
-				complextype.schema = schema;
-				complextype.attribute = this.getAttributes(complextype);
-				return complextype;
-			}
-		}
-
-		for (const simpletype of schema.schema.simpleType) {
-			if (!simpletype.$) {
-				continue;
-			}
-			if (!simpletype.$.name) {
-				continue;
-			}
-
-			if (simpletype.$.name === tn) {
-				return simpletype;
-			}
-		}
-		return undefined;
-	}
 	protected findElement(name: string, schema: StorageSchema): ElementEx {
 		// Iterate over all
-		for (let element of schema.schema.element) {
+		for (const element of schema.schema.element) {
 			if (!element.$)
 				continue;
 			if (!element.$.name)
@@ -538,14 +477,14 @@ export class XmlBaseHandler extends Log {
 	}
 
 	protected getRightSubElements(element: ElementEx, downpath: string[]): Element[] {
-		let type = this.getTypeOf(element) as ComplexTypeEx;
+		const type = this.getTypeOf(element) as ComplexTypeEx;
 
 		// Distinguish between sequences and choices, etc. to display only elements that can be placed here.
-		let elements = this.getAllElementsInComplexType(type);
+		const elements = this.getAllElementsInComplexType(type);
 		if (downpath.length > 0) {
 			let part: string;
 			if (part = this.getElementName(downpath.pop())) {
-				let child = elements.find(x => {
+				const child = elements.find(x => {
 					try {
 						return x.$.name === part;
 					} catch (error) {
@@ -573,7 +512,7 @@ export class XmlBaseHandler extends Log {
 		try {
 			// Check if complex Type is directly on element
 			if (element.complexType) {
-				let t: ComplexTypeEx = element.complexType[0] as ComplexTypeEx;
+				const t: ComplexTypeEx = element.complexType[0] as ComplexTypeEx;
 				t.schema = element.schema;
 				t.attribute = this.getAttributes(t);
 				return t;
@@ -585,7 +524,7 @@ export class XmlBaseHandler extends Log {
 				return null;
 			}
 		} catch (error) {
-			return undefined
+			return undefined;
 		}
 	}
 
@@ -594,10 +533,10 @@ export class XmlBaseHandler extends Log {
 		alltypes = alltypes.concat(this.getBaseTypes(type));
 
 		let elements: Element[] = [];
-		for (let t of alltypes) {
+		for (const t of alltypes) {
 			// Check if type is inheriting other type
 			if (t.complexContent && t.complexContent[0].extension) {
-				let st = t.complexContent[0].extension[0];
+				const st = t.complexContent[0].extension[0];
 				elements = elements.concat(this.getElementsOfComplexType(st));
 			} else {
 				try {
@@ -623,18 +562,18 @@ export class XmlBaseHandler extends Log {
 		return elements;
 	}
 	protected getDerivedElements(element: Element, schema: StorageSchema): { namespace: string, elements: Element[] }[] {
-		var type = this.findTypeByName(element.$.type, schema) as ComplexTypeEx;
+		const type = this.findTypeByName(element.$.type, schema) as ComplexTypeEx;
 		schema = type.schema;
 		// Find all schemas using the owningSchema (and so maybe the element)
-		let schemasUsingNamespace: { nsabbrevation: string, schema: StorageSchema }[] = [];
-		for (let targetns in this.schemastorage) {
+		const schemasUsingNamespace: { nsabbrevation: string, schema: StorageSchema }[] = [];
+		for (const targetns in this.schemastorage) {
 			if (targetns === schema.targetNamespace)
 				continue;
-			let curschema = this.schemastorage[targetns];
-			for (let namespace in curschema.referencedNamespaces)
+			const curschema = this.schemastorage[targetns];
+			for (const namespace in curschema.referencedNamespaces)
 				// check if xsd file is referenced in current schema.
 				if (curschema.referencedNamespaces[namespace] === type.schema.targetNamespace) {
-					for (let nsa in this.usedNamespaces)
+					for (const nsa in this.usedNamespaces)
 						// check if namespace is also used in current xml file
 						if (this.usedNamespaces[nsa] === curschema.targetNamespace) {
 							schemasUsingNamespace.push({ nsabbrevation: nsa, schema: curschema });
@@ -643,16 +582,16 @@ export class XmlBaseHandler extends Log {
 				}
 		}
 
-		let foundElements: { namespace: string, elements: Element[] }[] = [];
-		for (let schema of schemasUsingNamespace) {
+		const foundElements: { namespace: string, elements: Element[] }[] = [];
+		for (const nsschema of schemasUsingNamespace) {
 			try {
-				let newentry: { namespace: string, elements: Element[] } = { namespace: schema.nsabbrevation, elements: [] }
-				for (let e of schema.schema.schema.element) {
+				const newentry: { namespace: string, elements: Element[] } = { namespace: nsschema.nsabbrevation, elements: [] }
+				for (const e of nsschema.schema.schema.element) {
 					if (!e.$ || !e.$.type)
 						continue;
 					try {
-						let basetypes = this.getBaseTypes(this.findTypeByName(e.$.type, schema.schema) as ComplexTypeEx);
-						let i = basetypes.findIndex(x => { try { return x.$.name === type.$.name; } catch (error) { return false; } });
+						const basetypes = this.getBaseTypes(this.findTypeByName(e.$.type, nsschema.schema) as ComplexTypeEx);
+						const i = basetypes.findIndex(x => { try { return x.$.name === type.$.name; } catch (error) { return false; } });
 						if (i > -1)
 							newentry.elements.push(e);
 					} catch (error) {
@@ -673,8 +612,8 @@ export class XmlBaseHandler extends Log {
 			path = [];
 
 		try {
-			let newtypename = type.complexContent[0].extension[0].$.base
-			let newtype = this.findTypeByName(newtypename, type.schema) as ComplexTypeEx;
+			const newtypename = type.complexContent[0].extension[0].$.base
+			const newtype = this.findTypeByName(newtypename, type.schema) as ComplexTypeEx;
 			path.push(newtype);
 			this.getBaseTypes(newtype, path);
 		} catch (error) {
@@ -686,7 +625,7 @@ export class XmlBaseHandler extends Log {
 		if (!schema)
 			return undefined;
 		// Split namespace and 
-		let nsregex = elementref.match(this.namespaceRegex);
+		const nsregex = elementref.match(this.namespaceRegex);
 		if (schema.referencedNamespaces[nsregex[1]] !== schema.targetNamespace)
 			schema = this.schemastorage[schema.referencedNamespaces[nsregex[1]]];
 
@@ -706,7 +645,7 @@ export class XmlBaseHandler extends Log {
 				curElement = (curElement.sequence[0].element as Element[]).find(x => x.$.name === curPath);
 		}
 
-		let elements = this.getElementsFromSequenceAndChoice(curElement, schema);
+		const elements = this.getElementsFromSequenceAndChoice(curElement, schema);
 
 		// Get choice // TODO: Maybe this is not the only way
 		return elements;
@@ -719,9 +658,9 @@ export class XmlBaseHandler extends Log {
 			element = element.complexType[0];
 
 		if (element.sequence) {
-			let sequence = element.sequence[0];
+			const sequence = element.sequence[0];
 			if (sequence.choice) {
-				let choice = sequence.choice[0];
+				const choice = sequence.choice[0];
 				if (choice.element)
 					res = res.concat(choice.element);
 			}
@@ -729,6 +668,67 @@ export class XmlBaseHandler extends Log {
 				res = res.concat(sequence.element);
 		}
 		return res;
+	}
+
+	protected markdownText(input: string): string {
+		input = input.replace(/<code>([\s\S]*?)<\/code>/gm, "`$1`");
+		input = input.replace(/<b>([\s\S]*?)<\/b>/gm, "**$1**");
+		input = input.replace(/<i>([\s\S]*?)<\/i>/gm, "*$1*");
+		return input;
+	}
+
+	private findTypeByName(typename: string, schema: StorageSchema): ComplexTypeEx | SimpleType {
+		const aType = typename.split(":");
+		let tn: string;
+		let namespace: string;
+		if (aType.length > 1) {
+			namespace = aType[0];
+			tn = aType[1];
+		} else {
+			tn = typename;
+		}
+		const complexTypes = schema.schema.complexType;
+		if (namespace) {
+			if (schema.referencedNamespaces[namespace] !== schema.targetNamespace) {
+				const newschema = this.schemastorage[schema.referencedNamespaces[namespace]];
+				if (!newschema) {
+					throw new Error("No schema found for namespace abbrevation '" + namespace + "' in schema '" + schema.targetNamespace + "'.");
+				}
+				return this.findTypeByName(typename, newschema);
+			}
+		}
+		for (const complextype of complexTypes as ComplexTypeEx[]) {
+			if (!complextype.$)
+				continue;
+			if (!complextype.$.name)
+				continue;
+
+			if (complextype.$.name === tn) {
+				// If complextype has complex content it is derived.
+				if (complextype.complexContent) {
+					const basetypename = complextype.complexContent[0].extension[0].$.base as string;
+					const basetype = this.findTypeByName(basetypename, schema) as ComplexTypeEx;
+					complextype.basetype = basetype;
+				}
+				complextype.schema = schema;
+				complextype.attribute = this.getAttributes(complextype);
+				return complextype;
+			}
+		}
+
+		for (const simpletype of schema.schema.simpleType) {
+			if (!simpletype.$) {
+				continue;
+			}
+			if (!simpletype.$.name) {
+				continue;
+			}
+
+			if (simpletype.$.name === tn) {
+				return simpletype;
+			}
+		}
+		return undefined;
 	}
 }
 
@@ -741,12 +741,12 @@ export class XmlBaseHandler extends Log {
 export function substitute(o: any, func: (key: string, value: any) => string): {} {
 	let build = {};
 	for (let i in o) {
-		let newkey = func.apply(this, [i, o[i], o]);
+		const newkey = func.apply(this, [i, o[i], o]);
 		let newobject = o[i];
 		if (o[i] !== null && typeof (o[i]) == "object") {
 			if (o[i] instanceof Array) {
 				newobject = [];
-				for (let entry of o[i])
+				for (const entry of o[i])
 					newobject.push(substitute({ [i]: entry }, func)[newkey]);
 			} else
 				newobject = substitute(o[i], func);
@@ -757,12 +757,12 @@ export function substitute(o: any, func: (key: string, value: any) => string): {
 }
 
 export function traverse(o: any, func: (key: string, value: any) => void) {
-	for (let i in o) {
+	for (const i in o) {
 		if (func.apply(this, [i, o[i], o]))
 			continue;
 		if (o[i] !== null && typeof (o[i]) == "object") {
 			if (o[i] instanceof Array)
-				for (let entry of o[i])
+				for (const entry of o[i])
 					traverse({ [i]: entry }, func);
 			//going on step down in the object tree!!
 			traverse(o[i], func);

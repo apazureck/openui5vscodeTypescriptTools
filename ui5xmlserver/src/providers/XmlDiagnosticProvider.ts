@@ -1,30 +1,30 @@
-import { Log, LogLevel } from '../Log';
-import { Diagnostic, Range, DiagnosticSeverity, PublishDiagnosticsParams, IConnection, TextDocument } from 'vscode-languageserver'
-import * as xmlChecker from 'xmlchecker';
-import { FoundAttribute, FoundElementHeader, XmlBaseHandler, XmlCheckerError, XmlStorage } from '../xmltypes';
-import * as xml2js from 'xml2js';
-import { getLine, Global, getPositionFromIndex, getRange, getLineCount } from '../server'
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
+import { Diagnostic, DiagnosticSeverity, IConnection, PublishDiagnosticsParams, Range, TextDocument } from "vscode-languageserver";
+import * as xml2js from "xml2js";
+import * as xmlChecker from "xmlchecker";
+import { Log, LogLevel } from "../Log";
+import { getLine, getLineCount, getPositionFromIndex, getRange, Global } from "../server";
+import { FoundAttribute, FoundElementHeader, XmlBaseHandler, XmlCheckerError, XmlStorage } from "../xmltypes";
 
 enum DiagnosticCodes {
-    DoubleAttribute
+    DoubleAttribute,
 }
 
 interface IDiagnostic {
-    diagnose(doc: TextDocument): Promise<Diagnostic[]>
+    diagnose(doc: TextDocument): Promise<Diagnostic[]>;
 }
 
 export class DiagnosticCollection {
 
-    diagnostics: {
+    public diagnostics: {
         [uri: string]: PublishDiagnosticsParams;
-    }
-    delete(uri: string) {
+    };
+    private delete(uri: string) {
         this.diagnostics = {};
     }
 
-    set(uri: string, diag: Diagnostic[]) {
+    private set(uri: string, diag: Diagnostic[]) {
         if (this.diagnostics[uri])
             this.diagnostics[uri].diagnostics = this.diagnostics[uri].diagnostics.concat(diag);
         else
@@ -37,21 +37,21 @@ export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic 
     async diagnose(doc: TextDocument): Promise<Diagnostic[]> {
         this.doc = doc;
         let text = doc.getText();
-        let items: Diagnostic[] = []
+        let items: Diagnostic[] = [];
         try {
             items = items.concat(await this.diagXml2Js(text));
         } catch (error) {
-            console.log(error.toString())
+            console.log(error.toString());
         }
         try {
             items = items.concat(this.diagXmlChecker(text));
         } catch (error) {
-            console.log(error.toString())
+            console.log(error.toString());
         }
         try {
             items = items.concat(await this.getNamespaces(text));
         } catch (error) {
-            console.log(error.toString())
+            console.log(error.toString());
         }
         return items;
     }
@@ -78,7 +78,7 @@ export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic 
                 },
                 severity: DiagnosticSeverity.Warning,
                 message: err.message,
-                source: 'xmlLint'
+                source: "xmlLint"
             }];
         }
     }
@@ -108,7 +108,7 @@ export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic 
                         },
                         message: error.message,
                         severity: DiagnosticSeverity.Error
-                    }
+                    };
                     resolve([x]);
                 } else
                     resolve([]);
@@ -122,9 +122,9 @@ export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic 
         let match: RegExpMatchArray;
         // Group 1: namespace abbrevation
         // Group 2: namespace name
-        let xmlnsregex = /xmlns:?(.*?)=['"](.*?)['"]/g
+        let xmlnsregex = /xmlns:?(.*?)=['"](.*?)['"]/g;
         let doc: string = text;
-        let hits: Diagnostic[] = []
+        let hits: Diagnostic[] = [];
         while (match = xmlnsregex.exec(doc)) {
             if (Global.schemastore.schemas[match[2]]) {
                 hits.push();
@@ -141,7 +141,7 @@ export class XmlAttributeDiagnosticProvider extends XmlBaseHandler implements ID
     constructor(schemastorage: XmlStorage, connection: IConnection, logLevel: LogLevel, private diagnostics?: Diagnostic[]) {
         super(schemastorage, connection, logLevel);
         if(!this.diagnostics)
-            this.diagnostics = []
+            this.diagnostics = [];
     }
     async diagnose(doc: TextDocument): Promise<Diagnostic[]> {
         return new Promise<Diagnostic[]>((resolve, reject) => {
@@ -155,7 +155,7 @@ export class XmlAttributeDiagnosticProvider extends XmlBaseHandler implements ID
                 this.logError("Could not diagnose Attributes: " + error.toString());
                 reject(error);
             }
-        })
+        });
     }
 
     /**
@@ -166,11 +166,11 @@ export class XmlAttributeDiagnosticProvider extends XmlBaseHandler implements ID
      * @memberOf XmlAttributeChecks
      */
     checkDoubleAttributes(element: FoundElementHeader): void {
-        let doubles: { [name: string]: FoundAttribute } = {}
-        this.logDebug("Checking " + (element.attributes ? element.attributes.length : 0) + " attributes")
+        let doubles: { [name: string]: FoundAttribute } = {};
+        this.logDebug("Checking " + (element.attributes ? element.attributes.length : 0) + " attributes");
         for (let attribute of element.attributes) {
             if (doubles[attribute.name]) {
-                this.logDebug(() => "Found double attribute '" + attribute.name + "'")
+                this.logDebug(() => "Found double attribute '" + attribute.name + "'");
                 this.diagnostics.push({
                     code: DiagnosticCodes.DoubleAttribute,
                     message: "Double attribute '" + attribute.name + "'",
