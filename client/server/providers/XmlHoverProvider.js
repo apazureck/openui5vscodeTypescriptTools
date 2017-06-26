@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
+const vscode_languageserver_1 = require("vscode-languageserver");
 const xmltypes_1 = require("../xmltypes");
 class XmlHoverProvider extends xmltypes_1.XmlBaseHandler {
     constructor(schemastorage, documents, connection, schemastorePath, loglevel) {
@@ -32,17 +33,19 @@ class XmlHoverProvider extends xmltypes_1.XmlBaseHandler {
                 }
                 return ret.substring(0, ret.length - 3);
             }));
-            // If current position is in an element, but not in a parameter: <Tag text="Hello" |src="123"...
-            if (foundCursor.isInElement && !foundCursor.isOnAttributeName) {
-                this.logDebug("Found cursor location to be in element");
-                return new Promise((resolve, reject) => {
-                    resolve(this.getElementDescription(foundCursor, doc));
-                });
-            }
-            else if (foundCursor.isOnAttributeName) {
-                return new Promise((resolve, reject) => {
-                    resolve(this.getHoverItemForAttribute(foundCursor, doc));
-                });
+            if (foundCursor.isOnElementHeader) {
+                if (foundCursor.isOnAttributeName) {
+                    this.logDebug("Found cursor location to be on attribute");
+                    return new Promise((resolve, reject) => {
+                        resolve(this.getHoverItemForAttribute(foundCursor, doc));
+                    });
+                }
+                else {
+                    this.logDebug("Found cursor location to be in element");
+                    return new Promise((resolve, reject) => {
+                        resolve(this.getElementDescription(foundCursor, doc));
+                    });
+                }
             }
         });
     }
@@ -55,8 +58,9 @@ class XmlHoverProvider extends xmltypes_1.XmlBaseHandler {
         const element = this.findElement(cursor.tagName, schema);
         if (element) {
             // Check if this simple type has an enumeration on it
+            const header = { language: "xml", value: "<" + cursor.elementHeader + ">" };
             return {
-                contents: element.annotation ? element.annotation[0].documentation : "",
+                contents: [header, vscode_languageserver_1.MarkedString.fromPlainText(element.annotation ? element.annotation[0].documentation[0] : "")],
                 range: {
                     end: doc.positionAt(cursor.endindex),
                     start: doc.positionAt(cursor.startindex),
@@ -81,8 +85,9 @@ class XmlHoverProvider extends xmltypes_1.XmlBaseHandler {
         const matchingAttribute = elementType.attribute.find((value, index, obj) => value.$.name === cursor.attribute.name);
         if (matchingAttribute) {
             // Check if this simple type has an enumeration on it
+            const header = { language: "xml", value: "<" + cursor.fullName + " ... " + cursor.attribute.name + '="' + cursor.attribute.value + '"' + (cursor.isSelfClosingTag ? " ... />" : " ... >") };
             return {
-                contents: matchingAttribute.annotation ? matchingAttribute.annotation[0].documentation : "",
+                contents: [header, vscode_languageserver_1.MarkedString.fromPlainText(matchingAttribute.annotation ? matchingAttribute.annotation[0].documentation[0] : "")],
                 range: {
                     end: doc.positionAt(cursor.startindex + cursor.attribute.endpos),
                     start: doc.positionAt(cursor.startindex + cursor.attribute.startpos),

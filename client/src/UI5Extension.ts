@@ -50,7 +50,7 @@ export class Ui5Extension {
     public GetNamespaceFromFilePath(file: string): string {
         const m = ui5tsglobal.core.absoluteRootPath;
         const fn = path.dirname(file);
-        const rel = "./" + path.relative(m, fn).replace("\\", "/") + "/" + path.basename(window.activeTextEditor.document.fileName);
+        const rel = "./" + path.relative(m, fn).replace(/\\/g, "/") + "/" + path.basename(file);
         // rel = rel.replace(/\.controller\.(ts|fs)$/, "").replace(/[\/\\]/g, ".");
         const sources: { k: string, v: string }[] = [];
         for (const ns in ui5tsglobal.core.namespacemappings) {
@@ -65,6 +65,6 @@ export class Ui5Extension {
             bestmatch = sources.sort((a, b) => a.k.length - b.k.length).pop();
         } else
             bestmatch = sources[0];
-        return bestmatch.v + "." + rel.substring(2).replace(/\.controller\.(ts|js)$/, "").replace(/[\/\\]/g, ".");
+        return bestmatch.v + "." + rel.substring(2).replace(/\.(controller|fragment)\.(ts|js|xml)$/, "").replace(/[\/\\]/g, ".");
     }
 }

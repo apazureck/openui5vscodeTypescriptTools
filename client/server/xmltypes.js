@@ -1,17 +1,17 @@
 "use strict";
-const Log_1 = require('./Log');
-const fs = require('fs');
-const path = require('path');
-const xml = require('xml2js');
+const fs = require("fs");
+const path = require("path");
+const xml = require("xml2js");
+const Log_1 = require("./Log");
 class XmlStorage extends Log_1.Log {
     constructor(schemastorePath, connection, loglevel) {
         super(connection, loglevel);
         this.schemastorePath = schemastorePath;
         this.schemas = {};
         this.connection.console.info("Creating Schema storage.");
-        for (let file of fs.readdirSync(this.schemastorePath)) {
+        for (const file of fs.readdirSync(this.schemastorePath)) {
             try {
-                let xmltext = fs.readFileSync(path.join(this.schemastorePath, file)).toString();
+                const xmltext = fs.readFileSync(path.join(this.schemastorePath, file)).toString();
                 xml.parseString(xmltext, { normalize: true }, (err, res) => {
                     if (err)
                         throw err;
@@ -31,7 +31,7 @@ class XmlStorage extends Log_1.Log {
                         if (namespaces[""]) {
                             this.connection.console.error("There is an empty namespace. It will be missinterpreted, as for lazynessreasons of the author the xsd namespace will be removed from all elements.");
                         }
-                        var start = schemanamespace + ":";
+                        const start = schemanamespace + ":";
                         res = substitute(res, (key, value) => {
                             if (key.startsWith(start)) {
                                 return key.split(":")[1];
@@ -44,10 +44,10 @@ class XmlStorage extends Log_1.Log {
                         else
                             throw new Error("No Schema namespace defined, make sure your schema is compared against 'http://www.w3.org/2001/XMLSchema'");
                         return;
-                        ;
                     }
-                    else
+                    else {
                         throw new Error("No Target Namespace found in schema '" + file + "'");
+                    }
                 });
             }
             catch (error) {
@@ -260,17 +260,17 @@ class XmlBaseHandler extends Log_1.Log {
         }
         foundcursor.absoluteCursorPosition = start;
         foundcursor.relativeCursorPosition = cursorpos - (foundcursor.tagNamespace.length > 0 ? foundcursor.tagNamespace.length + 1 : 0);
-        foundcursor.isInElement = start > foundcursor.startindex && start <= foundcursor.endindex;
+        foundcursor.isOnElementHeader = start > foundcursor.startindex && start <= foundcursor.endindex;
         foundcursor.isInAttribute = false;
         foundcursor.isOnAttributeName = false;
-        if (foundcursor.isInElement) {
+        if (foundcursor.isOnElementHeader) {
             for (const attribute of foundcursor.attributes) {
-                if (foundcursor.relativeCursorPosition >= attribute.startpos && foundcursor.relativeCursorPosition <= attribute.endpos - attribute.value.length) {
+                if (foundcursor.relativeCursorPosition >= attribute.startpos && foundcursor.relativeCursorPosition < attribute.endpos - attribute.value.length) {
                     foundcursor.attribute = attribute;
                     foundcursor.isOnAttributeName = true;
                     break;
                 }
-                if (foundcursor.relativeCursorPosition >= attribute.endpos - attribute.value.length && foundcursor.relativeCursorPosition <= attribute.endpos) {
+                if (foundcursor.relativeCursorPosition >= attribute.endpos - attribute.value.length && foundcursor.relativeCursorPosition < attribute.endpos) {
                     foundcursor.attribute = attribute;
                     foundcursor.isInAttribute = true;
                     break;
@@ -284,16 +284,17 @@ class XmlBaseHandler extends Log_1.Log {
         const attributes = [];
         const isinattributename = false;
         let amatch;
-        // 1: attributename
-        // 2: opening quote
-        // 3: value
-        const attributeregex = /\s*?(\w+?)=(["'])([\s\S]*?)\2/gm;
+        // 1: spaces before attribute
+        // 2: attributename
+        // 3: opening quote
+        // 4: value
+        const attributeregex = /(\s*?)(\w+?)=(["'])([\s\S]*?)\3/gm;
         while (amatch = attributeregex.exec(foundElement.elementHeader)) {
             attributes.push({
-                startpos: amatch.index,
                 endpos: amatch.index + amatch[0].length,
-                name: amatch[1],
-                value: amatch[3]
+                name: amatch[2],
+                startpos: amatch.index + amatch[1].length,
+                value: amatch[4],
             });
         }
         return attributes;
@@ -351,7 +352,6 @@ class XmlBaseHandler extends Log_1.Log {
                         return x.$.name === part;
                     }
                     catch (error) {
-                        false;
                     }
                 });
                 if (child) {
@@ -595,7 +595,7 @@ exports.XmlBaseHandler = XmlBaseHandler;
  */
 function substitute(o, func) {
     let build = {};
-    for (let i in o) {
+    for (const i in o) {
         const newkey = func.apply(this, [i, o[i], o]);
         let newobject = o[i];
         if (o[i] !== null && typeof (o[i]) == "object") {

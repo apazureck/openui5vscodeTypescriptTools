@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const vscode_languageserver_1 = require('vscode-languageserver');
-const xmltypes_1 = require('../xmltypes');
+const vscode_languageserver_1 = require("vscode-languageserver");
+const xmltypes_1 = require("../xmltypes");
 class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
     constructor(schemastorage, document, connection, schemastorePath, loglevel) {
         super(schemastorage, connection, loglevel);
@@ -30,13 +30,13 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
                 return ret.substring(0, ret.length - 3);
             }));
             // If current position is in an element, but not in a parameter: <Tag text="Hello" |src="123"...
-            if (foundCursor.isInElement && !foundCursor.isInAttribute) {
+            if (foundCursor.isOnElementHeader && !foundCursor.isInAttribute) {
                 this.logDebug("Found cursor location to be in element");
                 return new Promise((resolve, reject) => {
                     resolve(this.getElementsInTagHeader(foundCursor));
                 });
             }
-            else if (!foundCursor.isInElement) {
+            else if (!foundCursor.isOnElementHeader) {
                 this.logDebug("Cursor location is in an element body.");
                 return new Promise((resolve, reject) => {
                     resolve(this.getElementsInBody(foundCursor));

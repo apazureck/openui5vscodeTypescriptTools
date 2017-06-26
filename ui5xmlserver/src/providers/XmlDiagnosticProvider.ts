@@ -5,7 +5,7 @@ import * as xml2js from "xml2js";
 import * as xmlChecker from "xmlchecker";
 import { Log, LogLevel } from "../Log";
 import { getLine, getLineCount, getPositionFromIndex, getRange, Global } from "../server";
-import { FoundAttribute, FoundElementHeader, XmlBaseHandler, XmlCheckerError, XmlStorage } from "../xmltypes";
+import { IFoundAttribute, IFoundElementHeader, XmlBaseHandler, IXmlCheckerError, XmlStorage } from "../xmltypes";
 
 enum DiagnosticCodes {
     DoubleAttribute,
@@ -61,7 +61,7 @@ export class XmlWellFormedDiagnosticProvider extends Log implements IDiagnostic 
             xmlChecker.check(text);
             return [];
         } catch (error) {
-            let err = error as XmlCheckerError;
+            let err = error as IXmlCheckerError;
             err.line--;
             err.column--;
             console.log(JSON.stringify(error));
@@ -165,8 +165,8 @@ export class XmlAttributeDiagnosticProvider extends XmlBaseHandler implements ID
      * 
      * @memberOf XmlAttributeChecks
      */
-    checkDoubleAttributes(element: FoundElementHeader): void {
-        let doubles: { [name: string]: FoundAttribute } = {};
+    checkDoubleAttributes(element: IFoundElementHeader): void {
+        let doubles: { [name: string]: IFoundAttribute } = {};
         this.logDebug("Checking " + (element.attributes ? element.attributes.length : 0) + " attributes");
         for (let attribute of element.attributes) {
             if (doubles[attribute.name]) {
@@ -192,7 +192,7 @@ export class XmlAttributeDiagnosticProvider extends XmlBaseHandler implements ID
      * 
      * @memberOf XmlAttributeChecks
      */
-    checkAllElementsForAttributes(baseelement: FoundElementHeader): void {
+    checkAllElementsForAttributes(baseelement: IFoundElementHeader): void {
         this.checkDoubleAttributes(baseelement);
         if (baseelement.children)
             for (let el of baseelement.children) {

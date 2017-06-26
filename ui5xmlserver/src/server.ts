@@ -18,9 +18,23 @@ import {
 	XmlWellFormedDiagnosticProvider,
 } from "./providers/XmlDiagnosticProvider";
 import { XmlHoverProvider } from "./providers/XmlHoverProvider";
-import { StorageSchema, XmlStorage } from "./xmltypes";
+import { IStorageSchema, XmlStorage } from "./xmltypes";
 
 const controllerFileEx = "\\.controller\\.(js|ts)$";
+
+if (!("toJSON" in Error.prototype))
+	Object.defineProperty(Error.prototype, "toJSON", {
+		configurable: true,
+		value: () => {
+			const alt = {};
+			Object.getOwnPropertyNames(this).forEach((key) => {
+				alt[key] = this[key];
+			}, this);
+
+			return alt;
+		},
+		writable: true,
+	});
 
 /**
  * Initialization options for the xml language server

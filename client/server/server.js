@@ -15,6 +15,18 @@ const XmlDiagnosticProvider_1 = require("./providers/XmlDiagnosticProvider");
 const XmlHoverProvider_1 = require("./providers/XmlHoverProvider");
 const xmltypes_1 = require("./xmltypes");
 const controllerFileEx = "\\.controller\\.(js|ts)$";
+if (!("toJSON" in Error.prototype))
+    Object.defineProperty(Error.prototype, "toJSON", {
+        configurable: true,
+        value: () => {
+            const alt = {};
+            Object.getOwnPropertyNames(this).forEach((key) => {
+                alt[key] = this[key];
+            }, this);
+            return alt;
+        },
+        writable: true,
+    });
 var Global;
 (function (Global) {
 })(Global = exports.Global || (exports.Global = {}));

@@ -1,15 +1,15 @@
-import { TextDocumentPositionParams, CompletionItem, TextDocuments, IConnection, CompletionItemKind, TextDocument } from 'vscode-languageserver'
-import { ComplexTypeEx, ElementEx, FoundCursor, StorageSchema, XmlBaseHandler, XmlStorage } from '../xmltypes';
-import { LogLevel } from '../Log';
+import { CompletionItem, CompletionItemKind, IConnection, TextDocument, TextDocumentPositionParams, TextDocuments } from "vscode-languageserver";
+import { LogLevel } from "../Log";
+import { IComplexTypeEx, IElementEx, IFoundCursor, IStorageSchema, XmlBaseHandler, XmlStorage } from "../xmltypes";
 
 export class XmlCompletionHandler extends XmlBaseHandler {
 
 	constructor(schemastorage: XmlStorage, private document: TextDocument, connection: IConnection, private schemastorePath: string, loglevel: LogLevel) {
 		super(schemastorage, connection, loglevel);
-		this.schemastorage = schemastorage.schemas
+		this.schemastorage = schemastorage.schemas;
 	}
 
-	async getCompletionSuggestions(handler: TextDocumentPositionParams): Promise<CompletionItem[]> {
+	public async getCompletionSuggestions(handler: TextDocumentPositionParams): Promise<CompletionItem[]> {
 
 		const txt = this.document.getText();
 		const pos = this.document.offsetAt(handler.position);
@@ -19,21 +19,24 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 
 		// todo: Maybe bind to this necessary
 		this.logDebug((() => {
-			let ret: string = "Used Namespaces: "
-			for (let ns in this.usedNamespaces)
-				ret += ns + " = " + this.usedNamespaces[ns] + " | ";
+			let ret: string = "Used Namespaces: ";
+			for (const ns in this.usedNamespaces) {
+				if (ns) {
+					ret += ns + " = " + this.usedNamespaces[ns] + " | ";
+				}
+			}
 			return ret.substring(0, ret.length - 3);
 		}));
 
 		// If current position is in an element, but not in a parameter: <Tag text="Hello" |src="123"...
-		if (foundCursor.isInElement && !foundCursor.isInAttribute) {
+		if (foundCursor.isOnElementHeader && !foundCursor.isInAttribute) {
 			this.logDebug("Found cursor location to be in element");
 
 			return new Promise<CompletionItem[]>((resolve, reject) => {
 				resolve(this.getElementsInTagHeader(foundCursor));
 			});
 
-		} else if (!foundCursor.isInElement) {
+		} else if (!foundCursor.isOnElementHeader) {
 			this.logDebug("Cursor location is in an element body.");
 
 			return new Promise<CompletionItem[]>((resolve, reject) => {
@@ -41,20 +44,20 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 			});
 		} else if (foundCursor.isInAttribute) {
 			return new Promise<CompletionItem[]>((resolve, reject) => {
-				resolve(this.getCompletionItemsForAttribute(foundCursor))
+				resolve(this.getCompletionItemsForAttribute(foundCursor));
 			});
 		}
 	}
 
-	getCompletionItemsForAttribute(cursor: FoundCursor): CompletionItem[] {
+	getCompletionItemsForAttribute(cursor: IFoundCursor): CompletionItem[] {
 		this.logDebug("Processing Tagstring: " + cursor.tagName);
 		let namespace = this.usedNamespaces[cursor.tagNamespace];
-		this.logDebug("Using Namespace: " + namespace)
+		this.logDebug("Using Namespace: " + namespace);
 		let schema = this.schemastorage[namespace];
 		this.logDebug("Using Schema: " + schema.targetNamespace);
 		const element = this.findElement(cursor.tagName, schema);
 		this.logDebug(() => "Found element: " + element.$.name);
-		const elementType = this.getTypeOf(element) as ComplexTypeEx;
+		const elementType = this.getTypeOf(element) as IComplexTypeEx;
 		this.logDebug(() => "Found Element type: " + elementType.$.name);
 		const types = this.getBaseTypes(elementType, []);
 		if (types && types.length > 0)
@@ -78,15 +81,15 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		return undefined;
 	}
 
-	private getElementsInTagHeader(cursor: FoundCursor): CompletionItem[] {
+	private getElementsInTagHeader(cursor: IFoundCursor): CompletionItem[] {
 		this.logDebug("Processing Tagstring: " + cursor.tagName);
 		let namespace = this.usedNamespaces[cursor.tagNamespace];
-		this.logDebug("Using Namespace: " + namespace)
+		this.logDebug("Using Namespace: " + namespace);
 		let schema = this.schemastorage[namespace];
 		this.logDebug("Using Schema: " + schema.targetNamespace);
 		let element = this.findElement(cursor.tagName, schema);
 		this.logDebug(() => "Found element: " + element.$.name);
-		let elementType = this.getTypeOf(element) as ComplexTypeEx;
+		let elementType = this.getTypeOf(element) as IComplexTypeEx;
 		this.logDebug(() => "Found Element type: " + elementType.$.name);
 		let types = this.getBaseTypes(elementType, []);
 		if (types && types.length > 0)
@@ -103,13 +106,13 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		return ret;
 	}
 
-	private getCompletionItemForSingleAttribute(attribute: Attribute, schema: StorageSchema): CompletionItem {
+	private getCompletionItemForSingleAttribute(attribute: Attribute, schema: IStorageSchema): CompletionItem {
 		const ce: CompletionItem = {
 			label: attribute.$.name,
 			kind: CompletionItemKind.Property,
 			insertText: " " + attribute.$.name + "=\"$0\" ",
 			insertTextFormat: 2
-		}
+		};
 		try {
 			ce.detail = attribute.owner ? "from " + attribute.owner.$.name : undefined;
 		} catch (error) {
@@ -123,7 +126,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		return ce;
 	}
 
-	private getElementsInBody(cursor: FoundCursor): CompletionItem[] {
+	private getElementsInBody(cursor: IFoundCursor): CompletionItem[] {
 		let foundElements: { namespace: string, elements: Element[], ciKind?: CompletionItemKind }[] = [];
 		let baseElements: Element[] = [];
 
@@ -131,7 +134,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 		let path = cursor.path;
 		let part: string;
 		let downpath: string[] = [];
-		let element: ElementEx;
+		let element: IElementEx;
 
 		// Try to find current element in schema
 		element = this.findElement(this.getElementName(cursor.fullName), this.getSchema(cursor.fullName));
@@ -141,7 +144,7 @@ export class XmlCompletionHandler extends XmlBaseHandler {
 			downpath.push(cursor.fullName);
 			// go down the path to get the first parent element in the owning schema
 			while (part = path.pop()) {
-				element = this.findElement(this.getElementName(part), this.getSchema(part))
+				element = this.findElement(this.getElementName(part), this.getSchema(part));
 				if (element) {
 					break;
 				} else {
