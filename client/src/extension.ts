@@ -1,6 +1,6 @@
 "use strict";
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from 'fs';
+import * as path from 'path';
 import {
     commands,
     DiagnosticCollection,
@@ -14,27 +14,28 @@ import {
     window,
     workspace,
     WorkspaceConfiguration,
-} from "vscode";
-import { LanguageClient, LanguageClientOptions, ServerOptions, SettingMonitor, TransportKind } from "vscode-languageclient";
-import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from "./commands";
-import * as file from "./helpers/filehandler";
-import * as log from "./helpers/logging";
-import { ModuleReferenceProvider } from "./language/js/ModuleReferenceProvider";
-import { I18NCompletionItemProvider } from "./language/ui5/Ui5CompletionProviders";
+} from 'vscode';
+import { LanguageClient, LanguageClientOptions, ServerOptions, SettingMonitor, TransportKind } from 'vscode-languageclient';
+import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from './commands';
+import * as file from './helpers/filehandler';
+import * as log from './helpers/logging';
+import { ModuleReferenceProvider } from './language/js/ModuleReferenceProvider';
+import { I18NCompletionItemProvider } from './language/ui5/Ui5CompletionProviders';
 import {
+    EventCallbackDefinitionProvider,
     I18nDfinitionProvider,
     Ui5ViewDefinitionProvider,
     ViewControllerDefinitionProvider,
     ViewFragmentDefinitionProvider,
-    EventCallbackDefinitionProvider,
-} from "./language/ui5/Ui5DefinitionProviders";
-import * as defprov from "./language/ui5/Ui5DefinitionProviders";
-import { ManifestCompletionItemProvider } from "./language/ui5/Ui5ManifestCompletionProviders";
-import { ManifestDiagnostics } from "./language/ui5/Ui5ManifestDiagnostics";
-import { I18nCodeActionprovider } from "./language/xml/XmlActionProviders";
-import { I18nDiagnosticProvider } from "./language/xml/XmlDiagnostics";
-import { Settings } from "./Settings";
-import { Ui5Extension } from "./UI5Extension";
+} from './language/ui5/Ui5DefinitionProviders';
+import * as defprov from './language/ui5/Ui5DefinitionProviders';
+import { ManifestCompletionItemProvider } from './language/ui5/Ui5ManifestCompletionProviders';
+import { ManifestDiagnostics } from './language/ui5/Ui5ManifestDiagnostics';
+import { Ui5EventHandlerCodeLensProvider } from './language/ui5/Ui5TsCodeLensProviders';
+import { I18nCodeActionprovider } from './language/xml/XmlActionProviders';
+import { I18nDiagnosticProvider } from './language/xml/XmlDiagnostics';
+import { Settings } from './Settings';
+import { Ui5Extension } from './UI5Extension';
 
 export interface IDiagnose {
     diagnosticCollection: DiagnosticCollection;
@@ -120,6 +121,9 @@ export async function activate(c: ExtensionContext) {
     c.subscriptions.push(languages.registerDefinitionProvider(ui5Xml, new I18nDfinitionProvider()));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5Xml, new Ui5ViewDefinitionProvider()));
     c.subscriptions.push(languages.registerDefinitionProvider(ui5Xml, new EventCallbackDefinitionProvider()));
+
+    // CodeLens Providers
+    c.subscriptions.push(languages.registerCodeLensProvider(ui5TsControllers, new Ui5EventHandlerCodeLensProvider()));
 
     if (ui5tsglobal.config.insiders) {
         c.subscriptions.push(languages.registerReferenceProvider(javascript, new ModuleReferenceProvider()));

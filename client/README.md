@@ -14,8 +14,10 @@ It is currently work in progress. It also may benefit js programming, as I try t
 ## What is new in Version 0.4.0
 
 * GoTo Event on Controller (typescript only)
+* GoTo Controller from Fragment
 * Better XML Autocomplete
 * Hover Providers for XML Views
+* Code Lens for event handlers (callbacks) on typescript controllers
 
 ## Features
 
@@ -23,6 +25,7 @@ It is currently work in progress. It also may benefit js programming, as I try t
   * generate views and controllers in typescript (ts only)
 * **Navigation** between views and controllers
   * Navigation between views and controllers using `CTRL+F7` _(view)_ or `CTRL+SHIFT+F7` _(controller)_.
+  * Navigation between fragments and controllers  using `CTRL+F7` _(fragment)_
   * Go to event handlers by pressing `F12`.
 * **i18n** support
   * Code completion for labels in XML views
@@ -37,9 +40,12 @@ It is currently work in progress. It also may benefit js programming, as I try t
   * Code completion for XML views (Attributes, Elements and Attribute Values (Enum))
   * Simple check for well-formed xml files
   * Check for double attributes
+  * Hover support for Elements and Attributes
 * **Project Template** with auto compile, bower support and browser sync
   * [Check out this repo for now](https://github.com/apazureck/UI5TypescriptDeclarations/tree/master/generator)
   * Will be included in one of the next releases, if stable enough
+* **Code Lens**
+  * Code lens for events referenced in XML views (on Typescript Controllers)
 
 ## Requirements
 
@@ -113,8 +119,8 @@ This is a early release, therefore, functionallity is very limited and the funct
 1. ~~Autocomplete in xml views at the root level does not work properly. Will be fixed in the next release (~17-03-25)~~
 1. ~~Autocomplete for attributes does sometimes not work as intended (may be caused by Issue 1). Will be fixed in the next release (~17-03-25)~~
 1. ~~Autocomplete does not show correct elements when cursor is in an attribute. For example `<Page><content>!Cursorpos!</content>` will sometimes not display the correct elements.~~
-1. Navigation from fragment to controllers does not work for now. Will be fixed in the next release (~17-03-25)
-1. Go to controller/view/fragment may not work at the fist time. This is due to the fact, that the namespace mappings will be triggered first. *Workaround:* Try it a few times.
+1. ~~Navigation from fragment to controllers does not work for now. Will be fixed in the next release (~17-03-25)~~
+1. ~~Go to controller/view/fragment may not work at the fist time. This is due to the fact, that the namespace mappings will be triggered first. *Workaround:* Try it a few times.~~
 
 Problems are caused by splitting up xml linting functionallity and ui5 xml providers. Furthermore, a new algorithm for finding elements was introduced, which may be buggy some times. My apologies for the inconvenience.
 

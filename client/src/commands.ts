@@ -2,15 +2,16 @@ import * as fs from "fs";
 import * as glob from "glob-fs";
 import * as ncp from "ncp";
 import * as path from "path";
-import { ExtensionContext, TextDocument, Uri, window, workspace, QuickPickItem } from "vscode";
+import { ExtensionContext, QuickPickItem, TextDocument, Uri, window, workspace } from "vscode";
 import { ui5tsglobal } from "./extension";
 import * as file from "./helpers/filehandler";
 import * as log from "./helpers/logging";
+import { getViewsForController, viewFileEx } from "./language/searchFunctions";
 import { Storage } from "./language/xml/XmlDiagnostics";
 
 const namespaceformat = /^(\w+\.?)+\w+$/;
 const controllerFileEx = ".controller.{ts,js}";
-const viewFileEx = ".view.{xml,json}";
+
 
 export async function SetupUi5(): Promise<void> {
     // The code you place here will be executed every time your command is executed
@@ -64,7 +65,7 @@ export async function SetupUi5(): Promise<void> {
 
 export async function SwitchToView(): Promise<void> {
 
-    const fullname = ui5tsglobal.core.GetNamespaceFromFilePath(window.activeTextEditor.document.fileName);
+    const fullname = ui5tsglobal.core.GetModuleNameFromFilePath(window.activeTextEditor.document.fileName);
     const views = await getViewsForController(fullname);
 
     if (views.length < 1)
@@ -77,17 +78,6 @@ export async function SwitchToView(): Promise<void> {
     } else {
         window.showTextDocument(await workspace.openTextDocument(views[0]));
     }
-}
-
-async function getViewsForController(cname: string): Promise<Uri[]> {
-    const views = await workspace.findFiles(ui5tsglobal.core.relativeRootPath + "/**/*" + viewFileEx, undefined);
-    const ret: Uri[] = [];
-    for (const view of views) {
-        const doc = (await workspace.openTextDocument(view)).getText();
-        if (doc.match(new RegExp("controllerName=[\"']" + cname + "[\"']")))
-            ret.push(view);
-    }
-    return ret;
 }
 
 interface ISelectFileQuickPickItem extends QuickPickItem {
@@ -103,7 +93,7 @@ export async function SwitchToController() {
         views = [window.activeTextEditor.document.getText()];
         // it is a fragment
     } else {
-        views = await getViewsUsingFragment(ui5tsglobal.core.GetNamespaceFromFilePath(window.activeTextEditor.document.uri.fsPath));
+        views = await getViewsUsingFragment(ui5tsglobal.core.GetModuleNameFromFilePath(window.activeTextEditor.document.uri.fsPath));
     }
 
     const files = await getControllersUsedByViews(views);

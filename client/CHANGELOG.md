@@ -11,11 +11,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 * Typescript AMD declaration generator
 * Project generator (with browser sync)
 * GoTo Controller(s) from Fragments
-* GoTo Event from View
-* Find all references on callbacks in controllers includes Views and fragments
-* Code Lens for Callbacks on controllers (shown as reference, if in view)
+* CodeLens for fragments
 * Custom Typescript compiler to get better UI5 Syntax
 * XML Diagnostics for Elements, Attributes and their values
+* Autocomplete for XML base types (boolean)
 * JSON view JSON schemas
 
 ### Fixed
@@ -29,10 +28,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 * Completion for Enumeration
 * Insider Mode for review procedure
 * [Insider] Goto Module -> Credit & thanks to [anacierdem](https://github.com/anacierdem) for letting me use the code of his [Require Module Support Provider](https://marketplace.visualstudio.com/items?itemName=lici.require-js)
+* XML Hover Provider
+* CodeLens for event handlers (callacks)
+* GoTo Event from View
 
 ### Changed
 
 * XML elements on parent element are now displayed as properties
+* Layout of the config section
 
 ### Fixed
 

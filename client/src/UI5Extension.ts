@@ -47,7 +47,7 @@ export class Ui5Extension {
      * @returns {string} namespace of the file
      * @memberof Ui5Extension
      */
-    public GetNamespaceFromFilePath(file: string): string {
+    public GetModuleNameFromFilePath(file: string): string {
         const m = ui5tsglobal.core.absoluteRootPath;
         const fn = path.dirname(file);
         const rel = "./" + path.relative(m, fn).replace(/\\/g, "/") + "/" + path.basename(file);
