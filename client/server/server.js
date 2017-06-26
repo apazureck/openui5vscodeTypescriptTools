@@ -7,26 +7,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
-'use strict';
-const vscode_languageserver_1 = require('vscode-languageserver');
-const filehandler_1 = require('./filehandler');
-const xmltypes_1 = require('./xmltypes');
-const XmlCompletionProvider_1 = require('./providers/XmlCompletionProvider');
-const Log_1 = require('./Log');
-const XmlDiagnosticProvider_1 = require('./providers/XmlDiagnosticProvider');
+const vscode_languageserver_1 = require("vscode-languageserver");
+const filehandler_1 = require("./filehandler");
+const Log_1 = require("./Log");
+const XmlCompletionProvider_1 = require("./providers/XmlCompletionProvider");
+const XmlDiagnosticProvider_1 = require("./providers/XmlDiagnosticProvider");
+const XmlHoverProvider_1 = require("./providers/XmlHoverProvider");
+const xmltypes_1 = require("./xmltypes");
 const controllerFileEx = "\\.controller\\.(js|ts)$";
+if (!("toJSON" in Error.prototype))
+    Object.defineProperty(Error.prototype, "toJSON", {
+        configurable: true,
+        value: () => {
+            const alt = {};
+            Object.getOwnPropertyNames(this).forEach((key) => {
+                alt[key] = this[key];
+            }, this);
+            return alt;
+        },
+        writable: true,
+    });
 var Global;
 (function (Global) {
 })(Global = exports.Global || (exports.Global = {}));
 // Create a connection for the server. The connection uses Node's IPC as a transport
-let connection = vscode_languageserver_1.createConnection(new vscode_languageserver_1.IPCMessageReader(process), new vscode_languageserver_1.IPCMessageWriter(process));
+const connection = vscode_languageserver_1.createConnection(new vscode_languageserver_1.IPCMessageReader(process), new vscode_languageserver_1.IPCMessageWriter(process));
 // Create a simple text document manager. The text document manager
 // supports full document sync only
-let documents = new vscode_languageserver_1.TextDocuments();
+const documents = new vscode_languageserver_1.TextDocuments();
 connection.onInitialize((params) => {
     connection.console.info("Initializing XML language server");
     // connection.console.log("params: " + JSON.stringify(params));
@@ -39,29 +47,30 @@ connection.onInitialize((params) => {
     documents.listen(connection);
     return {
         capabilities: {
-            // Tell the client that the server works in FULL text document sync mode
-            textDocumentSync: documents.syncKind,
-            // Tell the client that the server support code complete
-            definitionProvider: false,
+            codeActionProvider: false,
             completionProvider: {
                 resolveProvider: false,
-                triggerCharacters: ["<", ">", '"', "'", ".", "/"]
+                triggerCharacters: ["<", ">", '"', "'", ".", "/"],
             },
-            codeActionProvider: false
-        }
+            // Tell the client that the server support code complete
+            definitionProvider: false,
+            hoverProvider: true,
+            // Tell the client that the server works in FULL text document sync mode
+            textDocumentSync: documents.syncKind,
+        },
     };
 });
 connection.onCompletion((params, token) => __awaiter(this, void 0, void 0, function* () {
     connection.console.info("Completion providing request received");
-    // Use completion list, as the return will be called before 
-    let cl = {
+    // Use completion list, as the return will be called before
+    const cl = {
         isIncomplete: true,
-        items: []
+        items: [],
     };
-    let doc = documents.get(params.textDocument.uri);
-    let line = getLine(doc.getText(), params.position.line);
+    const doc = documents.get(params.textDocument.uri);
+    const line = getLine(doc.getText(), params.position.line);
     try {
-        let ch = new XmlCompletionProvider_1.XmlCompletionHandler(Global.schemastore, documents, connection, "./schemastore", Global.settings.ui5ts.lang.xml.LogLevel);
+        const ch = new XmlCompletionProvider_1.XmlCompletionHandler(Global.schemastore, doc, connection, "./schemastore", Global.settings.ui5ts.lang.xml.LogLevel);
         cl.items = cl.items.concat(yield ch.getCompletionSuggestions(params));
         cl.isIncomplete = false;
     }
@@ -70,19 +79,32 @@ connection.onCompletion((params, token) => __awaiter(this, void 0, void 0, funct
     }
     return cl;
 }));
+connection.onHover((params, token) => __awaiter(this, void 0, void 0, function* () {
+    connection.console.info("Hover request received");
+    const doc = documents.get(params.textDocument.uri);
+    const line = getLine(doc.getText(), params.position.line);
+    try {
+        const ch = new XmlHoverProvider_1.XmlHoverProvider(Global.schemastore, documents, connection, "./schemastore", Global.settings.ui5ts.lang.xml.LogLevel);
+        return yield ch.getHoverInformation(params);
+    }
+    catch (error) {
+        connection.console.error("Error when getting XML completion entries: " + JSON.stringify(error));
+    }
+    return undefined;
+}));
 documents.onDidChangeContent((params) => __awaiter(this, void 0, void 0, function* () {
-    let doc = documents.get(params.document.uri);
+    const doc = documents.get(params.document.uri);
     if (!doc)
         return;
-    let diagnostics = { uri: doc.uri, diagnostics: [] };
+    const diagnostics = { uri: doc.uri, diagnostics: [] };
     try {
-        let wfd = new XmlDiagnosticProvider_1.XmlWellFormedDiagnosticProvider(connection, Global.settings.ui5ts.lang.xml.LogLevel);
+        const wfd = new XmlDiagnosticProvider_1.XmlWellFormedDiagnosticProvider(connection, Global.settings.ui5ts.lang.xml.LogLevel);
         diagnostics.diagnostics = diagnostics.diagnostics.concat(yield wfd.diagnose(doc));
     }
     catch (error) {
     }
     try {
-        let ad = new XmlDiagnosticProvider_1.XmlAttributeDiagnosticProvider(Global.schemastore, connection, Global.settings.ui5ts.lang.xml.LogLevel);
+        const ad = new XmlDiagnosticProvider_1.XmlAttributeDiagnosticProvider(Global.schemastore, connection, Global.settings.ui5ts.lang.xml.LogLevel);
         diagnostics.diagnostics = diagnostics.diagnostics.concat(yield ad.diagnose(doc));
     }
     catch (error) {
@@ -94,7 +116,7 @@ connection.onDidChangeConfiguration((change) => {
     Global.settings = change.settings;
 });
 function getLine(text, linenumber) {
-    let lines = text.split(/\n/);
+    const lines = text.split(/\n/);
     if (linenumber > lines.length - 1)
         linenumber = lines.length - 1;
     return lines[linenumber];
@@ -103,33 +125,32 @@ exports.getLine = getLine;
 function getRange(docText, searchPattern) {
     const lineRegex = /.*(?:\n|\r\n)/gm;
     let l;
-    let ret = [];
+    const ret = [];
     let linectr = 0;
     while ((l = lineRegex.exec(docText)) !== null) {
         linectr = linectr + 1;
         if (l.index === lineRegex.lastIndex)
             lineRegex.lastIndex++;
-        let match = searchPattern.exec(l);
+        const match = searchPattern.exec(l);
         if (!match)
             continue;
-        ret.push({ start: { line: linectr, character: match.index }, end: { line: linectr, character: match.index + match[0].length }, });
+        ret.push({ start: { line: linectr, character: match.index }, end: { line: linectr, character: match.index + match[0].length } });
     }
     return ret;
 }
 exports.getRange = getRange;
 function getPositionFromIndex(input, index) {
-    let lines = input.split("\n");
+    const lines = input.split("\n");
     let curindex = 0;
     let lineindex = 0;
-    let curline;
-    for (let line of lines) {
+    for (const line of lines) {
         if (index <= curindex + line.length) {
             return {
+                character: index - curindex,
                 line: lineindex,
-                character: index - curindex
             };
         }
-        curindex += line.length;
+        curindex += line.length + 1;
         lineindex++;
     }
 }
@@ -139,35 +160,35 @@ function getLineCount(input) {
 }
 exports.getLineCount = getLineCount;
 function tryOpenEventHandler(line, positionInLine, documentText) {
-    let rightpart = line.substr(positionInLine).match(/(\w*?)"/)[1];
+    const rightpart = line.substr(positionInLine).match(/(\w*?)"/)[1];
     if (!rightpart)
         return null;
     let leftpart = line.substr(0, positionInLine);
-    let leftquotepos = leftpart.match(/.*"/)[0].length;
+    const leftquotepos = leftpart.match(/.*"/)[0].length;
     if (!leftquotepos)
         return;
     leftpart = leftpart.substr(leftquotepos);
-    let name = leftpart + rightpart;
-    let cnameri = documentText.match(/controllerName="([\w\.]+)"/);
+    const name = leftpart + rightpart;
+    const cnameri = documentText.match(/controllerName="([\w\.]+)"/);
     if (!cnameri) {
         return [];
     }
-    let cname = cnameri[1].split(".").pop();
-    let files = filehandler_1.File.find(new RegExp(cname + controllerFileEx));
-    let foundControllers = [];
-    let ret = [];
+    const cname = cnameri[1].split(".").pop();
+    const files = filehandler_1.File.find(new RegExp(cname + controllerFileEx));
+    const foundControllers = [];
+    const ret = [];
     // Check typescript (dirty)
     for (let i = 0; i < files.length; i = i + 2) {
-        let f = files.length > 1 ? files[i + 1] : files[i];
+        const f = files.length > 1 ? files[i + 1] : files[i];
         foundControllers.push({ range: { start: { character: 0, line: 0 }, end: { character: 0, line: 0 } }, uri: "file:///" + f });
     }
     // TODO: Make more robust regex for finding method
-    for (let entry of foundControllers) {
-        let txt = filehandler_1.File.open(entry.uri.substr(8));
-        let matchRegex = new RegExp(name + /\s*?\(.*?\)/.source, "g");
-        let ranges = getRange(txt, matchRegex);
+    for (const entry of foundControllers) {
+        const txt = filehandler_1.File.open(entry.uri.substr(8));
+        const matchRegex = new RegExp(name + /\s*?\(.*?\)/.source, "g");
+        const ranges = getRange(txt, matchRegex);
         if (ranges.length > 0)
-            for (let r of ranges)
+            for (const r of ranges)
                 ret.push({ uri: entry.uri, range: r });
     }
     return ret;

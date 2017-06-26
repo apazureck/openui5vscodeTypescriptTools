@@ -1,5 +1,8 @@
 # ui5ts Extension
 
+> **Important Note**<br/>
+> In Version `0.4.0` The settings were restructured. Please check your workspace settings and adjust it accordingly.
+
 This extension improves the experience using UI5 with typescript. It is also targeted to give a quicker start in developing UI5, but also more experieced users may have a profit.
 
 It is currently work in progress. It also may benefit js programming, as I try to keep all filesearches to both, ts and js file endings. Please let me know on github, if something mentioned below does not work for js.
@@ -8,28 +11,41 @@ It is currently work in progress. It also may benefit js programming, as I try t
 
 > This extension is not officially supported by SAP or the openUi5 team. It is currently in an early development phase, so [please report any issues](https://github.com/apazureck/openui5vscodeTypescriptTools/issues) you have. If you want to contribute, feel free to conatct me via [Github](https://github.com/apazureck/openui5vscodeTypescriptTools/issues). I will also update it quite frequently for the next time, which may cause some new bugs.
 
+## What is new in Version 0.4.0
+
+* GoTo Event on Controller (typescript only)
+* GoTo Controller from Fragment
+* Better XML Autocomplete
+* Hover Providers for XML Views
+* Code Lens for event handlers (callbacks) on typescript controllers
+
 ## Features
 
 * **Code snippets** see also snippet section under Usage, will automatically updated if new snippets are available. Contribution welcome!
   * generate views and controllers in typescript (ts only)
 * **Navigation** between views and controllers
   * Navigation between views and controllers using `CTRL+F7` _(view)_ or `CTRL+SHIFT+F7` _(controller)_.
+  * Navigation between fragments and controllers  using `CTRL+F7` _(fragment)_
   * Go to event handlers by pressing `F12`.
 * **i18n** support
-  * Code completion for labels in xml models
+  * Code completion for labels in XML views
   * Autogeneration for labels (via Command and CodeAction)
-  * Peek and Goto i18n label definition
+  * Peek and Goto i18n label definition (XML view)
+  * Show label text on hover (XML view)
 * **manifest.json** support
   * JSON Schema
   * Autocomplete for routings
   * Check if target views exist
 * **XML** support
-  * Code completion for XML views (Attributes and Elements)
+  * Code completion for XML views (Attributes, Elements and Attribute Values (Enum))
   * Simple check for well-formed xml files
   * Check for double attributes
+  * Hover support for Elements and Attributes
 * **Project Template** with auto compile, bower support and browser sync
   * [Check out this repo for now](https://github.com/apazureck/UI5TypescriptDeclarations/tree/master/generator)
   * Will be included in one of the next releases, if stable enough
+* **Code Lens**
+  * Code lens for events referenced in XML views (on Typescript Controllers)
 
 ## Requirements
 
@@ -72,8 +88,6 @@ After that the xml files should be checked for missing labels. Check your Proble
 
 Check out for more detail at the [Wiki on Github](https://github.com/apazureck/openui5vscodeTypescriptTools/wiki). Contribution very welcome here!
 
-> Will be updated in the next weeks (~ 17-04-30)
-
 ## Snippets
 
 If you have useful snippets to share please [let me know](https://github.com/apazureck/openui5vscodeTypescriptTools/issues).
@@ -81,6 +95,7 @@ If you have useful snippets to share please [let me know](https://github.com/apa
 ### Typescript
 
 <!--TYPESCRIPTSNIPPETS-->
+
 * `ui5controller`: Inserts a new UI5 typescript controller
 
 <!--TYPESCRIPTSNIPPETS-->
@@ -103,14 +118,32 @@ This is a early release, therefore, functionallity is very limited and the funct
 
 1. ~~Autocomplete in xml views at the root level does not work properly. Will be fixed in the next release (~17-03-25)~~
 1. ~~Autocomplete for attributes does sometimes not work as intended (may be caused by Issue 1). Will be fixed in the next release (~17-03-25)~~
-1. Autocomplete does not show correct elements when cursor is in an attribute. For example `<Page><content>!Cursorpos!</content>` will sometimes not display the correct elements.
-1. Navigation from fragment to controllers does not work for now. Will be fixed in the next release (~17-03-25)
-1. Go to controller/view/fragment may not work at the fist time. This is due to the fact, that the namespace mappings will be triggered first. *Workaround:* Try it a few times.
+1. ~~Autocomplete does not show correct elements when cursor is in an attribute. For example `<Page><content>!Cursorpos!</content>` will sometimes not display the correct elements.~~
+1. ~~Navigation from fragment to controllers does not work for now. Will be fixed in the next release (~17-03-25)~~
+1. ~~Go to controller/view/fragment may not work at the fist time. This is due to the fact, that the namespace mappings will be triggered first. *Workaround:* Try it a few times.~~
 
 Problems are caused by splitting up xml linting functionallity and ui5 xml providers. Furthermore, a new algorithm for finding elements was introduced, which may be buggy some times. My apologies for the inconvenience.
 
 ## Contribution welcome
 
+I am currently doing this project as a kind of a hobby and I am always glad, if I can get feedback. Rate and review this extension or support it by contributing some code.
+
 * [Fork on Github](https://github.com/apazureck/openui5vscodeTypescriptTools)
 * [Report a bug or request a Features](https://github.com/apazureck/openui5vscodeTypescriptTools/issues)
 * [Share your knowledge and extend the wiki](https://github.com/apazureck/openui5vscodeTypescriptTools/wiki)
+
+## Insiders Mode
+
+The insiders mode is for publishing instable or not tested features released for a first beta test. Activate this to get the latest features.
+
+### Activate Insiders Mode
+
+To get to the Insiders Mode just go to your **User Settings** and set `"ui5ts.insiders": true`. Please don't forget to [Report Bugs](https://github.com/apazureck/openui5vscodeTypescriptTools/issues).
+
+### Currently Available in Insiders Mode
+
+* Go to Module and function (javascript)
+
+## Special Thanks to
+
+* [anacierdem](https://github.com/anacierdem) for letting me use some code of his [Require Module Support Provider](https://marketplace.visualstudio.com/items?itemName=lici.require-js)!

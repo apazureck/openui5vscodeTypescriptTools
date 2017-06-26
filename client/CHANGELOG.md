@@ -6,8 +6,43 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-* Project template to automatically generate a project template using BOWER packages and browser-sync
-* Typescript generator
+### Added
+
+* Typescript AMD declaration generator
+* Project generator (with browser sync)
+* GoTo Controller(s) from Fragments
+* CodeLens for fragments
+* Custom Typescript compiler to get better UI5 Syntax
+* XML Diagnostics for Elements, Attributes and their values
+* Autocomplete for XML base types (boolean)
+* JSON view JSON schemas
+
+### Fixed
+
+* Path resolving in manifest.json (Router section)
+
+## [0.4.0] - 2017-06-XX - Major XML Improvements
+
+### Added
+
+* Completion for Enumeration
+* Insider Mode for review procedure
+* [Insider] Goto Module -> Credit & thanks to [anacierdem](https://github.com/anacierdem) for letting me use the code of his [Require Module Support Provider](https://marketplace.visualstudio.com/items?itemName=lici.require-js)
+* XML Hover Provider
+* CodeLens for event handlers (callacks)
+* GoTo Event from View
+
+### Changed
+
+* XML elements on parent element are now displayed as properties
+* Layout of the config section
+
+### Fixed
+
+* Fixed element finding in XML Language Server
+* Fixed wrong types for elements in XML Language Server
+* Fixed attribute showing up when in attribute value section (part in quotes)
+* Fixed annoying manifest location found message, if manifest is set in workspace settings
 
 ## [0.3.1] - 2017-04-04
 

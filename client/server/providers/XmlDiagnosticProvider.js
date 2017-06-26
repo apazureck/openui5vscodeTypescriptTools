@@ -7,12 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const Log_1 = require('../Log');
-const vscode_languageserver_1 = require('vscode-languageserver');
-const xmlChecker = require('xmlchecker');
-const xmltypes_1 = require('../xmltypes');
-const xml2js = require('xml2js');
-const server_1 = require('../server');
+const vscode_languageserver_1 = require("vscode-languageserver");
+const xml2js = require("xml2js");
+const xmlChecker = require("xmlchecker");
+const Log_1 = require("../Log");
+const server_1 = require("../server");
+const xmltypes_1 = require("../xmltypes");
 var DiagnosticCodes;
 (function (DiagnosticCodes) {
     DiagnosticCodes[DiagnosticCodes["DoubleAttribute"] = 0] = "DoubleAttribute";
@@ -79,7 +79,7 @@ class XmlWellFormedDiagnosticProvider extends Log_1.Log {
                     },
                     severity: vscode_languageserver_1.DiagnosticSeverity.Warning,
                     message: err.message,
-                    source: 'xmlLint'
+                    source: "xmlLint"
                 }];
         }
     }

@@ -20,6 +20,7 @@ interface Element extends XmlBase {
 
 interface ComplexContent extends XmlBase {
 	extension?: Extension[];
+	attribute?: Attribute[];
 }
 
 interface Sequence extends XmlBase {
@@ -44,7 +45,30 @@ interface Any extends XmlBase {
 }
 
 interface SimpleType {
+	$: {
+		name: string;
+	}
+	restriction: Restriction[]
+}
 
+interface Restriction {
+
+	$: {
+		/**
+		 * Base type of the restriction (for example xsd:string)
+		 * 
+		 * @type {string}@memberof Restriction
+		 */
+		base?: string;
+	}
+	enumeration?: Enumeration[]
+}
+
+interface Enumeration {
+	$: {
+		value: string;
+	}
+	annotation: Annotation[];
 }
 
 interface ComplexType extends Annotated {
@@ -123,7 +147,8 @@ interface Attribute extends XmlBase {
 	annotation?: Annotation[];
 
 	// Additional properties for navigation
-	__owner?: ComplexType;
+	owner?: ComplexType;
+	schema: XmlSchema;
 }
 
 interface Annotation extends XmlBase {
@@ -133,4 +158,5 @@ interface Annotation extends XmlBase {
 interface XmlSchema extends XmlBase {
 	complexType?: ComplexType[];
 	element?: Element[];
+	simpleType?: SimpleType[];
 }

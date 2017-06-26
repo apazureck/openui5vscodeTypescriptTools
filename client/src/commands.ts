@@ -1,15 +1,17 @@
-import { workspace, window, ExtensionContext, TextDocument, Uri } from 'vscode';
-import { ui5tsglobal } from './extension'
-import * as ncp from 'ncp';
-import * as log from './helpers/logging';
-import * as file from './helpers/filehandler';
-import * as fs from 'fs'
-import * as path from 'path'
-import { Storage } from './language/xml/XmlDiagnostics'
+import * as fs from "fs";
+import * as glob from "glob-fs";
+import * as ncp from "ncp";
+import * as path from "path";
+import { ExtensionContext, QuickPickItem, TextDocument, Uri, window, workspace } from "vscode";
+import { ui5tsglobal } from "./extension";
+import * as file from "./helpers/filehandler";
+import * as log from "./helpers/logging";
+import { getViewsForController, viewFileEx } from "./language/searchFunctions";
+import { Storage } from "./language/xml/XmlDiagnostics";
 
 const namespaceformat = /^(\w+\.?)+\w+$/;
 const controllerFileEx = ".controller.{ts,js}";
-const viewFileEx = ".view.{xml,json}";
+
 
 export async function SetupUi5(): Promise<void> {
     // The code you place here will be executed every time your command is executed
@@ -19,24 +21,24 @@ export async function SetupUi5(): Promise<void> {
         return;
     }
 
-    let result = await workspace.findFiles("**/manifest.json", null, 1);
+    const result = await workspace.findFiles("**/manifest.json", null, 1);
     if (result.length > 0) {
         log.showerror("Cancelling: Project is already a UI5 project.");
         return;
     }
 
     // Get project namespace from user
-    let projectnamespace = await window.showInputBox(
+    const projectnamespace = await window.showInputBox(
         {
+            ignoreFocusOut: true,
+            placeHolder: "my.ui5.project",
+            prompt: "Set default namespace",
             validateInput: (value) => {
                 if (value.match(namespaceformat))
                     return null;
                 else
                     return "Wrong namespace format!";
             },
-            placeHolder: "my.ui5.project",
-            prompt: "Set default namespace",
-            ignoreFocusOut: true
         });
 
     if (!projectnamespace) {
@@ -53,18 +55,18 @@ export async function SetupUi5(): Promise<void> {
         log.printInfo("Files copied.");
 
         // Search all files for namespace token and replace it with user input
-        let replacer = new file.ReplaceInFiles(workspace.rootPath);
+        const replacer = new file.ReplaceInFiles(workspace.rootPath);
         replacer.replaceTokens([{ key: "$(projectNamespace)", value: projectnamespace }]);
     });
 
     // Display a message box to the user
-    log.showinfo('Created new project layout');
+    log.showinfo("Created new project layout");
 }
 
 export async function SwitchToView(): Promise<void> {
 
-    let fullname = ui5tsglobal.core.GetFullNameByFile(window.activeTextEditor.document.fileName);
-    let views = await getViewsForController(fullname);
+    const fullname = ui5tsglobal.core.GetModuleNameFromFilePath(window.activeTextEditor.document.fileName);
+    const views = await getViewsForController(fullname);
 
     if (views.length < 1)
         return;
@@ -78,46 +80,88 @@ export async function SwitchToView(): Promise<void> {
     }
 }
 
-async function getViewsForController(cname: string): Promise<Uri[]> {
-    let views = await workspace.findFiles(ui5tsglobal.core.relativeRootPath + "/**/*" + viewFileEx, undefined);
-    let ret: Uri[] = [];
-    for (let view of views) {
-        let doc = (await workspace.openTextDocument(view)).getText();
-        if (doc.match(new RegExp("controllerName=[\"']" + cname + "[\"']")))
-            ret.push(view);
+interface ISelectFileQuickPickItem extends QuickPickItem {
+    controllerName: string;
+    fileUri: Uri[];
+}
+
+export async function SwitchToController() {
+    let views: string[];
+    // TODO: Find view with matching controller
+    // check if it is a view
+    if (path.basename(window.activeTextEditor.document.uri.path).toLowerCase().match(/\.view\.(xml|json)$/)) {
+        views = [window.activeTextEditor.document.getText()];
+        // it is a fragment
+    } else {
+        views = await getViewsUsingFragment(ui5tsglobal.core.GetModuleNameFromFilePath(window.activeTextEditor.document.uri.fsPath));
+    }
+
+    const files = await getControllersUsedByViews(views);
+
+    if (files.length > 1) {
+        const pick = await window.showQuickPick<ISelectFileQuickPickItem>(files.map((value, index, array) => {
+            return {
+                controllerName: value.controllerName,
+                detail: value.fileUri[0].path,
+                fileUri: value.fileUri,
+                label: value.controllerName,
+            } as ISelectFileQuickPickItem;
+        }), {
+                placeHolder: "Multiple Controllers found. Please select which controller should be used",
+            });
+
+        await window.showTextDocument(await workspace.openTextDocument(files[0].fileUri.length < 2 ? files[0].fileUri[0] : files[0].fileUri[1]));
+    } else if (files.length > 0) {
+        await window.showTextDocument(await workspace.openTextDocument(files[0].fileUri.length < 2 ? files[0].fileUri[0] : files[0].fileUri[1]));
+    }
+}
+
+async function getViewsUsingFragment(fragmentName: string): Promise<string[]> {
+    const views = await workspace.findFiles(ui5tsglobal.core.relativeRootPath + "/**/*" + viewFileEx, undefined);
+    const ret: string[] = [];
+    for (const view of views) {
+        const doc = (await workspace.openTextDocument(view)).getText();
+        if (doc.match(new RegExp("fragmentName=([\"'])" + fragmentName + "\\1")))
+            ret.push(doc);
     }
     return ret;
 }
 
-export async function SwitchToController() {
-    let text = "";
-    // TODO: Find view with matching controller
-    // check if it is a view
-    if (path.basename(window.activeTextEditor.document.uri.path).match(".view.")) {
-        text = window.activeTextEditor.document.getText();
-        // it is a fragment
-    } else {
-        text = getView(window.activeTextEditor.document, path.basename(window.activeTextEditor.document.uri.path));
+async function getControllersUsedByViews(viewContents: string[]): Promise<{
+    controllerName: string,
+    fileUri: Uri[],
+}[]> {
+
+    const controllerDictionary: {
+        [key: string]: Uri[];
+    } = {};
+
+    for (const text of viewContents) {
+        const tag = text.match(/controllerName=["']([\w\.]+)["']/);
+
+        if (!tag) {
+            continue;
+        }
+
+        controllerDictionary[tag[1]] = await workspace.findFiles(ui5tsglobal.core.GetRelativePath(tag[1]) + controllerFileEx, undefined);
     }
 
-    const tag = text.match(/controllerName=["']([\w\.]+)["']/);
-
-    if (!tag) {
-        return;
+    const retlist = [];
+    for (const key in controllerDictionary) {
+        if (key) {
+            retlist.push({
+                controllerName: key,
+                fileUri: controllerDictionary[key],
+            });
+        }
     }
 
-    const files = await workspace.findFiles(ui5tsglobal.core.CreateRelativePath(tag[1]) + controllerFileEx, undefined);
-    if (files.length > 0)
-        await window.showTextDocument(await workspace.openTextDocument(files.length > 1 ? files[1] : files[0]));
-}
-
-function getView(doc: TextDocument, fragmentName: string): string {
-    return "";
+    return retlist;
 }
 
 export async function AddSchemaToStore(): Promise<void> {
-    let context = this as ExtensionContext;
-    let filename = await window.showInputBox({ prompt: 'Schema location (has to be local .xsd file)', ignoreFocusOut: true });
+    const context = this as ExtensionContext;
+    const filename = await window.showInputBox({ prompt: "Schema location (has to be local .xsd file)", ignoreFocusOut: true });
     // validateInput: (value: string) => {
     //     if(!value.match(/^[a-z]:((\/|(\\?))[\w .]+)+\.xsd$/i))
     //         return "Path is not valid.";
@@ -127,8 +171,8 @@ export async function AddSchemaToStore(): Promise<void> {
         fs.createReadStream(filename).pipe(fs.createWriteStream(path.join(context.extensionPath, "schemastore", path.basename(filename))));
         window.showInformationMessage("Successfully added schema to storage.");
     } else {
-        let files = fs.readdirSync(filename);
-        for (let file of files) {
+        const files = fs.readdirSync(filename);
+        for (const file of files) {
             fs.createReadStream(path.join(filename, file)).pipe(fs.createWriteStream(path.join(context.extensionPath, "schemastore", path.basename(file))));
         }
         window.showInformationMessage("Successfully added schema to storage.");
@@ -137,8 +181,8 @@ export async function AddSchemaToStore(): Promise<void> {
 }
 
 export async function AddI18nLabel(label?: string, onSuccess?: () => void) {
-    label = label || await window.showInputBox({ prompt: 'Name of the label', ignoreFocusOut: true });
-    let text = await window.showInputBox({ prompt: 'Text the user will see', ignoreFocusOut: true });
+    label = label || await window.showInputBox({ prompt: "Name of the label", ignoreFocusOut: true });
+    const text = await window.showInputBox({ prompt: "Text the user will see", ignoreFocusOut: true });
 
     try {
         Storage.i18n.addNewLabel(label, text);
