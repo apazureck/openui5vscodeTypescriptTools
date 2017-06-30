@@ -167,6 +167,14 @@ documents.onDidChangeContent(async (params) => {
 connection.onDidChangeConfiguration((change) => {
 	connection.console.info("Changed settings: " + JSON.stringify(change));
 	Global.settings = change.settings as IClientSettings;
+	if (!change.settings.ui5ts.lang || !change.settings.ui5ts.lang.xml) {
+		Global.settings.ui5ts.lang = {
+			xml: {
+				LogLevel: 4,
+				autoCloseEmptyElement: false,
+			}
+		}
+	}
 });
 
 export function getLine(text: string, linenumber: number): string {
@@ -219,10 +227,6 @@ export function getLineCount(input: string) {
 interface IClientSettings {
 	ui5ts: {
 		lang: {
-			i18n: {
-				modelname: string
-				modelfilelocation: string,
-			}
 			xml: {
 				autoCloseEmptyElement: boolean,
 				LogLevel: LogLevel,

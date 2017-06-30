@@ -1,4 +1,4 @@
-import { Ui5ManifestBase, Ui5View } from '../../baseclasses';
+import { Ui5ManifestBase, IUi5View } from '../../baseclasses';
 import * as vscode from 'vscode';
 import {
     CancellationToken,
@@ -68,7 +68,7 @@ export class ManifestCompletionItemProvider extends Ui5ManifestBase implements C
 					}
 
 					let views = this.getViews();
-					let relativeViews: Array<Ui5View> = []
+					let relativeViews: Array<IUi5View> = []
 					if(ui5tsglobal.core.manifest["sap.ui5"].routing.config.viewPath) {
 						//make relative namespaces
 						let prefix = ui5tsglobal.core.manifest["sap.ui5"].routing.config.viewPath+".";

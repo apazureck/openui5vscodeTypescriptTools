@@ -1,5 +1,4 @@
 import * as fs from "fs";
-import * as glob from "glob-fs";
 import * as ncp from "ncp";
 import * as path from "path";
 import { ExtensionContext, QuickPickItem, TextDocument, Uri, window, workspace } from "vscode";

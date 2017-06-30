@@ -11,11 +11,14 @@
         "experimentalDecorators": true
     },
     "exclude": [
-        "node_modules",
+        "node_modules/*/**",
         ".vscode-test",
         "templates",
         "server",
         "typings/node",
         "languages"
+    ],
+    "include": [
+        "node_modules/@types/*/**"
     ]
 }
