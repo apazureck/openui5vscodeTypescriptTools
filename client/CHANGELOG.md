@@ -21,7 +21,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 * Path resolving in manifest.json (Router section)
 
-## [0.4.0] - 2017-06-XX - Major XML Improvements
+## [0.4.1] - 2017-06-30 - XML Server Fix
+
+### Fixed
+
+* XML Server crashed when no lang.xml settings is present in workspace config
+
+## [0.4.0] - 2017-06-26 - Major XML Improvements
 
 ### Added
 
