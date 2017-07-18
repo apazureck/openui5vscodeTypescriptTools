@@ -114,6 +114,14 @@ documents.onDidChangeContent((params) => __awaiter(this, void 0, void 0, functio
 connection.onDidChangeConfiguration((change) => {
     connection.console.info("Changed settings: " + JSON.stringify(change));
     Global.settings = change.settings;
+    if (!change.settings.ui5ts.lang || !change.settings.ui5ts.lang.xml) {
+        Global.settings.ui5ts.lang = {
+            xml: {
+                LogLevel: 4,
+                autoCloseEmptyElement: false,
+            }
+        };
+    }
 });
 function getLine(text, linenumber) {
     const lines = text.split(/\n/);

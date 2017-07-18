@@ -15,5 +15,5 @@
         "MD013": false,
         "MD024": false
     },
-    "ui5ts.manifestlocation": "templates/project/manifest.json"
+    "tslint.alwaysShowRuleFailuresAsWarnings": true
 }

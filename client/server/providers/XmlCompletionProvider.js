@@ -25,8 +25,11 @@ class XmlCompletionHandler extends xmltypes_1.XmlBaseHandler {
             // todo: Maybe bind to this necessary
             this.logDebug((() => {
                 let ret = "Used Namespaces: ";
-                for (let ns in this.usedNamespaces)
-                    ret += ns + " = " + this.usedNamespaces[ns] + " | ";
+                for (const ns in this.usedNamespaces) {
+                    if (ns) {
+                        ret += ns + " = " + this.usedNamespaces[ns] + " | ";
+                    }
+                }
                 return ret.substring(0, ret.length - 3);
             }));
             // If current position is in an element, but not in a parameter: <Tag text="Hello" |src="123"...
