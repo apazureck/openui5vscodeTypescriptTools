@@ -81,7 +81,6 @@ export interface I18nDiagnostic extends Diagnostic {
     label: string;
 }
 
-
 export namespace Storage {
     export const i18n: I18nLabelStorage = new I18nLabelStorage();
 }

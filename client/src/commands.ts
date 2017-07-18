@@ -5,12 +5,15 @@ import { ExtensionContext, QuickPickItem, TextDocument, Uri, window, workspace }
 import { ui5tsglobal } from "./extension";
 import * as file from "./helpers/filehandler";
 import * as log from "./helpers/logging";
-import { getViewsForController, viewFileEx } from "./language/searchFunctions";
+import {
+    getController,
+    getControllersUsedByViews,
+    getViewsForController,
+    getViewsUsingFragment,
+    namespaceformat,
+    viewFileEx,
+} from "./language/searchFunctions";
 import { Storage } from "./language/xml/XmlDiagnostics";
-
-const namespaceformat = /^(\w+\.?)+\w+$/;
-const controllerFileEx = ".controller.{ts,js}";
-
 
 export async function SetupUi5(): Promise<void> {
     // The code you place here will be executed every time your command is executed
@@ -81,81 +84,29 @@ export async function SwitchToView(): Promise<void> {
 
 interface ISelectFileQuickPickItem extends QuickPickItem {
     controllerName: string;
-    fileUri: Uri[];
+    fileUri: Uri;
 }
 
 export async function SwitchToController() {
-    let views: string[];
-    // TODO: Find view with matching controller
-    // check if it is a view
-    if (path.basename(window.activeTextEditor.document.uri.path).toLowerCase().match(/\.view\.(xml|json)$/)) {
-        views = [window.activeTextEditor.document.getText()];
-        // it is a fragment
-    } else {
-        views = await getViewsUsingFragment(ui5tsglobal.core.GetModuleNameFromFilePath(window.activeTextEditor.document.uri.fsPath));
-    }
-
-    const files = await getControllersUsedByViews(views);
+    const files = await getController(window.activeTextEditor.document);
 
     if (files.length > 1) {
-        const pick = await window.showQuickPick<ISelectFileQuickPickItem>(files.map((value, index, array) => {
+        const pick = await window.showQuickPick<ISelectFileQuickPickItem>(files.map<ISelectFileQuickPickItem>((value, index, array) => {
             return {
                 controllerName: value.controllerName,
-                detail: value.fileUri[0].path,
+                description: "",
+                detail: value.fileUri.path,
                 fileUri: value.fileUri,
                 label: value.controllerName,
-            } as ISelectFileQuickPickItem;
+            };
         }), {
                 placeHolder: "Multiple Controllers found. Please select which controller should be used",
             });
 
-        await window.showTextDocument(await workspace.openTextDocument(files[0].fileUri.length < 2 ? files[0].fileUri[0] : files[0].fileUri[1]));
+        await window.showTextDocument(await workspace.openTextDocument(files[0].fileUri));
     } else if (files.length > 0) {
-        await window.showTextDocument(await workspace.openTextDocument(files[0].fileUri.length < 2 ? files[0].fileUri[0] : files[0].fileUri[1]));
+        await window.showTextDocument(await workspace.openTextDocument(files[0].fileUri));
     }
-}
-
-async function getViewsUsingFragment(fragmentName: string): Promise<string[]> {
-    const views = await workspace.findFiles(ui5tsglobal.core.relativeRootPath + "/**/*" + viewFileEx, undefined);
-    const ret: string[] = [];
-    for (const view of views) {
-        const doc = (await workspace.openTextDocument(view)).getText();
-        if (doc.match(new RegExp("fragmentName=([\"'])" + fragmentName + "\\1")))
-            ret.push(doc);
-    }
-    return ret;
-}
-
-async function getControllersUsedByViews(viewContents: string[]): Promise<{
-    controllerName: string,
-    fileUri: Uri[],
-}[]> {
-
-    const controllerDictionary: {
-        [key: string]: Uri[];
-    } = {};
-
-    for (const text of viewContents) {
-        const tag = text.match(/controllerName=["']([\w\.]+)["']/);
-
-        if (!tag) {
-            continue;
-        }
-
-        controllerDictionary[tag[1]] = await workspace.findFiles(ui5tsglobal.core.GetRelativePath(tag[1]) + controllerFileEx, undefined);
-    }
-
-    const retlist = [];
-    for (const key in controllerDictionary) {
-        if (key) {
-            retlist.push({
-                controllerName: key,
-                fileUri: controllerDictionary[key],
-            });
-        }
-    }
-
-    return retlist;
 }
 
 export async function AddSchemaToStore(): Promise<void> {

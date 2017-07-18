@@ -1,6 +1,6 @@
 "use strict";
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 import {
     commands,
     DiagnosticCollection,
@@ -14,28 +14,28 @@ import {
     window,
     workspace,
     WorkspaceConfiguration,
-} from 'vscode';
-import { LanguageClient, LanguageClientOptions, ServerOptions, SettingMonitor, TransportKind } from 'vscode-languageclient';
-import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from './commands';
-import * as file from './helpers/filehandler';
-import * as log from './helpers/logging';
-import { ModuleReferenceProvider } from './language/js/ModuleReferenceProvider';
-import { I18NCompletionItemProvider } from './language/ui5/Ui5CompletionProviders';
+} from "vscode";
+import { LanguageClient, LanguageClientOptions, ServerOptions, SettingMonitor, TransportKind } from "vscode-languageclient";
+import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from "./commands";
+import * as file from "./helpers/filehandler";
+import * as log from "./helpers/logging";
+import { ModuleReferenceProvider } from "./language/js/ModuleReferenceProvider";
+import { I18NCompletionItemProvider } from "./language/ui5/Ui5CompletionProviders";
 import {
     EventCallbackDefinitionProvider,
     I18nDfinitionProvider,
     Ui5ViewDefinitionProvider,
     ViewControllerDefinitionProvider,
     ViewFragmentDefinitionProvider,
-} from './language/ui5/Ui5DefinitionProviders';
-import * as defprov from './language/ui5/Ui5DefinitionProviders';
-import { ManifestCompletionItemProvider } from './language/ui5/Ui5ManifestCompletionProviders';
-import { ManifestDiagnostics } from './language/ui5/Ui5ManifestDiagnostics';
-import { Ui5EventHandlerCodeLensProvider } from './language/ui5/Ui5TsCodeLensProviders';
-import { I18nCodeActionprovider } from './language/xml/XmlActionProviders';
-import { I18nDiagnosticProvider } from './language/xml/XmlDiagnostics';
-import { Settings } from './Settings';
-import { Ui5Extension } from './UI5Extension';
+} from "./language/ui5/Ui5DefinitionProviders";
+import * as defprov from "./language/ui5/Ui5DefinitionProviders";
+import { ManifestCompletionItemProvider } from "./language/ui5/Ui5ManifestCompletionProviders";
+import { ManifestDiagnostics } from "./language/ui5/Ui5ManifestDiagnostics";
+import { Ui5EventHandlerCodeLensProvider } from "./language/ui5/Ui5TsCodeLensProviders";
+import { I18nCodeActionprovider } from "./language/xml/XmlActionProviders";
+import { I18nDiagnosticProvider } from "./language/xml/XmlDiagnostics";
+import { Settings } from "./Settings";
+import { Ui5Extension } from "./UI5Extension";
 
 export interface IDiagnose {
     diagnosticCollection: DiagnosticCollection;
@@ -231,7 +231,7 @@ function startXmlViewLanguageServer(c: ExtensionContext): Promise<void> {
             // Register the server for xml decuments documents
             diagnosticCollectionName: "xmlDiagnostics",
             documentSelector: ["xml", "xsd"],
-            initializationOptions: { storagepath: c.asAbsolutePath("schemastore") } as IXmlInitOptions,
+            initializationOptions: { storagepath: c.asAbsolutePath("schemastore") },
             synchronize: {
                 // Synchronize the setting section "languageServerExample" to the server
                 configurationSection: "ui5ts",
@@ -257,7 +257,7 @@ function startXmlViewLanguageServer(c: ExtensionContext): Promise<void> {
 interface IXmlInitOptions {
     /**
      * asolute path to the folder of the xsd files
-     * 
+     *
      * @type {string}
      * @memberOf XmlInitOptions
      */
