@@ -21,6 +21,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 * Path resolving in manifest.json (Router section)
 
+## [0.5.0] - 2017-07-28 - Productivity update
+
+### Added
+
+* Goto Event Callback from fragment
+
 ## [0.4.1] - 2017-06-30 - XML Server Fix
 
 ### Fixed
