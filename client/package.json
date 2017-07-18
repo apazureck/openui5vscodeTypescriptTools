@@ -3,7 +3,7 @@
     "displayName": "openui5 Typescript Tool",
     "license": "MIT",
     "description": "A typescript extension for openui5",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "versvsce publishion": "0.1.0",
     "publisher": "apazureck",
     "engines": {
@@ -200,7 +200,7 @@
     "devDependencies": {
         "@types/fs-finder": "^1.8.28",
         "@types/mocha": "^2.2.41",
-        "@types/node": "^8.0.6",
+        "@types/node": "^8.0.7",
         "gulp": "^3.9.1",
         "gulp-util": "^3.0.8",
         "gulpclass": "^0.1.2",
