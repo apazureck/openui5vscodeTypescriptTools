@@ -27,6 +27,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 * Goto Event Callback from fragment
 
+### Changed
+
+* CodeLens Callback provider uses typescript compiler and does not show up when no callbacks are given
+
 ## [0.4.1] - 2017-06-30 - XML Server Fix
 
 ### Fixed

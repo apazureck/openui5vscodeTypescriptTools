@@ -60,11 +60,10 @@ export class Ui5Extension {
                     sources.push({ k: relsource, v: ns });
             }
         }
-        let bestmatch;
-        if (sources.length > 1) {
-            bestmatch = sources.sort((a, b) => a.k.length - b.k.length).pop();
-        } else
-            bestmatch = sources[0];
+        const bestmatch = sources.length > 1 ? sources.sort((a, b) => a.k.length - b.k.length).pop() : sources[0];
+        if (!bestmatch) {
+            return "";
+        }
         return bestmatch.v + "." + rel.substring(2).replace(/\.(controller|fragment)\.(ts|js|xml)$/, "").replace(/[\/\\]/g, ".");
     }
 }

@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as ts from "typescript";
 import {
     CancellationToken,
     CompletionItem,
@@ -17,7 +18,7 @@ import {
 import * as commands from "../../commands";
 import { channel, ui5tsglobal } from "../../extension";
 import * as file from "../../helpers/filehandler";
-import { getController, getControllersUsedByViews } from "../searchFunctions";
+import { findNodesBySyntaxKind, getController, getControllersUsedByViews } from "../searchFunctions";
 import { Storage } from "../xml/XmlDiagnostics";
 
 const controllerFileEx = ".controller.ts";
@@ -97,17 +98,15 @@ export class EventCallbackDefinitionProvider implements DefinitionProvider {
 
             for (const controllerFileUri of controllerFileUris) {
                 const controllerfile = await workspace.openTextDocument(controllerFileUri.fileUri);
-                const controllertext = controllerfile.getText();
+                const methods = findNodesBySyntaxKind<ts.MethodDeclaration>(document, ts.SyntaxKind.MethodDeclaration);
 
-                const eventmethodregex = /^\s*?(?:public)?\s+?(\w+?)\s?\([\s\S]*?\)[\S\s]*?{/gm;
-                let event: RegExpMatchArray;
-
-                while (event = eventmethodregex.exec(controllertext)) {
-                    if (event[1] === match[3])
+                for (const method of methods) {
+                    if (method.node.name.getText() === match[3]) {
                         ret.push({
-                            range: controllerfile.lineAt(controllerfile.positionAt(event.index + event[1].length)).range,
+                            range: method.range,
                             uri: controllerfile.uri,
                         });
+                    }
                 }
             }
 
