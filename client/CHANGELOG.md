@@ -29,7 +29,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-* CodeLens Callback provider uses typescript compiler and does not show up when no callbacks are given
+* CodeLens Callback provider does not show up when no callbacks are given
+
+### Fixed
+
+* I18n Label linter stopped working
+* Goto i18n Label stopped working (#27)
+* Callback display does not work when callback is in fragment (#29)
+* Goto event handler does not work on async methods (#28)
 
 ## [0.4.1] - 2017-06-30 - XML Server Fix
 

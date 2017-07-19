@@ -6,18 +6,42 @@ import { ui5tsglobal } from "../extension";
 export const viewFileEx = ".view.{xml,json}";
 export const namespaceformat = /^(\w+\.?)+\w+$/;
 export const controllerFileEx = ".controller.ts";
+export const fragmentFileEx = ".fragment.{xml,json}";
 
 export interface IFoundNode<T extends ts.Node> {
     node: T;
     range: Range;
 }
-export async function getViewsForController(cname: string): Promise<Uri[]> {
+
+/**
+ * Gets views (and their used fragments) which use this controller
+ * 
+ * @export
+ * @param {string} cname full name with namespaces of the controller
+ * @param {boolean} [includeFragments=true] put out fragments, too
+ * @returns {Promise<Uri[]>} all uris to files found which use this controller
+ */
+export async function getViewsForController(cname: string, includeFragments?: boolean): Promise<Uri[]> {
+    includeFragments = includeFragments || true;
     const views = await workspace.findFiles(ui5tsglobal.core.relativeRootPath + "/**/*" + viewFileEx, undefined);
     const ret: Uri[] = [];
     for (const view of views) {
         const doc = (await workspace.openTextDocument(view)).getText();
-        if (doc.match(new RegExp("controllerName=[\"']" + cname + "[\"']")))
+        if (doc.match(new RegExp("controllerName=[\"']" + cname + "[\"']"))) {
             ret.push(view);
+            if (includeFragments) {
+                // 1: quotes
+                // 2: fragment name (namespace syntax)
+                const fragmentsRegex = /fragmentName\s*=\s*("|')(.*?)\1/g;
+                let fragment: RegExpMatchArray;
+                while (fragment = fragmentsRegex.exec(doc)) {
+                    const fragfiles = await workspace.findFiles(ui5tsglobal.core.GetRelativePath(fragment[2]) + fragmentFileEx, undefined);
+                    for (const fragfile of fragfiles) {
+                        ret.push(fragfile);
+                    }
+                }
+            }
+        }
     }
     return ret;
 }
@@ -81,7 +105,7 @@ function traverseNodes<T extends ts.Node>(node: ts.Node, foundNodes: IFoundNode<
     try {
         console.log(ts.SyntaxKind[node.kind] + " " + ((node as any).name ? (node as any).name.getText() : ""));
         if (node.kind === searchKind) {
-                foundNodes.push({ node: node as T, range: new Range(document.positionAt(node.getStart()), document.positionAt(node.getEnd())) });
+            foundNodes.push({ node: node as T, range: new Range(document.positionAt(node.getStart()), document.positionAt(node.getEnd())) });
         }
         node.forEachChild((n) => {
             traverseNodes(n, foundNodes, document, searchKind);

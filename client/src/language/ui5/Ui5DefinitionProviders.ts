@@ -58,12 +58,14 @@ export class ViewControllerDefinitionProvider implements DefinitionProvider {
 
 export class I18nDfinitionProvider implements DefinitionProvider {
     public provideDefinition(document: TextDocument, position: Position, token: CancellationToken): Definition | Thenable<Definition> {
-        const i18nlabelregex = new RegExp("\\b\\w+=(['\"])\\s*?{\\s*?" + ui5tsglobal.config["lang.i18n.modelname"] + "\\s*?>\\s*?(.*?)\\s*?}\\s*?\\1").exec(document.lineAt(position).text);
-        if (i18nlabelregex) {
-            if (position.character < i18nlabelregex.index || position.character > i18nlabelregex.index + i18nlabelregex[0].length) {
-                return;
+        const i18nlabelregex = new RegExp("\\b\\w+=(['\"])\\s*?{\\s*?" + ui5tsglobal.config["lang.i18n.modelname"] + "\\s*?>\\s*?(.*?)\\s*?}\\s*?\\1", "g")
+        let i18nlrres;
+
+        while (i18nlrres = i18nlabelregex.exec(document.lineAt(position).text)) {
+            if (position.character < i18nlrres.index || position.character > i18nlrres.index + i18nlrres[0].length) {
+                continue;
             }
-            const label = Storage.i18n.Labels[i18nlabelregex[1]];
+            const label = Storage.i18n.Labels[i18nlrres[2]];
             return {
                 range: new Range(label.line, 0, label.line, 1),
                 uri: Storage.i18n.modelfile,
@@ -98,7 +100,7 @@ export class EventCallbackDefinitionProvider implements DefinitionProvider {
 
             for (const controllerFileUri of controllerFileUris) {
                 const controllerfile = await workspace.openTextDocument(controllerFileUri.fileUri);
-                const methods = findNodesBySyntaxKind<ts.MethodDeclaration>(document, ts.SyntaxKind.MethodDeclaration);
+                const methods = findNodesBySyntaxKind<ts.MethodDeclaration>(controllerfile, ts.SyntaxKind.MethodDeclaration);
 
                 for (const method of methods) {
                     if (method.node.name.getText() === match[3]) {

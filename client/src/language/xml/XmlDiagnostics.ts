@@ -1,7 +1,8 @@
+import { Settings } from '../../Settings';
 import { Message } from "_debugger";
-import * as fs from "fs";
-import * as path from "path";
-import * as vscode from "vscode";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as vscode from 'vscode';
 import {
     CancellationToken,
     Diagnostic,
@@ -14,10 +15,10 @@ import {
     TextLine,
     Uri,
 } from "vscode";
-import * as xml2js from "xml2js";
-import * as xmlChecker from "xmlChecker";
+import * as xml2js from 'xml2js';
+import * as xmlChecker from 'xmlChecker';
 import { IDiagnose, ui5tsglobal } from "../../extension";
-import * as extension from "../../extension";
+import * as extension from '../../extension';
 import { File } from "../../helpers/filehandler";
 
 export interface I18nLabel {
@@ -98,7 +99,7 @@ export class I18nDiagnosticProvider implements IDiagnose {
     public diagi18n(document: TextDocument): Diagnostic[] {
         try {
             const text = document.getText();
-            const i18nreg = new RegExp("\"\\s*?{\\s*?" + vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelname") + "\\s*?>\\s*?(.*?)\\s*?}\\s*?\"", "g");
+            const i18nreg = new RegExp("\"\\s*?{\\s*?" + ui5tsglobal.config["lang.i18n.modelname"] + "\\s*?>\\s*?(.*?)\\s*?}\\s*?\"", "g");
             let match: RegExpMatchArray;
             const ret: I18nDiagnostic[] = [];
             while (match = i18nreg.exec(text))
