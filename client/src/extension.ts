@@ -1,6 +1,7 @@
 "use strict";
-import * as fs from "fs";
-import * as path from "path";
+import { CallbackRenameProvider } from './language/ui5/Ui5RenameProviders';
+import * as fs from 'fs';
+import * as path from 'path';
 import {
     commands,
     DiagnosticCollection,
@@ -17,8 +18,8 @@ import {
 } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions, SettingMonitor, TransportKind } from "vscode-languageclient";
 import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from "./commands";
-import * as file from "./helpers/filehandler";
-import * as log from "./helpers/logging";
+import * as file from './helpers/filehandler';
+import * as log from './helpers/logging';
 import { ModuleReferenceProvider } from "./language/js/ModuleReferenceProvider";
 import { I18NCompletionItemProvider } from "./language/ui5/Ui5CompletionProviders";
 import {
@@ -28,7 +29,7 @@ import {
     ViewControllerDefinitionProvider,
     ViewFragmentDefinitionProvider,
 } from "./language/ui5/Ui5DefinitionProviders";
-import * as defprov from "./language/ui5/Ui5DefinitionProviders";
+import * as defprov from './language/ui5/Ui5DefinitionProviders';
 import { ManifestCompletionItemProvider } from "./language/ui5/Ui5ManifestCompletionProviders";
 import { ManifestDiagnostics } from "./language/ui5/Ui5ManifestDiagnostics";
 import { Ui5EventHandlerCodeLensProvider } from "./language/ui5/Ui5TsCodeLensProviders";
@@ -124,6 +125,11 @@ export async function activate(c: ExtensionContext) {
 
     // CodeLens Providers
     c.subscriptions.push(languages.registerCodeLensProvider(ui5TsControllers, new Ui5EventHandlerCodeLensProvider()));
+
+    // Rename Providers
+    if (ui5tsglobal.config.insiders) {
+        c.subscriptions.push(languages.registerRenameProvider(ui5TsControllers, new CallbackRenameProvider()));
+    }
 
     if (ui5tsglobal.config.insiders) {
         c.subscriptions.push(languages.registerReferenceProvider(javascript, new ModuleReferenceProvider()));

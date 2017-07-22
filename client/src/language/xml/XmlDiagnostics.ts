@@ -123,3 +123,13 @@ export class I18nDiagnosticProvider implements IDiagnose {
         return new Range(document.positionAt(startIndex), document.positionAt(startIndex + length));
     }
 }
+
+export class ControllerDiagnosticsProvider implements IDiagnose {
+    constructor(public diagnosticCollection: DiagnosticCollection) {
+
+    }
+
+    public diagnose(document: TextDocument) {
+        throw new Error('Not implemented yet.');
+    }
+}

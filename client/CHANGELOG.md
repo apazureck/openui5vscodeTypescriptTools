@@ -20,12 +20,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Fixed
 
 * Path resolving in manifest.json (Router section)
+* Views not found in targets section of manifest.json
 
 ## [0.5.0] - 2017-07-28 - Productivity update
 
 ### Added
 
 * Goto Event Callback from fragment
+* Rename event callbacks in typescript files will also rename them in views / fragments
 
 ### Changed
 

@@ -13,12 +13,34 @@ export interface IFoundNode<T extends ts.Node> {
     range: Range;
 }
 
+export interface IUi5View {
+    type: ViewType;
+    fullpath: string;
+    name: string;
+}
+
+/**
+ * Gets all views in the project
+ * 
+ * @returns {Promise<IUi5View[]>} all views
+ */
+export async function getViews(): Promise<IUi5View[]> {
+    return (await workspace.findFiles(ui5tsglobal.core.relativeRootPath + "/**/*.view.{xml,json}", "")).map((file) => {
+        const path = ui5tsglobal.core.GetRelativePath(file.path);
+        return {
+            fullpath: path,
+            name: this.getViewName(file.path, ui5tsglobal.core.namespacemappings),
+            type: this.getViewType(file.path),
+        };
+    });
+}
+
 /**
  * Gets views (and their used fragments) which use this controller
  * 
  * @export
  * @param {string} cname full name with namespaces of the controller
- * @param {boolean} [includeFragments=true] put out fragments, too
+ * @param {boolean} [includeFragments=true] put out fragments, too. Default: true
  * @returns {Promise<Uri[]>} all uris to files found which use this controller
  */
 export async function getViewsForController(cname: string, includeFragments?: boolean): Promise<Uri[]> {
@@ -27,7 +49,7 @@ export async function getViewsForController(cname: string, includeFragments?: bo
     const ret: Uri[] = [];
     for (const view of views) {
         const doc = (await workspace.openTextDocument(view)).getText();
-        if (doc.match(new RegExp("controllerName=[\"']" + cname + "[\"']"))) {
+        if (doc.match(new RegExp("controllerName=([\"'])" + cname + "\\1"))) {
             ret.push(view);
             if (includeFragments) {
                 // 1: quotes
