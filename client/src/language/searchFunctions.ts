@@ -78,14 +78,20 @@ export async function getControllersUsedByViews(viewContents: string[]): Promise
     } = {};
 
     for (const text of viewContents) {
-        const tag = text.match(/controllerName=["']([\w\.]+)["']/);
+        try {
+            const tag = text.match(/controllerName=(["'])([\w\.]+)\1/);
 
-        if (!tag) {
-            continue;
+            if (!tag) {
+                continue;
+            }
+            const ex = ui5tsglobal.core;
+            const cname = ex.GetRelativePath(tag[2]) + controllerFileEx;
+            const uris = await workspace.findFiles(cname, undefined);
+            if (uris && uris.length > 0)
+                controllerDictionary[tag[2]] = uris[0];
+        } catch (error) {
+            console.error(JSON.stringify(error));
         }
-        const uris = await workspace.findFiles(ui5tsglobal.core.GetRelativePath(tag[1]) + controllerFileEx, undefined);
-        if (uris && uris.length > 0)
-            controllerDictionary[tag[1]] = uris[0];
     }
 
     const retlist = [];

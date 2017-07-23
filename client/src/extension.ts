@@ -34,7 +34,7 @@ import { ManifestCompletionItemProvider } from "./language/ui5/Ui5ManifestComple
 import { ManifestDiagnostics } from "./language/ui5/Ui5ManifestDiagnostics";
 import { Ui5EventHandlerCodeLensProvider } from "./language/ui5/Ui5TsCodeLensProviders";
 import { I18nCodeActionprovider } from "./language/xml/XmlActionProviders";
-import { I18nDiagnosticProvider } from "./language/xml/XmlDiagnostics";
+import { ControllerDiagnosticsProvider, I18nDiagnosticProvider } from './language/xml/XmlDiagnostics';
 import { Settings } from "./Settings";
 import { Ui5Extension } from "./UI5Extension";
 
@@ -79,7 +79,7 @@ export async function activate(c: ExtensionContext) {
 
     // Subscribe to workspace config changed configuration
     workspace.onDidChangeConfiguration(e => onDidChangeConfiguration());
-    onDidChangeConfiguration();
+    await onDidChangeConfiguration();
 
     startXmlViewLanguageServer(context);
     // startManifestLanguageServer();
@@ -98,7 +98,9 @@ export async function activate(c: ExtensionContext) {
 
     // c.subscriptions.push(languages.registerCompletionItemProvider([ui5_xmlviews, ui5_xmlfragments], new Ui5i18nCompletionItemProvider));
 
-    const diags: IDiagnose[] = [new ManifestDiagnostics(languages.createDiagnosticCollection("json")), new I18nDiagnosticProvider(languages.createDiagnosticCollection("i18n"))];
+    const diags: IDiagnose[] = [new ManifestDiagnostics(languages.createDiagnosticCollection("json")),
+    new I18nDiagnosticProvider(languages.createDiagnosticCollection("i18n")),
+    new ControllerDiagnosticsProvider(languages.createDiagnosticCollection("xml"))];
 
     createDiagnosticSubscriptions(c, diags);
 
@@ -136,10 +138,11 @@ export async function activate(c: ExtensionContext) {
     }
 }
 
-function onDidChangeConfiguration() {
-    getManifestLocation();
-    getAllNamespaceMappings();
-    ResetI18nStorage();
+async function onDidChangeConfiguration() {
+    ui5tsglobal.config = new Settings();
+    await getManifestLocation();
+    await getAllNamespaceMappings();
+    await ResetI18nStorage();
 }
 
 function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) {
@@ -150,7 +153,8 @@ function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) 
         });
         workspace.onDidOpenTextDocument(diag.diagnose.bind(diag));
     }
-    for (const otd of workspace.textDocuments)
+    const docs = workspace.textDocuments;
+    for (const otd of docs)
         for (const diag of diags)
             diag.diagnose(otd);
 }

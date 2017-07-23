@@ -27,11 +27,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 
 * Goto Event Callback from fragment
-* Rename event callbacks in typescript files will also rename them in views / fragments
+* Rename event callbacks in typescript files will also rename them in views / fragments (Insiders - buggy - wait for vscode team)
+* Check for missing controller in xml view
 
 ### Changed
 
 * CodeLens Callback provider does not show up when no callbacks are given
+* Settings structure back to old scheme (not compatible with contributions site)
 
 ### Fixed
 
@@ -39,6 +41,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 * Goto i18n Label stopped working (#27)
 * Callback display does not work when callback is in fragment (#29)
 * Goto event handler does not work on async methods (#28)
+* Extension startup does not create namespace mappings and manifest location
 
 ## [0.4.1] - 2017-06-30 - XML Server Fix
 
