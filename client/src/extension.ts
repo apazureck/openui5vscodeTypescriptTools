@@ -1,7 +1,6 @@
 "use strict";
-import { CallbackRenameProvider } from './language/ui5/Ui5RenameProviders';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 import {
     commands,
     DiagnosticCollection,
@@ -18,8 +17,8 @@ import {
 } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions, SettingMonitor, TransportKind } from "vscode-languageclient";
 import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from "./commands";
-import * as file from './helpers/filehandler';
-import * as log from './helpers/logging';
+import * as file from "./helpers/filehandler";
+import * as log from "./helpers/logging";
 import { ModuleReferenceProvider } from "./language/js/ModuleReferenceProvider";
 import { I18NCompletionItemProvider } from "./language/ui5/Ui5CompletionProviders";
 import {
@@ -29,14 +28,17 @@ import {
     ViewControllerDefinitionProvider,
     ViewFragmentDefinitionProvider,
 } from "./language/ui5/Ui5DefinitionProviders";
-import * as defprov from './language/ui5/Ui5DefinitionProviders';
+import * as defprov from "./language/ui5/Ui5DefinitionProviders";
 import { ManifestCompletionItemProvider } from "./language/ui5/Ui5ManifestCompletionProviders";
 import { ManifestDiagnostics } from "./language/ui5/Ui5ManifestDiagnostics";
+import { CallbackRenameProvider } from "./language/ui5/Ui5RenameProviders";
 import { Ui5EventHandlerCodeLensProvider } from "./language/ui5/Ui5TsCodeLensProviders";
 import { I18nCodeActionprovider } from "./language/xml/XmlActionProviders";
-import { ControllerDiagnosticsProvider, I18nDiagnosticProvider } from './language/xml/XmlDiagnostics';
+import { ControllerDiagnosticsProvider, I18nDiagnosticProvider } from "./language/xml/XmlDiagnostics";
 import { Settings } from "./Settings";
 import { Ui5Extension } from "./UI5Extension";
+
+
 
 export interface IDiagnose {
     diagnosticCollection: DiagnosticCollection;
@@ -164,14 +166,15 @@ async function getManifestLocation() {
         // Get manifest location if not set in workspace settings.
         if (!ui5tsglobal.config.manifestlocation) {
             const workspaceroot = workspace.rootPath;
-            const manifest = await workspace.findFiles("**/manifest.json", "");
+            let manifest = await workspace.findFiles("**/manifest.json", "");
+            manifest = await filterAsync(manifest, async x => await isUi5Manifest(x));
             let val: string;
             if (manifest.length < 1) {
                 window.showWarningMessage("Could not find any manifest.json in your project. Please set the path to your manifest.json file in the workspace settings.");
                 return;
             } else if (manifest.length > 1) {
-                window.showInformationMessage("Multiple manifests found");
-                val = (await window.showQuickPick(manifest.map(x => ({ label: path.relative(workspace.rootPath, x.fsPath), description: x.fsPath })) as QuickPickItem[], { ignoreFocusOut: true })).label;
+                // window.showInformationMessage("Multiple manifests found");
+                val = (await window.showQuickPick(manifest.map(x => ({ label: path.relative(workspace.rootPath, x.fsPath), description: x.fsPath })) as QuickPickItem[], { ignoreFocusOut: true, placeHolder: "Multiple manifest.json files found. Please pick which one to add to your workspace config." })).label;
                 window.showInformationMessage("Set manifest.json path to workspace settings");
             } else {
                 val = manifest[0].fsPath;
@@ -186,6 +189,27 @@ async function getManifestLocation() {
 
     } catch (error) {
         // Do nothing
+    }
+}
+
+async function filterAsync<S>(inarray: S[], callback: (value: S, index: number, array: S[]) => Promise<boolean>): Promise<S[]> {
+    const ret: S[] = [];
+    let index = 0;
+    for (const entry of inarray) {
+        if (await callback(entry, index++, inarray)) {
+            ret.push(entry);
+        }
+    }
+    return ret;
+}
+
+async function isUi5Manifest(uri: Uri): Promise<boolean> {
+    try {
+        const doc = await workspace.openTextDocument(uri);
+        const manifestobject = JSON.parse(doc.getText());
+        return manifestobject["sap.app"] !== undefined;
+    } catch (error) {
+        return false;
     }
 }
 
