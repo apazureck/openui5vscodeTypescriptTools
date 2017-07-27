@@ -49,20 +49,25 @@ export class I18nLabelStorage {
     }
 
     public create() {
-        this.modelfilename = vscode.workspace.getConfiguration("ui5ts").get("lang.i18n.modelfilelocation") as string || "./i18n/i18n.properties";
-        const root = ui5tsglobal.core.absoluteRootPath;
-        this.modelfile = Uri.file(path.join(root, this.modelfilename));
-        const content = fs.readFileSync(this.modelfile.fsPath, "utf-8").split("\n");
         this.linecount = 0;
         this.labels = {};
-        for (const line of content) {
-            const match = line.match(/^(.*?)\s*=\s*(.*)/);
-            if (match)
-                this.Labels[match[1]] = {
-                    line: this.linecount,
-                    text: match[2],
-                };
-            this.linecount++;
+        try {
+            this.modelfilename = ui5tsglobal.config["lang.i18n.modelfilelocation"] as string || "./i18n/i18n.properties";
+            const root = ui5tsglobal.core.absoluteRootPath;
+            this.modelfile = Uri.file(path.join(root, this.modelfilename));
+            const content = fs.readFileSync(this.modelfile.fsPath, "utf-8").split("\n");
+
+            for (const line of content) {
+                const match = line.match(/^(.*?)\s*=\s*(.*)/);
+                if (match)
+                    this.Labels[match[1]] = {
+                        line: this.linecount,
+                        text: match[2],
+                    };
+                this.linecount++;
+            }
+        } catch (error) {
+            // Do nothing
         }
     }
 

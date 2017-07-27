@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as ts from "typescript";
-import { Range, TextDocument, Uri, workspace } from "vscode";
+import { Range, TextDocument, Uri, workspace, Position } from "vscode";
 import { ui5tsglobal } from "../extension";
 
 export const viewFileEx = ".view.{xml,json}";
@@ -157,4 +157,49 @@ export function findNodesBySyntaxKind<T extends ts.Node>(document: TextDocument,
     const sourcefile = ts.createSourceFile(document.fileName, document.getText(), ts.ScriptTarget.ES5, true);
     traverseNodes<T>(sourcefile, foundNodes, document, searchKind);
     return foundNodes;
+}
+
+/**
+ * Gets a typescript node at the given position.
+ * 
+ * @export
+ * @param {TextDocument} document Document to search Node in
+ * @param {Position} position Position of the cursor
+ */
+export function getNodeAtPosition(document: TextDocument, position: Position): ts.Node {
+    const sourcefile = ts.createSourceFile(document.fileName, document.getText(), ts.ScriptTarget.ES5, true);
+    const offset = document.offsetAt(position);
+    return findNode(sourcefile, offset);
+}
+
+/**
+ * Recursively searches the parent of a node with a specific syntax kind (for example class parent of an expression)
+ *
+ * @export
+ * @param {ts.Node} node Node to search from
+ * @param {ts.SyntaxKind} kind syntax Kind to search for
+ * @returns Found node or undefined if node was not found
+ */
+export function getParentOfType(node: ts.Node, kind: ts.SyntaxKind): ts.Node | undefined {
+    if (node.kind === kind) {
+        return node;
+    } else {
+        if (!node.parent) {
+            return undefined;
+        }
+        return getParentOfType(node.parent, kind);
+    }
+}
+
+function findNode(parent: ts.Node, offset: number): ts.Node {
+    const foundChildNode = parent.getChildren().find(x => {
+        return x.getStart() <= offset && x.getEnd() >= offset;
+    });
+    if (!foundChildNode)
+        return parent;
+    if (foundChildNode.getChildCount() > 0) {
+        return findNode(foundChildNode, offset);
+    } else {
+        return foundChildNode;
+    }
 }

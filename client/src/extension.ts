@@ -1,6 +1,7 @@
 "use strict";
 import * as fs from "fs";
 import * as path from "path";
+import * as ts from "typescript";
 import {
     commands,
     DiagnosticCollection,
@@ -20,7 +21,8 @@ import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, S
 import * as file from "./helpers/filehandler";
 import * as log from "./helpers/logging";
 import { ModuleReferenceProvider } from "./language/js/ModuleReferenceProvider";
-import { I18NCompletionItemProvider } from "./language/ui5/Ui5CompletionProviders";
+import { IDCompletionProvider } from "./language/ts/IDCompletionProvider";
+import * as defprov from "./language/ui5/Ui5DefinitionProviders";
 import {
     EventCallbackDefinitionProvider,
     I18nDfinitionProvider,
@@ -28,17 +30,15 @@ import {
     ViewControllerDefinitionProvider,
     ViewFragmentDefinitionProvider,
 } from "./language/ui5/Ui5DefinitionProviders";
-import * as defprov from "./language/ui5/Ui5DefinitionProviders";
 import { ManifestCompletionItemProvider } from "./language/ui5/Ui5ManifestCompletionProviders";
 import { ManifestDiagnostics } from "./language/ui5/Ui5ManifestDiagnostics";
 import { CallbackRenameProvider } from "./language/ui5/Ui5RenameProviders";
 import { Ui5EventHandlerCodeLensProvider } from "./language/ui5/Ui5TsCodeLensProviders";
+import { I18NCompletionItemProvider } from "./language/xml/I18nCompletionProvider";
 import { I18nCodeActionprovider } from "./language/xml/XmlActionProviders";
 import { ControllerDiagnosticsProvider, I18nDiagnosticProvider } from "./language/xml/XmlDiagnostics";
 import { Settings } from "./Settings";
 import { Ui5Extension } from "./UI5Extension";
-
-
 
 export interface IDiagnose {
     diagnosticCollection: DiagnosticCollection;
@@ -50,6 +50,8 @@ export namespace ui5tsglobal {
     export const name = "ui5-ts";
     export const core: Ui5Extension = new Ui5Extension();
     export let config: Settings = new Settings();
+
+    export let tsproxy: ts.LanguageService;
 }
 
 const ui5JsonViews: DocumentFilter = { language: "json", scheme: "file", pattern: "*.view.json" };
@@ -75,6 +77,7 @@ export async function activate(c: ExtensionContext) {
     context = c;
     ui5tsglobal.core.extensionPath = c.extensionPath;
     ui5tsglobal.core.schemaStoragePath = c.asAbsolutePath("schemastore");
+    await startTypescriptLanguageService();
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log("Activating UI5 extension.");
@@ -119,6 +122,7 @@ export async function activate(c: ExtensionContext) {
     // Completionitemproviders
     c.subscriptions.push(languages.registerCompletionItemProvider(ui5Manifest, new ManifestCompletionItemProvider()));
     c.subscriptions.push(languages.registerCompletionItemProvider(ui5Xml, new I18NCompletionItemProvider()));
+    c.subscriptions.push(languages.registerCompletionItemProvider(ui5TsControllers, new IDCompletionProvider()));
 
     // Definitionproviders
     c.subscriptions.push(languages.registerDefinitionProvider(ui5View, new ViewFragmentDefinitionProvider()));
@@ -296,4 +300,39 @@ interface IXmlInitOptions {
      * @memberOf XmlInitOptions
      */
     storagepath: string;
+}
+
+async function startTypescriptLanguageService(): Promise<void> {
+    // 1. Get TsConfig
+    let options: ts.CompilerOptions;
+    try {
+        const tsconfiguri = await workspace.findFiles("**/manifest.json", undefined);
+        const tsconfig = JSON.parse((await workspace.openTextDocument(tsconfiguri[0])).getText());
+        options = ts.convertCompilerOptionsFromJson(tsconfig.compilerOptions, workspace.rootPath).options;
+    } catch (error) {
+        options = ts.getDefaultCompilerOptions();
+    }
+    // 2. Get traced files
+    const files = (await workspace.findFiles("**/*.ts", undefined)).map(x => x.fsPath);
+
+    // 3. Setup Language Service Host
+    const servicesHost: ts.LanguageServiceHost = {
+        getScriptFileNames: () => files,
+        getScriptVersion: (fileName) => files[fileName] && files[fileName].version.toString(),
+        getScriptSnapshot: (fileName) => {
+            if (!fs.existsSync(fileName)) {
+                return undefined;
+            }
+
+            return ts.ScriptSnapshot.fromString(fs.readFileSync(fileName).toString());
+        },
+        getCurrentDirectory: () => process.cwd(),
+        getCompilationSettings: () => options,
+        getDefaultLibFileName: (opt) => ts.getDefaultLibFilePath(opt),
+        fileExists: ts.sys.fileExists,
+        readFile: ts.sys.readFile,
+        readDirectory: ts.sys.readDirectory,
+    };
+
+    ui5tsglobal.tsproxy = ts.createLanguageService(servicesHost);
 }
