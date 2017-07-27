@@ -1,23 +1,23 @@
 # ui5ts Extension
 
 > **Important Note**<br/>
-> In Version `0.4.0` The settings were restructured. Please check your workspace settings and adjust it accordingly.
+> In Version `0.4.0` The settings were restructured. This did not work, as vscode could not display it this way in the contribution section. Please check your workspace settings and adjust it accordingly. I am sorry for the inconvenience.
 
 This extension improves the experience using UI5 with typescript. It is also targeted to give a quicker start in developing UI5, but also more experieced users may have a profit.
 
 It is currently work in progress. It also may benefit js programming, as I try to keep all filesearches to both, ts and js file endings. Please let me know on github, if something mentioned below does not work for js.
 
+Since version 0.4.0, though, the typescript compiler and its language server are part of the extension to improve the editing experience. goto providers, refactoring, linting and other editing features are exclusive to typescript development in the future.
+
 ## Disclaimer
 
 > This extension is not officially supported by SAP or the openUi5 team. It is currently in an early development phase, so [please report any issues](https://github.com/apazureck/openui5vscodeTypescriptTools/issues) you have. If you want to contribute, feel free to conatct me via [Github](https://github.com/apazureck/openui5vscodeTypescriptTools/issues). I will also update it quite frequently for the next time, which may cause some new bugs.
 
-## What is new in Version 0.4.0
+## What is new in Version 0.5.0
 
-* GoTo Event on Controller (typescript only)
-* GoTo Controller from Fragment
-* Better XML Autocomplete
-* Hover Providers for XML Views
-* Code Lens for event handlers (callbacks) on typescript controllers
+* ID Completion when using byId() method of controller class
+* GoTo Event callback from fragment (+ improved navigation with typescript language service)
+* Check for missing controller files in xml views
 
 ## Features
 
@@ -31,7 +31,6 @@ It is currently work in progress. It also may benefit js programming, as I try t
   * Code completion for labels in XML views
   * Autogeneration for labels (via Command and CodeAction)
   * Peek and Goto i18n label definition (XML view)
-  * Show label text on hover (XML view)
 * **manifest.json** support
   * JSON Schema
   * Autocomplete for routings
@@ -41,11 +40,14 @@ It is currently work in progress. It also may benefit js programming, as I try t
   * Simple check for well-formed xml files
   * Check for double attributes
   * Hover support for Elements and Attributes
+  * Check for missing controller
 * **Project Template** with auto compile, bower support and browser sync
   * [Check out this repo for now](https://github.com/apazureck/UI5TypescriptDeclarations/tree/master/generator)
   * Will be included in one of the next releases, if stable enough
 * **Code Lens**
   * Code lens for events referenced in XML views (on Typescript Controllers)
+* **Typescript**
+  * Autocompletion for ID (works only for byId() method and will be improved in future releases)
 
 ## Requirements
 
@@ -116,13 +118,8 @@ If you have useful snippets to share please [let me know](https://github.com/apa
 
 This is a early release, therefore, functionallity is very limited and the functions provided are not stable and may not work in all circumstances. If you confront any problems let me know by [creating an issue](https://github.com/apazureck/openui5vscodeTypescriptTools/issues) on github.
 
-1. ~~Autocomplete in xml views at the root level does not work properly. Will be fixed in the next release (~17-03-25)~~
-1. ~~Autocomplete for attributes does sometimes not work as intended (may be caused by Issue 1). Will be fixed in the next release (~17-03-25)~~
-1. ~~Autocomplete does not show correct elements when cursor is in an attribute. For example `<Page><content>!Cursorpos!</content>` will sometimes not display the correct elements.~~
-1. ~~Navigation from fragment to controllers does not work for now. Will be fixed in the next release (~17-03-25)~~
-1. ~~Go to controller/view/fragment may not work at the fist time. This is due to the fact, that the namespace mappings will be triggered first. *Workaround:* Try it a few times.~~
-
-Problems are caused by splitting up xml linting functionallity and ui5 xml providers. Furthermore, a new algorithm for finding elements was introduced, which may be buggy some times. My apologies for the inconvenience.
+1. The extension always bothers that no manifest.json is found. This may be an activation issue and will be addressed in the future.
+1. XML autocomplete is sometimes not working (for example at closing brackets) and insertion of completed code is causing some brackets to be double. This will be addressed in the future.
 
 ## Contribution welcome
 
@@ -143,6 +140,7 @@ To get to the Insiders Mode just go to your **User Settings** and set `"ui5ts.in
 ### Currently Available in Insiders Mode
 
 * Go to Module and function (javascript)
+* Rename Callback (This will prevent typescript to proceed rename, if callback is found in xml view)
 
 ## Special Thanks to
 

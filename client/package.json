@@ -3,7 +3,7 @@
     "displayName": "openui5 Typescript Tool",
     "license": "MIT",
     "description": "A typescript extension for openui5",
-    "version": "0.4.1",
+    "version": "0.5.0",
     "versvsce publishion": "0.1.0",
     "publisher": "apazureck",
     "engines": {
@@ -44,11 +44,14 @@
         }
     },
     "contributes": {
-        "jsonValidation": [{
-            "fileMatch": "manifest.json",
-            "url": "./jsonschemas/manifest.schema.json"
-        }],
-        "snippets": [{
+        "jsonValidation": [
+            {
+                "fileMatch": "manifest.json",
+                "url": "./jsonschemas/manifest.schema.json"
+            }
+        ],
+        "snippets": [
+            {
                 "language": "typescript",
                 "path": "./snippets/typescript.json"
             },
@@ -57,7 +60,8 @@
                 "path": "./snippets/xml.json"
             }
         ],
-        "commands": [{
+        "commands": [
+            {
                 "category": "UI5 Edit",
                 "command": "ui5ts.SwitchToController",
                 "title": "Swtich to Controller"
@@ -84,7 +88,8 @@
             }
         ],
         "menus": {
-            "editor/context": [{
+            "editor/context": [
+                {
                     "when": "resourceLangId == xml",
                     "command": "ui5ts.SwitchToController",
                     "group": "navigation"
@@ -118,7 +123,8 @@
                     "type": "number",
                     "default": 4,
                     "description": "Loglevel of the XML language server. Debug: 0, Warning: 1, Error: 2, None, 3. A low loglevel may cause language server to slow down.",
-                    "oneOf": [{
+                    "oneOf": [
+                        {
                             "description": "Debug",
                             "enum": [
                                 0
@@ -174,7 +180,8 @@
                 }
             }
         },
-        "keybindings": [{
+        "keybindings": [
+            {
                 "command": "ui5ts.SwitchToController",
                 "key": "f7",
                 "when": "editorTextFocus"
