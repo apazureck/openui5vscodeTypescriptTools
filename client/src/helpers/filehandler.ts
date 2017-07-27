@@ -1,9 +1,9 @@
 import * as fs from "fs";
-import * as log from "./logging";
 import * as ncp from "ncp";
 import * as path from "path";
 import * as rrd from "recursive-readdir";
 import * as vscode from "vscode";
+import * as log from "./logging";
 
 export class FileHandler {
 
@@ -93,7 +93,7 @@ export class File {
      * @param {string} [startdir] dir to start (if none is given workspace is taken)
      * @returns {string[]} files
      * @memberof File
-    */
+     */
     public static findSync(pattern: RegExp | string, startdir?: string, ignore?: string[]): string[] {
         startdir = startdir ? startdir : vscode.workspace.rootPath;
         const regex = typeof pattern === "string" ? new RegExp(pattern as string) : pattern as RegExp;

@@ -3,6 +3,8 @@ import { workspace } from "vscode";
 export enum LogLevel {
     Debug, Information, Warning, Error, None,
 }
+
+export type VsCodeSeverityLevel = "Error" | "Information" | "Warning" | "Hint";
 export class Settings {
     private config = workspace.getConfiguration("ui5ts");
     get manifestlocation(): string {
@@ -22,5 +24,9 @@ export class Settings {
     }
     get insiders(): boolean {
         return this.config.get("insiders", false) as boolean;
+    }
+
+    get "lang.xml.linter.controller"(): VsCodeSeverityLevel {
+        return this.config.get("lang.xml.linter.controller", "Error") as VsCodeSeverityLevel;
     }
 }

@@ -3,7 +3,7 @@
     "displayName": "openui5 Typescript Tool",
     "license": "MIT",
     "description": "A typescript extension for openui5",
-    "version": "0.4.1",
+    "version": "0.5.0",
     "versvsce publishion": "0.1.0",
     "publisher": "apazureck",
     "engines": {
@@ -32,6 +32,17 @@
         "onCommand:ui5ts.AddSchemaToStorage"
     ],
     "main": "./out/src/extension",
+    "definitions": {
+        "severity": {
+            "type": "string",
+            "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information"
+            ]
+        }
+    },
     "contributes": {
         "jsonValidation": [
             {
@@ -98,84 +109,74 @@
         "configuration": {
             "title": "Settings for UI5 Typescript extension",
             "properties": {
-                "ui5ts": {
-                    "type": "object",
-                    "properties": {
-                        "lang": {
-                            "type": "object",
-                            "properties": {
-                                "i18n": {
-                                    "description": "Settings for internationalization (i18n)",
-                                    "type": "object",
-                                    "properties": {
-                                        "modelname": {
-                                            "type": "string",
-                                            "default": "i18n",
-                                            "description": "Sets the name for the i18n model, if not the default name is used. It is used for code completion when referenced on views."
-                                        },
-                                        "modelfilelocation": {
-                                            "type": "string",
-                                            "default": "./i18n/i18n.properties",
-                                            "description": "Location of the i18n file used for code completion."
-                                        }
-                                    }
-                                },
-                                "xml": {
-                                    "description": "Settings for the XML language server",
-                                    "type": "object",
-                                    "properties": {
-                                        "LogLevel": {
-                                            "type": "number",
-                                            "default": 4,
-                                            "description": "Loglevel of the XML language server. Debug: 0, Warning: 1, Error: 2, None, 3. A low loglevel may cause language server to slow down.",
-                                            "oneOf": [
-                                                {
-                                                    "description": "Debug",
-                                                    "enum": [
-                                                        0
-                                                    ]
-                                                },
-                                                {
-                                                    "description": "Information",
-                                                    "enum": [
-                                                        1
-                                                    ]
-                                                },
-                                                {
-                                                    "description": "Warning",
-                                                    "enum": [
-                                                        2
-                                                    ]
-                                                },
-                                                {
-                                                    "description": "Error",
-                                                    "enum": [
-                                                        3
-                                                    ]
-                                                },
-                                                {
-                                                    "description": "None",
-                                                    "enum": [
-                                                        4
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            }
+                "ui5ts.lang.i18n.modelname": {
+                    "type": "string",
+                    "default": "i18n",
+                    "description": "Sets the name for the i18n model, if not the default name is used. It is used for code completion when referenced on views."
+                },
+                "ui5ts.lang.i18n.modelfilelocation": {
+                    "type": "string",
+                    "default": "./i18n/i18n.properties",
+                    "description": "Location of the i18n file used for code completion."
+                },
+                "ui5ts.lang.xml.LogLevel": {
+                    "type": "number",
+                    "default": 4,
+                    "description": "Loglevel of the XML language server. Debug: 0, Warning: 1, Error: 2, None, 3. A low loglevel may cause language server to slow down.",
+                    "oneOf": [
+                        {
+                            "description": "Debug",
+                            "enum": [
+                                0
+                            ]
                         },
-                        "manifestlocation": {
-                            "type": "string",
-                            "description": "Relative location of manifest.json file from your workspace root. Will be asked and set, if multiple files are found",
-                            "default": null
+                        {
+                            "description": "Information",
+                            "enum": [
+                                1
+                            ]
                         },
-                        "insiders": {
-                            "type": "boolean",
-                            "default": false,
-                            "description": "Activates the insiders mode. Will contain more functionality, but may also be more buggy."
+                        {
+                            "description": "Warning",
+                            "enum": [
+                                2
+                            ]
+                        },
+                        {
+                            "description": "Error",
+                            "enum": [
+                                3
+                            ]
+                        },
+                        {
+                            "description": "None",
+                            "enum": [
+                                4
+                            ]
                         }
-                    }
+                    ]
+                },
+                "ui5ts.lang.xml.linter.controller": {
+                    "title": "Controller Diagnostic",
+                    "description": "Diagnostic level when controller is not found in xml view",
+                    "default": "Error",
+                    "type": "string",
+                    "enum": [
+                        "Error",
+                        "Warning",
+                        "Hint",
+                        "Information"
+                    ]
+                },
+                "ui5ts.manifestlocation": {
+                    "type": "string",
+                    "description": "Relative location of manifest.json file from your workspace root. Will be asked and set, if multiple files are found",
+                    "default": null
+                },
+                "ui5ts.insiders": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Activates the insiders mode. Will contain more functionality, but may also be more buggy."
                 }
             }
         },
@@ -199,25 +200,29 @@
     },
     "devDependencies": {
         "@types/fs-finder": "^1.8.28",
+        "@types/glob": "^5.0.30",
         "@types/mocha": "^2.2.41",
-        "@types/node": "^8.0.7",
+        "@types/node": "^8.0.15",
         "gulp": "^3.9.1",
         "gulp-util": "^3.0.8",
         "gulpclass": "^0.1.2",
         "mocha": "^3.4.2",
-        "run-sequence": "^1.2.2",
-        "typescript": "^2.4.1",
-        "vscode": "^1.1.1",
+        "run-sequence": "^2.0.0",
+        "typescript": "^2.4.2",
+        "vscode": "^1.1.4",
         "vscode-languageclient": "^3.3.0"
     },
     "dependencies": {
         "linq-es6": "^0.2.1",
         "ncp": "^2.0.0",
         "recursive-readdir": "^2.2.1",
-        "typescript": "^2.4.1",
+        "typescript": "^2.4.2",
         "vscode-languageclient": "^3.3.0",
         "xml2js": "^0.4.17",
-        "xmlchecker": "^0.1.0"
+        "xmlchecker": "^0.1.0",
+        "path": "0.12.7",
+        "fs": "0.0.1-security",
+        "glob": "7.1.2"
     },
     "bugs": {
         "url": "https://github.com/apazureck/openui5vscodeTypescriptTools/issues"

@@ -6,20 +6,41 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-### Added
+### Add
 
 * Typescript AMD declaration generator
 * Project generator (with browser sync)
-* GoTo Controller(s) from Fragments
 * CodeLens for fragments
 * Custom Typescript compiler to get better UI5 Syntax
 * XML Diagnostics for Elements, Attributes and their values
 * Autocomplete for XML base types (boolean)
 * JSON view JSON schemas
+* Show I18n label text on hover (XML view)
+* I18n multiple files support from manifest json (no setting needed anymore)
+
+## [0.5.0] - 2017-07-28 - Productivity update
+
+### Added
+
+* Goto Event Callback from fragment
+* Rename event callbacks in typescript files will also rename them in views / fragments (Insiders - buggy - wait for vscode team)
+* Check for missing controller in xml view
+* GoTo Controller(s) from Fragments
+
+### Changed
+
+* CodeLens Callback provider does not show up when no callbacks are given
+* Settings structure back to old scheme (not compatible with contributions site)
 
 ### Fixed
 
+* I18n Label linter stopped working
+* Goto i18n Label stopped working (#27)
+* Callback display does not work when callback is in fragment (#29)
+* Goto event handler does not work on async methods (#28)
+* Extension startup does not create namespace mappings and manifest location
 * Path resolving in manifest.json (Router section)
+* Views not found in targets section of manifest.json
 
 ## [0.4.1] - 2017-06-30 - XML Server Fix
 
