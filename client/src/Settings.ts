@@ -5,28 +5,25 @@ export enum LogLevel {
 }
 
 export type VsCodeSeverityLevel = "Error" | "Information" | "Warning" | "Hint";
+
 export class Settings {
     private config = workspace.getConfiguration("ui5ts");
-    get manifestlocation(): string {
-        return this.config.get<string>("manifestlocation", null);
+    get Manifestlocation() : string {
+        return this.config.get("manifestlocation", null);
     }
-    set manifestlocation(absolutepath: string) {
-        (this.config as any).update("manifestlocation", workspace.asRelativePath(absolutepath));
+    get Modelname_i18n(): string {
+        return this.config.get("lang.i18n.modelname", "i18n");
     }
-    get "lang.i18n.modelname"(): string {
-        return this.config.get("lang.i18n.modelname", "i18n") as string;
+    get Modelfilelocation_i18n(): string {
+        return this.config.get("lang.i18n.modelfilelocation", "./i18n/i18n.properties");
     }
-    get "lang.i18n.modelfilelocation"(): string {
-        return this.config.get("lang.i18n.modelfilelocation", "./i18n/i18n.properties") as string;
+    get LogLevel_xml(): LogLevel {
+        return this.config.get("lang.xml.LogLevel", 4);
     }
-    get "lang.xml.LogLevel"(): LogLevel {
-        return this.config.get("lang.xml.LogLevel", 4) as LogLevel;
+    get Insiders(): boolean {
+        return this.config.get("insiders", false);
     }
-    get insiders(): boolean {
-        return this.config.get("insiders", false) as boolean;
-    }
-
-    get "lang.xml.linter.controller"(): VsCodeSeverityLevel {
-        return this.config.get("lang.xml.linter.controller", "Error") as VsCodeSeverityLevel;
+    get Linter_Controller_xml(): VsCodeSeverityLevel {
+        return this.config.get("lang.xml.linter.controller", "Error");
     }
 }

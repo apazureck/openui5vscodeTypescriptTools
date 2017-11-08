@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch1 Chrome against localhost",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceRoot}"
+        },
+        {
+            "name": "Launch2 chrome ext with sourcemaps",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:3000/",
+            "sourceMaps": true,
+            "webRoot": "${workspaceRoot}/webapp",
+            "runtimeExecutable": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+            "runtimeArgs": ["--new-window", "--user-data-dir=c:\\temp\\chromeuserdata", "--disable-session-crashed-bubble"],
+            "port": 9222
+          }
+    ]
+}

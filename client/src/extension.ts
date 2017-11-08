@@ -50,7 +50,8 @@ export namespace ui5tsglobal {
     export const name = "ui5-ts";
     export const core: Ui5Extension = new Ui5Extension();
     export let config: Settings = new Settings();
-
+    // Filter defines the excluded folders while finding ui5 components. Note: no spaces aftre comma
+    export const ExcludeFilter: string = "**/{bower_components,node_modules,resources}/**";
     export let tsproxy: ts.LanguageService;
 }
 
@@ -135,11 +136,11 @@ export async function activate(c: ExtensionContext) {
     c.subscriptions.push(languages.registerCodeLensProvider(ui5TsControllers, new Ui5EventHandlerCodeLensProvider()));
 
     // Rename Providers
-    if (ui5tsglobal.config.insiders) {
+    if (ui5tsglobal.config.Insiders) {
         c.subscriptions.push(languages.registerRenameProvider(ui5TsControllers, new CallbackRenameProvider()));
     }
 
-    if (ui5tsglobal.config.insiders) {
+    if (ui5tsglobal.config.Insiders) {
         c.subscriptions.push(languages.registerReferenceProvider(javascript, new ModuleReferenceProvider()));
     }
 }
@@ -165,35 +166,39 @@ function createDiagnosticSubscriptions(c: ExtensionContext, diags: IDiagnose[]) 
             diag.diagnose(otd);
 }
 
-async function getManifestLocation() {
-    try {
-        // Get manifest location if not set in workspace settings.
-        if (!ui5tsglobal.config.manifestlocation) {
-            const workspaceroot = workspace.rootPath;
-            let manifest = await workspace.findFiles("**/manifest.json", "");
-            manifest = await filterAsync(manifest, async x => await isUi5Manifest(x));
-            let val: string;
-            if (manifest.length < 1) {
-                window.showWarningMessage("Could not find any manifest.json in your project. Please set the path to your manifest.json file in the workspace settings.");
-                return;
-            } else if (manifest.length > 1) {
-                // window.showInformationMessage("Multiple manifests found");
-                val = (await window.showQuickPick(manifest.map(x => ({ label: path.relative(workspace.rootPath, x.fsPath), description: x.fsPath })) as QuickPickItem[], { ignoreFocusOut: true, placeHolder: "Multiple manifest.json files found. Please pick which one to add to your workspace config." })).label;
-                window.showInformationMessage("Set manifest.json path to workspace settings");
-            } else {
-                val = manifest[0].fsPath;
-            }
-            ui5tsglobal.config.manifestlocation = val;
+/** Gets the manifest location depended on the settings or workspace search */
+export async function getManifestLocation() {
+    let manifestlocation : string;
+    if (ui5tsglobal.config.Manifestlocation && ui5tsglobal.config.Manifestlocation.length > 0) {
+        manifestlocation = ui5tsglobal.config.Manifestlocation;
+        if(await !isUi5Manifest){
+            window.showWarningMessage("Could not find a valid manifest.json in your project. Please set the path to a valid ui5 manifest.json file in the workspace settings.");
+            return;
         }
-        if (ui5tsglobal.config.manifestlocation) {
-            // window.showInformationMessage("UI5ts is using '" + (path.dirname(ui5tsglobal.config.get("manifestlocation") as string).length > 0 ? path.dirname(ui5tsglobal.config.get("manifestlocation") as string) : "./") + "' as project location. You can change that in your workspace settings.");
-            ui5tsglobal.core.absoluteRootPath = path.dirname(path.join(workspace.rootPath, ui5tsglobal.config.manifestlocation));
-            ui5tsglobal.core.relativeRootPath = path.dirname(ui5tsglobal.config.manifestlocation as string);
+    }else{
+        let manifest = await workspace.findFiles("**/manifest.json", ui5tsglobal.ExcludeFilter);
+        manifest = await manifest.filter(async x => await isUi5Manifest(x));
+        let val: string;
+        if (manifest.length < 1) {
+            window.showWarningMessage("Could not find any valid manifest.json in your project. Please set the path to a valid ui5 manifest.json file in the workspace settings.");
+            return;
+        } else if (manifest.length > 1) {
+            manifestlocation = ( await window.showQuickPick(
+                manifest.map(x => ({ label: path.relative(workspace.rootPath, x.fsPath), description: x.fsPath })) as QuickPickItem[], 
+                { 
+                    ignoreFocusOut: true, 
+                    placeHolder: "Multiple manifest.json files found. Please pick which one to use." 
+                }
+            )).label;
+            window.showInformationMessage("To use the manifset file permanant, set it in the workspace settings!");
+        } else {
+            manifestlocation = manifest[0].fsPath;
         }
-
-    } catch (error) {
-        // Do nothing
+        manifestlocation = workspace.asRelativePath(manifestlocation)
     }
+    ui5tsglobal.core.absoluteRootPath = path.dirname(path.join(workspace.rootPath, manifestlocation));
+    ui5tsglobal.core.relativeRootPath = path.dirname(manifestlocation);
+    log.printInfo("Using \"" + ui5tsglobal.core.relativeRootPath + "\" as project location." );
 }
 
 async function filterAsync<S>(inarray: S[], callback: (value: S, index: number, array: S[]) => Promise<boolean>): Promise<S[]> {
@@ -217,10 +222,11 @@ async function isUi5Manifest(uri: Uri): Promise<boolean> {
     }
 }
 
-async function getAllNamespaceMappings() {
+/**Maps the resource root defined normally in index.html with keyword 'data-sap-ui-resourceroots' to variable namespacemappings */
+export async function getAllNamespaceMappings() {
     ui5tsglobal.core.namespacemappings = {};
     // search all html files
-    const docs = await (workspace as any).findFiles("**/*.{html,htm}");
+    const docs = await (workspace as any).findFiles("**/*.{html,htm}", ui5tsglobal.ExcludeFilter);
     for (const doc of docs) {
         try {
             const text = (await workspace.openTextDocument(doc)).getText();
@@ -236,18 +242,19 @@ async function getAllNamespaceMappings() {
                 const key = entry[0].trim();
                 const val = entry[1].trim();
                 log.printInfo("Found " + key + " to replace with " + val);
-                ui5tsglobal.core.namespacemappings[key.substr(1, key.length - 2)] = val.substr(1, val.length - 2);
+                //ui5tsglobal.core.namespacemappings[key.substr(1, key.length - 2)] = val.substr(1, val.length - 2);
             }
         } catch (error) {
             // Do nothing;
         }
     }
-    console.info(ui5tsglobal.core.namespacemappings);
+    //console.info(ui5tsglobal.core.namespacemappings);
 }
 
 // this method is called when your extension is deactivated
 // export function deactivate() {
 // }
+
 
 function startXmlViewLanguageServer(c: ExtensionContext): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -302,11 +309,12 @@ interface IXmlInitOptions {
     storagepath: string;
 }
 
-async function startTypescriptLanguageService(): Promise<void> {
+/** Starts the typescript language server and sores it in the ui5tsglobal.tsproxy variable */
+export async function startTypescriptLanguageService(): Promise<void> {
     // 1. Get TsConfig
     let options: ts.CompilerOptions;
     try {
-        const tsconfiguri = await workspace.findFiles("**/manifest.json", undefined);
+        const tsconfiguri = await workspace.findFiles("**/tsconfig.json", ui5tsglobal.ExcludeFilter);
         const tsconfig = JSON.parse((await workspace.openTextDocument(tsconfiguri[0])).getText());
         options = ts.convertCompilerOptionsFromJson(tsconfig.compilerOptions, workspace.rootPath).options;
     } catch (error) {

@@ -1,0 +1,138 @@
+{
+  "_version": "1.1.0",
+  "sap.app": {
+    "_version": "1.1.0",
+    "id": "com.test.blindapp",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "applicationVersion": {
+      "version": "1.0.0"
+    }
+  },
+  "sap.ui": {
+    "_version": "1.1.0",
+    "technology": "UI5",
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    },
+    "supportedThemes": [
+      "sap_hcb",
+      "sap_bluecrystal",
+      "sap_belize"
+    ]
+  },
+  "sap.ui5": {
+    "_version": "1.1.0",
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "rootView": {
+      "viewName": "sap.ui.demo.toolpageapp.view.rootApp",
+      "type": "XML",
+      "id": "app"
+    },
+    "dependencies": {
+      "minUI5Version": "1.40.0",
+      "libs": {
+        "sap.ui.core": {},
+        "sap.m": {},
+        "sap.tnt": {},
+        "sap.ui.commons": {}
+      }
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "sap.ui.demo.toolpageapp.i18n.i18n"
+        }
+      }
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlId": "mainContents",
+        "viewType": "XML",
+        "controlAggregation": "pages",
+        "viewPath": "sap.ui.demo.toolpageapp.view",
+        "async": true
+      },
+      "routes": [
+        {
+          "pattern": "",
+          "name": "backuprestore",
+          "target": "backuprestore"
+        },
+        {
+          "pattern": "backup",
+          "name": "backup",
+          "target": "backup"
+        },
+        {
+          "pattern": "restore",
+          "name": "restore",
+          "target": "restore"
+        },
+        {
+          "pattern": "expertconfig",
+          "name": "expertconfig",
+          "target": "expertconfig"
+        },
+        {
+          "pattern": "config",
+          "name": "config",
+          "target": "config"
+        },
+        {
+          "pattern": "parameterset",
+          "name": "parameterset",
+          "target": "parameterset"
+        },
+        {        
+          "pattern": "category",
+          "name": "category",
+          "target": "category"
+        }, 
+        {       
+          "pattern": "jobtype",
+          "name": "jobtype",
+          "target": "jobtype"
+        }
+      ],
+      "targets": {
+        "backuprestore": {
+          "viewName": "Root1"
+        },
+        "restore": {
+          "viewName": "Root1"
+        },
+        "backup": {
+          "viewName": "Root1"
+        },
+        "expertconfig": {
+          "viewName": "Root1Child1"
+        },
+        "config": {
+          "viewName": "Root1Child2"
+        },
+        "parameterset": {
+          "viewName": "Root2"
+        },
+        "category": {
+          "viewName": "Root2"
+        },
+        "jobtype": {
+          "viewName": "Root2"
+        },
+        "page3": {
+          "viewName": "Root3"
+        }
+      }
+    }
+  }
+}

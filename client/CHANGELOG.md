@@ -17,6 +17,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 * JSON view JSON schemas
 * Show I18n label text on hover (XML view)
 * I18n multiple files support from manifest json (no setting needed anymore)
+* Client-Test project for testing (Quality)
+
+### Changed
+
+* Manifestlocation is not set anymore automatically, because delayed update of settings.json 
+
+ ### Fixed
+* ExcludeFilter added while searching files in the workspace (ExcludeFilter: "bower_components,node_modules,resources")
+* startTypescriptLanguageService points to the manifest.json but must be tsconfig.json. This is solved now
 
 ## [0.5.0] - 2017-07-28 - Productivity update
 
