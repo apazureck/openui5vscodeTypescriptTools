@@ -5,7 +5,7 @@ import { ui5tsglobal } from "../extension";
 
 export const viewFileEx = ".view.{xml,json}";
 export const namespaceformat = /^(\w+\.?)+\w+$/;
-export const controllerFileEx = ".controller.ts";
+export const controllerFileEx = ".controller.{ts,js}";
 export const fragmentFileEx = ".fragment.{xml,json}";
 
 export interface IFoundNode<T extends ts.Node> {
@@ -68,10 +68,8 @@ export async function getViewsForController(cname: string, includeFragments?: bo
     return ret;
 }
 
-export async function getControllersUsedByViews(viewContents: string[]): Promise<{
-    controllerName: string,
-    fileUri: Uri,
-}[]> {
+
+export async function getControllersUsedByViews(viewContents: string[]): Promise<{ controllerName: string, fileUri: Uri,}[]> {
 
     const controllerDictionary: {
         [key: string]: Uri;
@@ -80,12 +78,9 @@ export async function getControllersUsedByViews(viewContents: string[]): Promise
     for (const text of viewContents) {
         try {
             const tag = text.match(/controllerName=(["'])([\w\.]+)\1/);
+            if (!tag) {continue;}
 
-            if (!tag) {
-                continue;
-            }
-            const ex = ui5tsglobal.core;
-            const cname = ex.GetRelativePath(tag[2]) + controllerFileEx;
+            const cname = ui5tsglobal.core.GetRelativePath(tag[2]) + controllerFileEx;
             const uris = await workspace.findFiles(cname, undefined);
             if (uris && uris.length > 0)
                 controllerDictionary[tag[2]] = uris[0];

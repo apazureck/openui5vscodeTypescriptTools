@@ -50,8 +50,6 @@ export namespace ui5tsglobal {
     export const name = "ui5-ts";
     export const core: Ui5Extension = new Ui5Extension();
     export let config: Settings = new Settings();
-    // Filter defines the excluded folders while finding ui5 components. Note: no spaces aftre comma
-    export const ExcludeFilter: string = "**/{bower_components,node_modules,resources}/**";
     export let tsproxy: ts.LanguageService;
 }
 
@@ -176,7 +174,7 @@ export async function getManifestLocation() {
             return;
         }
     }else{
-        let manifest = await workspace.findFiles("**/manifest.json", ui5tsglobal.ExcludeFilter);
+        let manifest = await workspace.findFiles("**/manifest.json", ui5tsglobal.config.Excludefilter);
         manifest = await manifest.filter(async x => await isUi5Manifest(x));
         let val: string;
         if (manifest.length < 1) {
@@ -226,7 +224,7 @@ async function isUi5Manifest(uri: Uri): Promise<boolean> {
 export async function getAllNamespaceMappings() {
     ui5tsglobal.core.namespacemappings = {};
     // search all html files
-    const docs = await (workspace as any).findFiles("**/*.{html,htm}", ui5tsglobal.ExcludeFilter);
+    const docs = await (workspace as any).findFiles("**/*.{html,htm}", ui5tsglobal.config.Excludefilter);
     for (const doc of docs) {
         try {
             const text = (await workspace.openTextDocument(doc)).getText();
@@ -242,7 +240,7 @@ export async function getAllNamespaceMappings() {
                 const key = entry[0].trim();
                 const val = entry[1].trim();
                 log.printInfo("Found " + key + " to replace with " + val);
-                //ui5tsglobal.core.namespacemappings[key.substr(1, key.length - 2)] = val.substr(1, val.length - 2);
+                ui5tsglobal.core.namespacemappings[key.substr(1, key.length - 2)] = val.substr(1, val.length - 2);
             }
         } catch (error) {
             // Do nothing;
@@ -314,7 +312,7 @@ export async function startTypescriptLanguageService(): Promise<void> {
     // 1. Get TsConfig
     let options: ts.CompilerOptions;
     try {
-        const tsconfiguri = await workspace.findFiles("**/tsconfig.json", ui5tsglobal.ExcludeFilter);
+        const tsconfiguri = await workspace.findFiles("**/tsconfig.json", ui5tsglobal.config.Excludefilter);
         const tsconfig = JSON.parse((await workspace.openTextDocument(tsconfiguri[0])).getText());
         options = ts.convertCompilerOptionsFromJson(tsconfig.compilerOptions, workspace.rootPath).options;
     } catch (error) {

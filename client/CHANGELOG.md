@@ -18,10 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 * Show I18n label text on hover (XML view)
 * I18n multiple files support from manifest json (no setting needed anymore)
 * Client-Test project for testing (Quality)
+* Support javascript controller switching between controller <-> view
 
 ### Changed
 
-* Manifestlocation is not set anymore automatically, because delayed update of settings.json 
+* Manifestlocation is not set anymore automatically, because delayed update of settings.json
+* ExcludeFilter now setable in the VSCode settings 
 
  ### Fixed
 * ExcludeFilter added while searching files in the workspace (ExcludeFilter: "bower_components,node_modules,resources")

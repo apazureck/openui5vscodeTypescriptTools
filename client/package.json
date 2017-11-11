@@ -173,6 +173,11 @@
                     "description": "Relative location of manifest.json file from your workspace root. Will be asked and set, if multiple files are found",
                     "default": null
                 },
+                "ui5ts.excludefilter": {
+                    "type": "string",
+                    "default": "**/{bower_components,node_modules,resources}/**",
+                    "description": "Excludes folders while searching for ui5 components. Note: No spaces between commas allowed"
+                },
                 "ui5ts.insiders": {
                     "type": "boolean",
                     "default": false,
