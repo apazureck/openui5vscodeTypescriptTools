@@ -1,0 +1,41 @@
+{
+    "ui5jsController": {
+        "description": "Inserts a new UI5 javascript controller",
+        "prefix": "ui5controller",
+        "body": [
+            "sap.ui.define([\"sap/ui/core/mvc/Controller\",",
+            "// Insert your used ui5 elements here to get them loaded",
+            "], function (Controller) {",
+            "    \"use strict\";",
+            "    return Controller.extend(\"${1:namespace}.controller.${TM_FILENAME_BASE/(.*)\\..+$/$1/}\", {",
+            "",
+            "       onAfterRendering: function () {",
+            "",
+            "       },",
+            "",   
+            "       onBeforeRendering: function () {",
+            "",
+            "       },",
+            "",  
+            "       onInit: function () {",
+            "",
+            "       },", 
+            "",  
+            "       onExit: function () {",
+            "",
+            "       }", 
+            "",  
+            "   });",
+            "});"
+        ]
+    },
+    "ui5jscopyright": {
+        "description": "Inserts a copyright comment",
+        "prefix": "ui5copyright",
+        "body": [
+            "/*!",
+            "* (c) Copyright ${1:year}-${2:year} ${3:company}",
+            "*/\n"
+        ]
+    }
+}

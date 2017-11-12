@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 * I18n multiple files support from manifest json (no setting needed anymore)
 * Client-Test project for testing (Quality)
 * Support javascript controller switching between controller <-> view
+* Snippets for javascript added
 
 ### Changed
 
