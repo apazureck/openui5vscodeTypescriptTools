@@ -20,11 +20,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 * Client-Test project for testing (Quality)
 * Support javascript controller switching between controller <-> view
 * Snippets for javascript added
+* empty implemantation for JSCompletionItemProvider (not used at the moment)
 
 ### Changed
 
 * Manifestlocation is not set anymore automatically, because delayed update of settings.json
 * ExcludeFilter now setable in the VSCode settings 
+* Switch to Controller and Switch to View changed withTtoggle between View and Controller (F7) 
 
  ### Fixed
 * ExcludeFilter added while searching files in the workspace (ExcludeFilter: "bower_components,node_modules,resources")
