@@ -65,48 +65,56 @@ export async function SetupUi5(): Promise<void> {
     log.showinfo("Created new project layout");
 }
 
-export async function SwitchToView(): Promise<void> {
-
-    const fullname = ui5tsglobal.core.GetModuleNameFromFilePath(window.activeTextEditor.document.fileName);
-    const views = await getViewsForController(fullname);
-
-    if (views.length < 1)
+/**
+ * Toggle between view and controler such as VStudio pressing F7
+ */
+export async function ToggleBetweenViewAndController(): Promise<void> {
+    const componentname = window.activeTextEditor.document.fileName;
+    if(componentname.endsWith(".xml")){
+        //Its a view
+        const files = await getController(window.activeTextEditor.document);
+        if (files.length > 1) {
+            const pick = await window.showQuickPick<ISelectFileQuickPickItem>(files.map<ISelectFileQuickPickItem>((value, index, array) => {
+                return {
+                    controllerName: value.controllerName,
+                    description: "",
+                    detail: value.fileUri.path,
+                    fileUri: value.fileUri,
+                    label: value.controllerName,
+                };
+            }), {
+                    placeHolder: "Multiple Controllers found. Please select which controller should be used",
+                });
+    
+            await window.showTextDocument(await workspace.openTextDocument(files[0].fileUri));
+        } else if (files.length > 0) {
+            await window.showTextDocument(await workspace.openTextDocument(files[0].fileUri));
+        }
+    }else if(componentname.endsWith(".js") || componentname.endsWith(".ts")){
+        //Its a controller 
+        const fullname = ui5tsglobal.core.GetModuleNameFromFilePath(window.activeTextEditor.document.fileName);
+        const views = await getViewsForController(fullname);
+    
+        if (views.length < 1)
+            return;
+    
+        if (views.length > 1) {
+            window.showInformationMessage("Multiple views found");
+            const pick = await window.showQuickPick(views.map(x => x.path.substring(1)));
+            window.showTextDocument(await workspace.openTextDocument(pick));
+        } else {
+            window.showTextDocument(await workspace.openTextDocument(views[0]));
+        }
+    }else{
         return;
-
-    if (views.length > 1) {
-        window.showInformationMessage("Multiple views found");
-        const pick = await window.showQuickPick(views.map(x => x.path.substring(1)));
-        window.showTextDocument(await workspace.openTextDocument(pick));
-    } else {
-        window.showTextDocument(await workspace.openTextDocument(views[0]));
     }
+
 }
+
 
 interface ISelectFileQuickPickItem extends QuickPickItem {
     controllerName: string;
     fileUri: Uri;
-}
-
-export async function SwitchToController() {
-    const files = await getController(window.activeTextEditor.document);
-
-    if (files.length > 1) {
-        const pick = await window.showQuickPick<ISelectFileQuickPickItem>(files.map<ISelectFileQuickPickItem>((value, index, array) => {
-            return {
-                controllerName: value.controllerName,
-                description: "",
-                detail: value.fileUri.path,
-                fileUri: value.fileUri,
-                label: value.controllerName,
-            };
-        }), {
-                placeHolder: "Multiple Controllers found. Please select which controller should be used",
-            });
-
-        await window.showTextDocument(await workspace.openTextDocument(files[0].fileUri));
-    } else if (files.length > 0) {
-        await window.showTextDocument(await workspace.openTextDocument(files[0].fileUri));
-    }
 }
 
 export async function AddSchemaToStore(): Promise<void> {

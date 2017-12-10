@@ -12,7 +12,7 @@
     "author": {
         "name": "Andreas Pazureck",
         "email": "andreas@pazureck.de",
-        "url": "www.pazureck.de"
+        "url": "http://www.pazureck.de"
     },
     "icon": "img/OpenUI5_logo.png",
     "categories": [
@@ -27,8 +27,7 @@
         "workspaceContains:manifest.json",
         "onLanguage:xml",
         "onLanguage:json",
-        "onCommand:ui5ts.SwitchToController",
-        "onCommand:ui5ts.SwitchToView",
+        "onCommand:ui5ts.ToggleBetweenViewAndController",
         "onCommand:ui5ts.AddSchemaToStorage"
     ],
     "main": "./out/src/extension",
@@ -67,13 +66,8 @@
         "commands": [
             {
                 "category": "UI5 Edit",
-                "command": "ui5ts.SwitchToController",
-                "title": "Swtich to Controller"
-            },
-            {
-                "category": "UI5 Edit",
-                "command": "ui5ts.SwitchToView",
-                "title": "Swtich to View"
+                "command": "ui5ts.ToggleBetweenViewAndController",
+                "title": "Toggle between View and Controller"
             },
             {
                 "category": "XML",
@@ -95,17 +89,17 @@
             "editor/context": [
                 {
                     "when": "resourceLangId == xml",
-                    "command": "ui5ts.SwitchToController",
+                    "command": "ui5ts.ToggleBetweenViewAndController",
                     "group": "navigation"
                 },
                 {
                     "when": "resourceLangId == typescript",
-                    "command": "ui5ts.SwitchToView",
+                    "command": "ui5ts.ToggleBetweenViewAndController",
                     "group": "navigation"
                 },
                 {
                     "when": "resourceLangId == javascript",
-                    "command": "ui5ts.SwitchToView",
+                    "command": "ui5ts.ToggleBetweenViewAndController",
                     "group": "navigation"
                 }
             ]
@@ -191,13 +185,8 @@
         },
         "keybindings": [
             {
-                "command": "ui5ts.SwitchToController",
+                "command": "ui5ts.ToggleBetweenViewAndController",
                 "key": "f7",
-                "when": "editorTextFocus"
-            },
-            {
-                "command": "ui5ts.SwitchToView",
-                "key": "shift+f7",
                 "when": "editorTextFocus"
             }
         ]

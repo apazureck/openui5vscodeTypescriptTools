@@ -17,11 +17,12 @@ import {
     WorkspaceConfiguration,
 } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions, SettingMonitor, TransportKind } from "vscode-languageclient";
-import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, SwitchToController, SwitchToView } from "./commands";
+import { AddI18nLabel, AddSchemaToStore, ResetI18nStorage, ToggleBetweenViewAndController } from "./commands";
 import * as file from "./helpers/filehandler";
 import * as log from "./helpers/logging";
 import { ModuleReferenceProvider } from "./language/js/ModuleReferenceProvider";
 import { IDCompletionProvider } from "./language/ts/IDCompletionProvider";
+import JSCompletionItemProvider from "./language/js/JSCompletionItemProvider";
 import * as defprov from "./language/ui5/Ui5DefinitionProviders";
 import {
     EventCallbackDefinitionProvider,
@@ -90,8 +91,7 @@ export async function activate(c: ExtensionContext) {
 
     // Hook the commands
     // context.subscriptions.push(commands.registerCommand('ui5ts.SetupUi5', commands.SetupUi5));
-    c.subscriptions.push(commands.registerTextEditorCommand("ui5ts.SwitchToView", SwitchToView.bind(context)));
-    c.subscriptions.push(commands.registerTextEditorCommand("ui5ts.SwitchToController", SwitchToController.bind(context)));
+    c.subscriptions.push(commands.registerTextEditorCommand("ui5ts.ToggleBetweenViewAndController", ToggleBetweenViewAndController.bind(context)));
     c.subscriptions.push(commands.registerCommand("ui5ts.AddSchemaToStorage", AddSchemaToStore.bind(context)));
     c.subscriptions.push(commands.registerCommand("ui5ts.CreateNewI18nLabel", AddI18nLabel.bind(context)));
     c.subscriptions.push(commands.registerCommand("ui5ts.ResetI18NStorage", ResetI18nStorage.bind(context)));
@@ -122,6 +122,8 @@ export async function activate(c: ExtensionContext) {
     c.subscriptions.push(languages.registerCompletionItemProvider(ui5Manifest, new ManifestCompletionItemProvider()));
     c.subscriptions.push(languages.registerCompletionItemProvider(ui5Xml, new I18NCompletionItemProvider()));
     c.subscriptions.push(languages.registerCompletionItemProvider(ui5TsControllers, new IDCompletionProvider()));
+    //For the future
+    //c.subscriptions.push(languages.registerCompletionItemProvider(ui5JsControllers, new JSCompletionItemProvider(),"."));
 
     // Definitionproviders
     c.subscriptions.push(languages.registerDefinitionProvider(ui5View, new ViewFragmentDefinitionProvider()));
