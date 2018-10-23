@@ -5,7 +5,7 @@ import { ui5tsglobal } from "../extension";
 
 export const viewFileEx = ".view.{xml,json}";
 export const namespaceformat = /^(\w+\.?)+\w+$/;
-export const controllerFileEx = ".controller.ts";
+export const controllerFileEx = ".controller.{ts,js}";
 export const fragmentFileEx = ".fragment.{xml,json}";
 
 export interface IFoundNode<T extends ts.Node> {
